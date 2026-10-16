@@ -56,3 +56,13 @@ Each server pins a validated snapshot for its lifetime. Restart after rebuilding
 
 The implementation uses [the official Python MCP SDK](https://github.com/modelcontextprotocol/python-sdk), currently the 2.x `MCPServer` API. Tests initialize a genuine SDK client over subprocess stdio, discover all tools, call each, and verify read-only annotations and invalid inputs. Interactive Codex and Claude Code client sessions were not run in the implementation environment.
 
+
+## Example agent workflow
+
+Ask: “Find the tasks table, show its indexes, and explain foreign keys separately from ORM relationships.” Search first, use the returned opaque table ID, and inspect both relationship kinds independently.
+
+MCP exposes diagnostic counts, not diagnostic messages. Read top-level `diagnostics` from the selected saved JSON for message details.
+
+## Pair MCP with agent skills
+
+Install the application-facing [agent skills](./agent-skills.md) for discovery, relationship analysis, diagnostics, and MCP setup. Skills prefer read-only tools and use JSON as a fallback. Installing skills does not register an MCP server; configure the client separately as described above.

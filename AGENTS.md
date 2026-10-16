@@ -46,6 +46,20 @@ Reference validation: `PYTHONDONTWRITEBYTECODE=1 python scripts/validate_referen
 
 For schema questions, prefer available read-only MCP tools, with saved JSON as fallback. Never assume saved metadata proves deployed schema or freshness. `CLAUDE.md` imports this file rather than duplicating instructions.
 
+## Distributable skills
+
+Maintain application-facing skills in `skills/<name>/SKILL.md`, with portable `name`, `description`, and MIT `license` frontmatter. Keep contributor instructions here rather than shipping a development skill in `skills/`. Bundle relative references inside each skill directory. Do not require another installed skill or assume a client tool prefix. Prefer available read-only MCP tools and saved JSON as fallback; keep FK constraints separate from ORM declarations.
+
+Run `python -m unittest tests.test_distributed_skills -v` after changes. This validates YAML, names, bundled references, isolated copy portability, tool examples, and the snapshot fallback against implemented APIs. It does not replace Skills CLI installation checks. Test `npx skills add /absolute/path/to/python-schema-viewer/skills --list` and install into a temporary project with `--skill '*' --agent codex claude-code --yes`; do not install globally for validation. Remote GitHub discovery requires published changes and network access. Report failures accurately.
+
+`skills/` is the distribution source; existing `.agents/skills/` files are legacy local installations, not generated mirrors. Root-level Skills CLI discovery can include them, so select application skill names explicitly. Do not introduce a synchronization script. Keep README and `docs/agent-skills.md` aligned when installation behavior changes.
+
+## Documentation development
+
+Public documentation Markdown lives in `docs/`; the independent VitePress configuration, theme, demo assets, scripts, and Node dependencies live in `.gh-page/`. `srcDir` points to `../docs`, with developer and validation notes explicitly excluded from publication. Keep assets in `.gh-page/public/`. Use Node 22+ and run `npm install` there, then `npm run dev -- --port 5173 --strictPort`. Open `http://127.0.0.1:5173/python-schema-viewer/`. Run `npm run check` for demo tests, the production build, and output link/asset/publication checks. Do not claim a successful preview or build without executing it.
+
+Keep `/python-schema-viewer/` as the Pages base, use base-aware links, and document implemented CLI behavior. The demo preparation script copies the package's actual viewer assets and a synthetic schema; never substitute a reference application's snapshot. Generated demo assets, caches, and dependency directories are ignored. Documentation development must not require importing the Python application or connecting to a database.
+
 ## Security and contribution guidelines
 
 - Model imports execute trusted application code and mapper callbacks; import suppression is not a sandbox. Do not move application imports into viewer, MCP, or skill-installation paths.

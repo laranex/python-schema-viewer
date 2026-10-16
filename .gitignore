@@ -10,6 +10,12 @@ build/
 htmlcov/
 schema-viewer.json
 
+# Documentation development and generated demo assets
+node_modules/
+.gh-page/.vitepress/cache/
+.gh-page/.vitepress/dist/
+.gh-page/public/demo/
+
 # macOS Finder metadata and AppleDouble resource forks
 .DS_Store
 .AppleDouble/
