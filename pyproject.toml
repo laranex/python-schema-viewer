@@ -9,7 +9,7 @@ description = "Framework-independent SQLAlchemy and SQLModel schema snapshots, E
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{name = "Laranex"}]
+authors = [{name = "Soe Thura", email = "thixpin@gmail.com"}]
 dependencies = ["pydantic>=2.7,<3"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -21,7 +21,7 @@ classifiers = [
 sqlalchemy = ["SQLAlchemy>=2.0,<3"]
 sqlmodel = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1"]
 mcp = ["mcp>=2.3,<3"]
-dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "mcp>=2.3,<3", "ruff>=0.8", "build>=1.2", "PyYAML>=6,<7"]
+dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "mcp>=2.3,<3", "ruff>=0.8,<0.18", "build>=1.2", "PyYAML>=6,<7"]
 
 [project.scripts]
 laranex-schema-viewer = "laranex_schema_viewer.cli:main"
@@ -35,5 +35,8 @@ exclude = ["/.agents", "/.claude"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 
 
