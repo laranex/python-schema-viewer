@@ -14,7 +14,7 @@ export default defineConfig({
   cleanUrls: false,
   appearance: true,
   srcDir: '../docs',
-  srcExclude: ['README.md', 'architecture.md', 'validation.md', 'reference-integration.md', 'agent-skills-validation.md'],
+  srcExclude: ['README.md', 'architecture.md', 'validation.md', 'agent-skills-validation.md'],
   vite: {
     publicDir: fileURLToPath(new URL('../public', import.meta.url)),
     // Markdown lives outside the Node project; resolve Vue from this project.

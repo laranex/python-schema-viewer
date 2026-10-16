@@ -7,7 +7,7 @@ import {schema} from '../demo/schema.mjs';
 const dist = path.resolve(fileURLToPath(new URL('../.vitepress/dist/', import.meta.url)));
 const docs = fileURLToPath(new URL('../../docs/', import.meta.url));
 const base = '/python-schema-viewer/';
-const excluded = new Set(['architecture', 'validation', 'reference-integration', 'agent-skills-validation']);
+const excluded = new Set(['architecture', 'validation', 'agent-skills-validation']);
 const output = new Set(await readdir(dist));
 for (const name of await readdir(docs)) {
     if (!name.endsWith('.md') || name === 'README.md') continue;
