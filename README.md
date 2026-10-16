@@ -6,12 +6,12 @@ Build once from model definitions, then browse or query the saved JSON without s
 
 ## Quick start
 
-Requires Python 3.10+. This is an unreleased MVP; install from a local checkout in an isolated environment:
+Requires Python 3.10+. This is an alpha release that is not yet published to PyPI; install from GitHub in an isolated environment:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e '/absolute/path/to/python-schema-viewer[sqlmodel,mcp]'
+python -m pip install 'laranex-schema-viewer[sqlmodel,mcp] @ git+https://github.com/laranex/python-schema-viewer.git'
 
 laranex-schema-viewer build \
   --project-root /absolute/path/to/application \
@@ -33,11 +33,11 @@ Build only trusted modules: imports and mapper callbacks execute application cod
 - [MCP for Codex and Claude Code](docs/mcp.md)
 - [Agent skills](docs/agent-skills.md) and [troubleshooting](docs/troubleshooting.md)
 
-Install agent skills with `npx skills add laranex/python-schema-viewer`. Until these changes are published, use the local `skills/` path; see the [skills guide](docs/agent-skills.md).
+Install agent skills with `npx skills add laranex/python-schema-viewer`; see the [skills guide](docs/agent-skills.md).
 
 ## Contributing
 
-See [AGENTS.md](AGENTS.md) for architecture, development commands, testing, and documentation maintenance. [Validation results](docs/validation.md), [reference integration](docs/reference-integration.md), and [skill verification](docs/agent-skills-validation.md) record executed checks and limitations.
+See [AGENTS.md](AGENTS.md) for architecture, development commands, testing, and documentation maintenance. [Validation](docs/validation.md) and [skill verification](docs/agent-skills-validation.md) describe test coverage and limitations. Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 
 Documentation Markdown lives in `docs/`; VitePress tooling lives in `.gh-page/`:
 
