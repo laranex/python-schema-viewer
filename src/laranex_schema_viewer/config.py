@@ -17,6 +17,7 @@ SECTION = "laranex-schema-viewer"
 DEFAULT_SNAPSHOT = Path("schema-viewer.json")
 MAX_DETECTION_DEPTH = 4
 MODULE_NAME = re.compile(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)*")
+DJANGO_SETTINGS = re.compile(r"""DJANGO_SETTINGS_MODULE["']\s*,\s*["']([A-Za-z_][\w.]*)["']""")
 SKIPPED_DIRECTORIES = {"build", "dist", "docs", "node_modules", "site-packages", "test", "tests",
                        "venv", "__pycache__"}
 
@@ -28,6 +29,7 @@ class ProjectConfig:
     recursive: bool = False
     output: Path | None = None
     orm: str | None = None
+    settings: str | None = None
 
 
 def load_config(project_root: Path) -> ProjectConfig:
@@ -37,7 +39,7 @@ def load_config(project_root: Path) -> ProjectConfig:
         return ProjectConfig()
     with path.open("rb") as file:
         section = tomllib.load(file).get("tool", {}).get(SECTION, {})
-    unknown = set(section) - {"modules", "targets", "recursive", "output", "orm"}
+    unknown = set(section) - {"modules", "targets", "recursive", "output", "orm", "settings"}
     if unknown:
         raise ValueError(f"Unknown [tool.{SECTION}] keys in {path}: {', '.join(sorted(unknown))}")
     for key in ("modules", "targets"):
@@ -49,12 +51,14 @@ def load_config(project_root: Path) -> ProjectConfig:
     output = section.get("output")
     if output is not None and not isinstance(output, str):
         raise ValueError(f"[tool.{SECTION}] output must be a string path")
-    if not isinstance(section.get("orm", ""), str):
-        raise ValueError(f"[tool.{SECTION}] orm must be a string")
+    for key in ("orm", "settings"):
+        if not isinstance(section.get(key, ""), str):
+            raise ValueError(f"[tool.{SECTION}] {key} must be a string")
     return ProjectConfig(
         modules=section.get("modules", []), targets=section.get("targets", []),
         recursive=section.get("recursive", False),
         output=project_root / output if output is not None else None, orm=section.get("orm"),
+        settings=section.get("settings"),
     )
 
 
@@ -82,18 +86,36 @@ def detect_model_module(project_root: Path) -> str:
     raise ValueError(f"Multiple model modules found ({', '.join(names)}); {hint}")
 
 
+def detect_django_settings(project_root: Path) -> str | None:
+    """Read DJANGO_SETTINGS_MODULE from manage.py without running it."""
+    path = project_root / "manage.py"
+    if not path.is_file():
+        return None
+    found = DJANGO_SETTINGS.search(path.read_text(errors="replace"))
+    return found.group(1) if found else None
+
+
 def resolve_snapshot(snapshot: Path | None, project_root: Path) -> Path:
     """Explicit path, else the configured build output, else schema-viewer.json."""
     return snapshot or load_config(project_root).output or DEFAULT_SNAPSHOT
 
 
-def config_section(modules: list[str], recursive: bool, output: str) -> str:
-    invalid = [name for name in modules if not MODULE_NAME.fullmatch(name)]
-    if not modules or invalid:
+def config_section(modules: list[str], recursive: bool, output: str, *,
+                   orm: str | None = None, settings: str | None = None) -> str:
+    """Render the section; Django reads models from settings, so its modules are optional."""
+    invalid = [name for name in [*modules, *filter(None, [settings])] if not MODULE_NAME.fullmatch(name)]
+    if invalid or not (modules or settings):
         raise ValueError(f"Invalid module names: {', '.join(invalid) or '(none)'}")
-    names = ", ".join(json.dumps(name) for name in modules)
-    return (f"[tool.{SECTION}]\nmodules = [{names}]\n"
-            f"recursive = {'true' if recursive else 'false'}\noutput = {json.dumps(output)}\n")
+    lines = [f"[tool.{SECTION}]"]
+    if orm:
+        lines.append(f"orm = {json.dumps(orm)}")
+    if settings:
+        lines.append(f"settings = {json.dumps(settings)}")
+    if modules:
+        lines.append(f"modules = [{', '.join(json.dumps(name) for name in modules)}]")
+        lines.append(f"recursive = {'true' if recursive else 'false'}")
+    lines.append(f"output = {json.dumps(output)}")
+    return "\n".join(lines) + "\n"
 
 
 def add_config(project_root: Path, section: str) -> Path:

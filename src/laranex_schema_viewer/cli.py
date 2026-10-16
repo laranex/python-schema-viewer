@@ -7,8 +7,8 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .config import (DEFAULT_SNAPSHOT, add_config, config_section, detect_model_module, load_config,
-                     resolve_snapshot)
+from .config import (DEFAULT_SNAPSHOT, add_config, config_section, detect_django_settings,
+                     detect_model_module, load_config, resolve_snapshot)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -24,7 +24,8 @@ def main(argv: list[str] | None = None) -> int:
                        help="Default: pyproject.toml config, else the detected models package")
     build.add_argument("--target", action="append", default=[], help="module:metadata/base/registry")
     build.add_argument("--recursive", action="store_true", help="Import every submodule of selected packages")
-    build.add_argument("--orm", help="auto (default), sqlalchemy; default: pyproject.toml config, else auto")
+    build.add_argument("--orm", help="auto, sqlalchemy, or django; default: pyproject.toml config, else auto")
+    build.add_argument("--settings", help="Django settings module; default: config, else manage.py")
     build.add_argument("--output", type=Path, help="Default: pyproject.toml config, else schema-viewer.json")
     serve = commands.add_parser("serve", help="Serve the viewer from a saved snapshot only")
     serve.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
@@ -35,39 +36,53 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "init":
-            try:
-                detected = detect_model_module(args.project_root)
-            except ValueError:
-                detected = ""
-
             def ask(question: str, default: str) -> str:
                 if args.yes:
                     return default
                 answer = input(f"{question} [{default}]: " if default else f"{question}: ")
                 return answer.strip() or default
 
-            modules = [name.strip() for name in ask("Model modules, comma-separated", detected)
-                       .split(",") if name.strip()]
-            recursive = ask("Import submodules recursively? (y/n)", "y").lower().startswith("y")
+            settings = detect_django_settings(args.project_root)
+            if settings:
+                settings = ask("Django settings module", settings)
+                question, detected = "Limit to Django apps or modules, comma-separated (optional)", ""
+            else:
+                try:
+                    detected = detect_model_module(args.project_root)
+                except ValueError:
+                    detected = ""
+                question = "Model modules, comma-separated"
+            modules = [name.strip() for name in ask(question, detected).split(",") if name.strip()]
+            recursive = (not settings and
+                         ask("Import submodules recursively? (y/n)", "y").lower().startswith("y"))
             output = ask("Snapshot output path", DEFAULT_SNAPSHOT.as_posix())
-            path = add_config(args.project_root, config_section(modules, recursive, output))
+            section = config_section(modules, recursive, output, orm="django" if settings else None,
+                                     settings=settings)
+            path = add_config(args.project_root, section)
             print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
         elif args.command == "build":
             from .build import build_document
             from .snapshot import write_snapshot
 
             config = load_config(args.project_root)
+            orm = args.orm or config.orm or "auto"
+            settings = args.settings or config.settings
             modules, targets, recursive = args.module, args.target, args.recursive
             if not modules and not targets:
                 modules, targets = config.modules, config.targets
                 recursive = recursive or config.recursive
-            if not modules and not targets:
+            if orm in ("auto", "django") and not (settings or modules or targets):
+                settings = detect_django_settings(args.project_root)
+                if settings:
+                    print(f"Detected Django settings {settings}")
+            django = orm == "django" or (orm == "auto" and settings)
+            if not django and not modules and not targets:
                 modules, recursive = [detect_model_module(args.project_root)], True
                 print(f"Detected model module {modules[0]}; importing it recursively")
             output = args.output or config.output or DEFAULT_SNAPSHOT
             document = build_document(modules, project_root=args.project_root,
-                                      recursive=recursive, targets=targets,
-                                      orm=args.orm or config.orm or "auto")
+                                      recursive=recursive, targets=targets, orm=orm,
+                                      settings=settings)
             write_snapshot(document, output)
             print(f"Saved {len(document.tables)} tables, {len(document.models)} models, "
                   f"{len(document.relationships)} ORM relationships, "

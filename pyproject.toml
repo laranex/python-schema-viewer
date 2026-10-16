@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: 3.15",
+  "Framework :: Django",
   "Topic :: Database",
   "Topic :: Software Development :: Documentation",
   "Typing :: Typed",
@@ -40,8 +41,9 @@ Changelog = "https://github.com/laranex/python-schema-viewer/blob/main/CHANGELOG
 [project.optional-dependencies]
 sqlalchemy = ["SQLAlchemy>=2.0,<3"]
 sqlmodel = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1"]
+django = ["Django>=4.2,<7"]
 mcp = ["mcp>=2.3,<3"]
-dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "mcp>=2.3,<3", "ruff>=0.8,<0.18", "build>=1.2", "PyYAML>=6,<7"]
+dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "Django>=4.2,<7", "mcp>=2.3,<3", "ruff>=0.8,<0.18", "build>=1.2", "PyYAML>=6,<7"]
 
 [project.scripts]
 laranex-schema-viewer = "laranex_schema_viewer.cli:main"

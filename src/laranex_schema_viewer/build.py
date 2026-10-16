@@ -14,7 +14,8 @@ from .document import SchemaDocument
 
 # ORM name -> top-level package that application imports must already have loaded.
 ADAPTERS = {"sqlalchemy": "sqlalchemy"}
-ORMS = ("auto", *ADAPTERS)
+# Django loads models from settings during django.setup(), so it is selected, not detected.
+ORMS = ("auto", *ADAPTERS, "django")
 
 
 @contextmanager
@@ -61,15 +62,25 @@ def detect_orm(loaded: dict[str, ModuleType]) -> str:
 
 def build_document(
     modules: list[str], *, project_root: Path, recursive: bool = False,
-    targets: list[str] | None = None, orm: str = "auto",
+    targets: list[str] | None = None, orm: str = "auto", settings: str | None = None,
 ) -> SchemaDocument:
     """Load named modules and extract them with the selected or detected ORM adapter.
 
     Run this in a fresh process: Python caches imports and ORMs keep registries.
-    Imports are trusted application code, not a sandbox.
+    Imports are trusted application code, not a sandbox. A Django settings module
+    selects Django; ``modules`` then optionally limit which apps are extracted.
     """
     if orm not in ORMS:
         raise ValueError(f"Unsupported ORM {orm!r}; choose one of {', '.join(ORMS)}")
+    if orm == "django" or (orm == "auto" and settings):
+        if targets:
+            raise ValueError("--target applies only to SQLAlchemy and SQLModel")
+        root = project_root.resolve()
+        with import_context(root):
+            return adapter("django").document_from_settings(
+                settings=settings, modules=modules, project_root=root)
+    if settings:
+        raise ValueError("--settings applies only to Django")
     if not modules and not targets:
         raise ValueError("Supply at least one --module or --target")
     if targets and orm not in ("auto", "sqlalchemy"):
