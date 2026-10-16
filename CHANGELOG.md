@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-17
+
 ### Added
 
 - `build --orm` option and `orm` configuration key to choose the ORM adapter explicitly; `auto` (the default) detects it from the imported modules.
@@ -42,6 +44,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Distributable agent skills, installable with `npx skills add laranex/python-schema-viewer`.
 - Documentation site and security policy.
 
-[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/laranex/python-schema-viewer/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/laranex/python-schema-viewer/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/laranex/python-schema-viewer/releases/tag/v0.1.0
