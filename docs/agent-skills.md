@@ -52,10 +52,10 @@ The CLI manages agent installation paths: Codex uses `.agents/skills/`; Claude C
 
 See [MCP client configuration](./mcp.md) for Codex and Claude Code settings.
 
-1. Install the Python package with the `mcp` extra in an isolated environment. This unreleased MVP supports a local checkout installation:
+1. Install the Python package with the `mcp` extra in an isolated environment:
 
    ```bash
-   python -m pip install -e '/absolute/path/to/python-schema-viewer[mcp]'
+   python -m pip install 'laranex-schema-viewer[mcp]'
    ```
 
 2. Select an existing valid snapshot. Build separately with the appropriate ORM extra only when importing the application's models is part of the task.

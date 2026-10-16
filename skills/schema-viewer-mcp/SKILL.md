@@ -10,10 +10,10 @@ Inspect existing client configuration and installed executables before changing 
 
 ## Configure a client
 
-Use Python 3.10+ and an isolated environment with the `mcp` extra. This package is an unreleased MVP; install from its checkout rather than assuming a PyPI release:
+Use Python 3.10+ and an isolated environment with the `mcp` extra:
 
 ```bash
-python -m pip install -e '/absolute/path/to/python-schema-viewer[mcp]'
+python -m pip install 'laranex-schema-viewer[mcp]'
 ```
 
 The viewer and MCP need no ORM extras after a snapshot has been built. Use absolute executable and snapshot paths, preserving unrelated client settings.

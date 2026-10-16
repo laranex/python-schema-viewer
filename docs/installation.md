@@ -4,14 +4,10 @@
 
 Use Python 3.10 or newer and an isolated virtual environment. SQLAlchemy 2.x and SQLModel support are optional installation extras.
 
-This MVP is installed from source; these instructions do not assume a published PyPI release.
-
 ```bash
-git clone https://github.com/laranex/python-schema-viewer.git
-cd python-schema-viewer
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e '.[sqlmodel,mcp]'
+python -m pip install 'laranex-schema-viewer[sqlmodel,mcp]'
 laranex-schema-viewer --version
 ```
 
@@ -24,12 +20,22 @@ laranex-schema-viewer --version
 | `mcp` | Read-only stdio MCP server |
 | `dev` | ORM, MCP, lint, and Python build dependencies for contributors |
 
-For an existing application's isolated environment, install from an absolute checkout path:
+Install only the extras you need. For example, SQLAlchemy without MCP:
 
 ```bash
-python -m pip install -e '/absolute/path/to/python-schema-viewer[sqlmodel,mcp]'
+python -m pip install 'laranex-schema-viewer[sqlalchemy]'
 ```
 
 Build using an environment that can import your application's dependencies. Once a snapshot exists, the viewer can run without importing the application.
+
+## Install from source
+
+To contribute or try unreleased changes, install an editable checkout:
+
+```bash
+git clone https://github.com/laranex/python-schema-viewer.git
+cd python-schema-viewer
+python -m pip install -e '.[dev]'
+```
 
 Continue with [Quick start](./quick-start.md).

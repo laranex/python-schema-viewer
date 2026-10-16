@@ -20,10 +20,10 @@ If MCP is unavailable, read the selected saved JSON with `laranex_schema_viewer.
 
 ## Build and view
 
-Use the application's environment and package manager. Install the `sqlalchemy` or `sqlmodel` extra, adding `mcp` for MCP use. This MVP is unreleased; use its documented local-checkout installation when registry installation is unavailable.
+Use the application's environment and package manager. Install the `sqlalchemy` or `sqlmodel` extra, adding `mcp` for MCP use.
 
 ```bash
-python -m pip install -e '/absolute/path/to/python-schema-viewer[sqlmodel,mcp]'
+python -m pip install 'laranex-schema-viewer[sqlmodel,mcp]'
 laranex-schema-viewer build --project-root /path/to/application --module myapp.models --recursive --output /path/to/schema-viewer.json
 laranex-schema-viewer serve --snapshot /path/to/schema-viewer.json
 laranex-schema-viewer mcp --snapshot /path/to/schema-viewer.json
