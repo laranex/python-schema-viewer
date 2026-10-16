@@ -4,6 +4,14 @@
 
 `Could not find a version that satisfies the requirement laranex-schema-viewer (from versions: none)` usually means pip is running on Python older than 3.10, such as the `python3` bundled with macOS. Check with `python3 --version`, then install with Python 3.10+ or uv; see [installation](./installation.md).
 
+## Modules declare models for several ORMs
+
+`build` detects the ORM from the imported modules. When they contain models for more than one ORM, choose one with `--orm` or the `orm` configuration key, and narrow `--module` to that ORM's models.
+
+## Django build stops with a connection error
+
+Extraction blocks database connections. If an app's `ready()` hook or an imported module queries the database, the build stops with `Schema extraction must not connect to a database`. Move the query out of import time, or limit `--module` to apps that load without it. Do not add credentials to work around it.
+
 ## Module cannot be imported
 
 Check `--project-root`, your virtual environment, and application dependencies. Import a dedicated model package instead of an application entry point where possible. Recursive discovery imports every selected submodule and can trigger application initialization.

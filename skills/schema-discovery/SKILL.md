@@ -1,6 +1,6 @@
 ---
 name: schema-discovery
-description: Discover SQLAlchemy and SQLModel tables, columns, indexes, and models through Laranex Schema Viewer MCP tools or a saved JSON snapshot before proposing schema changes.
+description: Discover SQLAlchemy, SQLModel, Django, Tortoise ORM, and Peewee tables, columns, indexes, and models through Laranex Schema Viewer MCP tools or a saved JSON snapshot before proposing schema changes.
 license: MIT
 ---
 

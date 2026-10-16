@@ -8,7 +8,7 @@ Every option has a default. Command-line options take precedence over the `[tool
 laranex-schema-viewer init
 ```
 
-Asks for model modules, recursive import, and the snapshot path, then appends a `[tool.laranex-schema-viewer]` section to `pyproject.toml`, creating the file if needed. Suggested values come from model detection; press Enter to accept them. `--yes` accepts every suggestion without prompting. `init` never overwrites an existing section and does not import application code.
+Asks for model modules, recursive import, and the snapshot path (or, in a Django project with `manage.py`, the settings module and optional apps), then appends a `[tool.laranex-schema-viewer]` section to `pyproject.toml`, creating the file if needed. Suggested values come from model detection; press Enter to accept them. `--yes` accepts every suggestion without prompting. `init` never overwrites an existing section and does not import application code.
 
 ```toml
 [tool.laranex-schema-viewer]
@@ -23,6 +23,8 @@ output = "schema-viewer.json"
 | `targets` | `module:attribute` targets, like repeated `--target` |
 | `recursive` | Import every submodule of the selected packages |
 | `output` | Snapshot path, relative to the project root; also the default for `serve` and `mcp` |
+| `orm` | `auto`, `sqlalchemy`, `django`, `tortoise`, or `peewee`, like `--orm` |
+| `settings` | Django settings module, like `--settings` |
 
 ## Build
 
@@ -34,11 +36,15 @@ laranex-schema-viewer build
 | --- | --- | --- |
 | `--project-root PATH` | Current directory | Application import root and location of `pyproject.toml` |
 | `--module MODULE` | Config `modules`, else detected | Import a module; repeatable |
-| `--target MODULE:ATTRIBUTE` | Config `targets` | Select metadata, base, or registry; repeatable |
+| `--target MODULE:ATTRIBUTE` | Config `targets` | SQLAlchemy metadata, base, or registry; or a Tortoise `TORTOISE_ORM` config |
+| `--orm NAME` | Config `orm`, else `auto` | `sqlalchemy`, `django`, `tortoise`, or `peewee`; `auto` detects it |
+| `--settings MODULE` | Config `settings`, else `manage.py` | Django settings module; selects Django |
 | `--recursive` | Config `recursive`, else off | Discover selected package submodules |
 | `--output PATH` | Config `output`, else `schema-viewer.json` | Write the snapshot |
 
 When neither options nor configuration select a module, `build` looks up to four directories deep for exactly one `models` package or `models.py` file, skipping hidden, virtual-environment, test, documentation, and build directories. It imports a detected package recursively and prints which module it chose. If it finds none or several, it stops and asks for `--module` or configuration.
+
+Before that, if a `manage.py` in the project root sets `DJANGO_SETTINGS_MODULE`, `build` uses Django with that settings module. See [supported ORMs](./orm-support.md) for how each adapter selects models.
 
 ## Serve
 

@@ -1,6 +1,6 @@
 ---
 name: relationship-analysis
-description: Analyze SQLAlchemy and SQLModel joins, composite foreign keys, self references, and association tables with Laranex Schema Viewer MCP tools or JSON, separating ORM declarations from database constraints.
+description: Analyze SQLAlchemy, SQLModel, Django, Tortoise ORM, and Peewee joins, composite foreign keys, self references, and association tables with Laranex Schema Viewer MCP tools or JSON, separating ORM declarations from database constraints.
 license: MIT
 ---
 

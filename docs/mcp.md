@@ -1,6 +1,6 @@
 # Read-only MCP integration
 
-Use an absolute executable path from the environment where the package and its `mcp` extra are installed. Use an absolute snapshot path. Neither client needs access to the application's environment after the snapshot has been built.
+Use an absolute executable path from the environment where the package and its `mcp` extra are installed. Use an absolute snapshot path. Neither client needs access to the application's environment after the snapshot has been built. The tools read the same snapshot format for every supported ORM, so MCP needs no ORM extras.
 
 ## Codex
 

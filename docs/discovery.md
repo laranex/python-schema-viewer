@@ -4,6 +4,8 @@
 
 `build` uses `--module` or `--target` options first, then the `[tool.laranex-schema-viewer]` section of `pyproject.toml`, which `laranex-schema-viewer init` can create. Without either, it detects a single `models` package or `models.py` and imports it recursively; see the [CLI reference](./cli.md#build). Name modules explicitly when your models live elsewhere or detection finds several candidates.
 
+The ORM is detected from the imported modules: SQLAlchemy metadata or mapped classes, Tortoise models, or Peewee models. If modules declare models for several ORMs, pass `--orm`. Django is selected by a settings module instead, because Django must be configured before its models can be imported; see [Django](./django.md).
+
 Pass one or more modules with `--module`. Use `--recursive` to import each selected package's discovered submodules. Use `--target module:attribute` for a metadata object, declarative base, or registry.
 
 ```bash

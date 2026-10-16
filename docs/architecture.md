@@ -2,9 +2,9 @@
 
 Application definitions → build-only loader → ORM adapter → validated document → JSON snapshot → viewer / MCP.
 
-The dependency boundary is intentional. `document.py` defines ORM-neutral Pydantic value objects; `snapshot.py` validates and persists them. Neither imports SQLAlchemy. `build.py` owns all explicit and recursive application imports. The SQLAlchemy adapter uses metadata, mapper, and relationship APIs, shared with SQLModel. The CLI imports each command's implementation lazily. Tests block ORM/build imports while constructing the viewer/MCP paths.
+The dependency boundary is intentional. `document.py` defines ORM-neutral Pydantic value objects; `snapshot.py` validates and persists them. Neither imports an ORM. `build.py` owns all explicit and recursive application imports and selects an adapter: SQLAlchemy (shared with SQLModel), Tortoise, and Peewee are detected from the imported modules without importing other ORMs; Django is selected by a settings module because `django.setup()` must run before its models import. The CLI imports each command's implementation lazily. Tests block ORM/build imports while constructing the viewer/MCP paths.
 
-`SchemaAdapter.extract() -> SchemaDocument` is the extension point for a future ORM. Implement another adapter and a build entry point; keep its dependencies optional. The viewer and MCP query layer consume the same contract without ORM-specific branches.
+Each adapter module in `adapters/` provides `defines_models(loaded)` and `document_from_modules(loaded, project_root=..., targets=...)` and is registered in `build.ADAPTERS`; its adapter class implements `SchemaAdapter.extract() -> SchemaDocument`. Keep ORM dependencies optional and imported only by their adapter. The viewer and MCP query layer consume the same contract without ORM-specific branches.
 
 ## Document design
 
@@ -31,6 +31,7 @@ Import isolation restores `sys.path` and suppresses `.pyc` writes during loading
 - Extracts declared definitions, without live reflection, migration drift checks, tenant enumeration, or inferred polymorphic links.
 - Ordinary mapped tables, association tables, and standard declarative inheritance are the target. Arbitrary ORM mappings to joins/subqueries can fail explicitly; they are not fully supported.
 - Custom join/secondary selectables retain SQL text and diagnostics where column identities cannot be resolved. Edges whose foreign-key target is absent from metadata cannot be drawn.
+- Django types come from the configured backend's `db_type()`, Tortoise types from its field SQL types for the configured or generic dialect, and Peewee types from the model database's DDL context. Django connections are blocked during extraction.
 - Column SQL types are rendered through SQLAlchemy's generic compiler, with an explicit optional timezone flag because generic date/time strings omit it. Some dialect/custom types may need a future type serializer. Generated defaults identify their kind/expression, without every dialect-specific identity option.
 - Index expressions, order, uniqueness, predicates, INCLUDE columns, and methods are captured; dialect operator classes and storage options are not yet normalized.
 - The ERD uses a deterministic neighborhood-oriented grid, rather than ELK routing. Large dense graphs can have crossing edges. Composite FK details retain all pairs; the graph anchors its edge to the first pair.

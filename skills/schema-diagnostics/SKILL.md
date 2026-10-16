@@ -1,6 +1,6 @@
 ---
 name: schema-diagnostics
-description: Investigate Laranex Schema Viewer extraction diagnostics, missing tables, and unresolved joins using read-only MCP evidence and saved JSON, separating recorded facts from SQLAlchemy or SQLModel recommendations.
+description: Investigate Laranex Schema Viewer extraction diagnostics, missing tables, and unresolved joins using read-only MCP evidence and saved JSON, separating recorded facts from ORM-specific recommendations.
 license: MIT
 ---
 
@@ -19,6 +19,11 @@ MCP exposes a diagnostic count, but the MVP has no diagnostic-message tool. Read
 - `unresolved_foreign_key`: inspect the target, imports, namespace/schema, and selected metadata before concluding a declaration is broken. An absent metadata target may still exist in a database.
 - `secondary_selectable`: secondary join is a selectable, not a plain table. SQL is preserved but a table identity may be absent.
 - `unresolved_join_pair`: alias/expression prevented a stable endpoint. Inspect retained join text and authorized source; do not fabricate pairs.
+- `unmanaged_model` (Django `managed = False`): Django does not create or migrate the table; its existence depends on other tooling.
+- `shared_table`: two models declare one table; only the first is extracted as a table.
+- `skipped_base_model` (Peewee): a base class with only an implicit `id` was not treated as a table.
+- `unsupported_relation`, `unsupported_constraint`, `unsupported_constraint_option`, `unsupported_index`: the declaration exists but is not represented, such as generic relations, exclusion constraints, or raw SQL indexes. Read the message and source; absence from tables or indexes is not absence from the schema.
+- `uncompiled_expression`, `unrendered_expression`: SQL text could not be rendered for the backend, so ORM expression text was kept.
 
 Records contain `kind`, `subject`, and `message`, without severity/certainty fields. Import/mapper failures abort builds and preserve previous snapshots, which can then be stale. Zero diagnostics does not prove complete imports, migration parity, or a sound schema design.
 

@@ -1,6 +1,6 @@
 ---
 name: python-schema-viewer
-description: Install and configure Laranex Schema Viewer in a Python application, build SQLAlchemy or SQLModel snapshots, open the ERD, or connect its read-only MCP server. Use for package adoption rather than routine schema analysis.
+description: Install and configure Laranex Schema Viewer in a Python application, build SQLAlchemy, SQLModel, Django, Tortoise ORM, or Peewee snapshots, open the ERD, or connect its read-only MCP server. Use for package adoption rather than routine schema analysis.
 license: MIT
 ---
 
@@ -20,7 +20,7 @@ If MCP is unavailable, read the selected saved JSON with `laranex_schema_viewer.
 
 ## Build and view
 
-Use the application's environment and package manager. Install the `sqlalchemy` or `sqlmodel` extra, adding `mcp` for MCP use.
+Use the application's environment and package manager. Install the extra for the application's ORM (`sqlalchemy`, `sqlmodel`, `django`, `tortoise`, or `peewee`), adding `mcp` for MCP use.
 
 ```bash
 python -m pip install 'laranex-schema-viewer[sqlmodel,mcp]'
@@ -28,6 +28,8 @@ laranex-schema-viewer build --project-root /path/to/application --module myapp.m
 laranex-schema-viewer serve --snapshot /path/to/schema-viewer.json
 laranex-schema-viewer mcp --snapshot /path/to/schema-viewer.json
 ```
+
+The ORM is detected from imported modules; pass `--orm` when modules mix ORMs. For Django, run from the directory with `manage.py` or pass `--orm django --settings project.settings`; `--module` then limits apps, and database connections are blocked. For Tortoise with several apps, pass `--orm tortoise --target module:TORTOISE_ORM`; only app labels and the connection scheme are read.
 
 Build only when model loading is within the authorized task. `--recursive` imports every submodule, including initializers; omit it for explicit-module builds. Repeat `--module` or use `--target module:attribute` for selected metadata, bases, or registries. Metadata alone does not discover all classes. Imports and mapper callbacks can have side effects; never start the ASGI app or run migrations just to build. Keep outputs outside read-only reference projects and measure runtime counts.
 

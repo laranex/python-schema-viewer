@@ -5,7 +5,7 @@ This is the independent Python package `laranex-schema-viewer`, imported as `lar
 ## Architecture
 
 - `src/laranex_schema_viewer/document.py`: strict, ORM-neutral Pydantic snapshot contract; `schema.json` is the distributed JSON Schema.
-- `adapters/sqlalchemy.py`: SQLAlchemy 2 metadata/mapper extraction, shared with SQLModel. Future ORM adapters implement `SchemaAdapter.extract()` in `adapters/__init__.py`.
+- `adapters/`: one module per ORM (`sqlalchemy.py`, shared with SQLModel; `django.py`; `tortoise.py`; `peewee.py`). Each provides `defines_models()` and `document_from_modules()` (Django: `document_from_settings()`) and is registered in `build.py`; shared helpers in `adapters/__init__.py` must not import an ORM.
 - `build.py`: explicit application imports and opt-in recursive model discovery. Only builds may load application definitions.
 - `snapshot.py`: bounded validation, deterministic serialization, revision hashes, and atomic writes.
 - `static/graph.js` and `static/app.js`: separate FK/ORM graph layers and the interactive HTML/SVG ERD, without runtime frontend builds or CDNs.

@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "laranex-schema-viewer"
 version = "0.2.0"
-description = "Framework-independent SQLAlchemy and SQLModel schema snapshots, ERD viewer, and read-only MCP tools"
+description = "Schema snapshots, an ERD viewer, and read-only MCP tools for SQLAlchemy, SQLModel, Django, Tortoise ORM, and Peewee"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-keywords = ["sqlalchemy", "sqlmodel", "erd", "schema", "database", "mcp"]
+keywords = ["sqlalchemy", "sqlmodel", "django", "tortoise-orm", "peewee", "erd", "schema", "database", "mcp"]
 authors = [{name = "Soe Thura", email = "thixpin@gmail.com"}]
 dependencies = ["pydantic>=2.7,<3", "tomli>=1.1; python_version < '3.11'"]
 classifiers = [

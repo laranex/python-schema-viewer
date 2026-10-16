@@ -6,9 +6,9 @@ aside: false
 
 ## From model definitions to a shared view
 
-Laranex Schema Viewer extracts declared schema metadata from SQLAlchemy 2.x and SQLModel. It produces a JSON snapshot that powers an interactive ERD and read-only MCP tools for coding agents.
+Laranex Schema Viewer extracts declared schema metadata from SQLAlchemy 2.x, SQLModel, Django, Tortoise ORM, and Peewee; see [supported ORMs](./orm-support.md). It produces a JSON snapshot that powers an interactive ERD and read-only MCP tools for coding agents.
 
-Inspired by [Laravel Schema Viewer](https://github.com/laranex/laravel-schema-viewer), this Python package works independently of FastAPI, Flask, Django, or any application server.
+Inspired by [Laravel Schema Viewer](https://github.com/laranex/laravel-schema-viewer), this Python package works independently of FastAPI, Flask, or any application server. Django support reads model metadata only and never starts the project.
 
 ## What you can explore
 

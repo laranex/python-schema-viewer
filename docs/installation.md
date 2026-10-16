@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Use Python 3.10 or newer and an isolated virtual environment. SQLAlchemy 2.x and SQLModel support are optional installation extras.
+Use Python 3.10 or newer and an isolated virtual environment. Each supported ORM is an optional installation extra.
 
 Check your interpreter first with `python3 --version`. The `python3` bundled with macOS is Python 3.9, which pip skips this package for; use a newer Python from [python.org](https://www.python.org/downloads/), Homebrew, or [uv](#install-with-uv).
 
@@ -44,6 +44,9 @@ Building a snapshot imports your models, so run `build` in an environment that h
 | --- | --- |
 | `sqlalchemy` | SQLAlchemy 2.x metadata and mapper extraction |
 | `sqlmodel` | SQLModel extraction through the SQLAlchemy adapter |
+| `django` | Django model metadata through `Model._meta` |
+| `tortoise` | Tortoise ORM 1.x models through `Tortoise.init_models` |
+| `peewee` | Peewee 3.19+ and 4.x models |
 | `mcp` | Read-only stdio MCP server |
 | `dev` | ORM, MCP, lint, and Python build dependencies for contributors |
 

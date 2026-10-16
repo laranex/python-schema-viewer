@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url)
 
 export default defineConfig({
   title: 'Laranex Schema Viewer',
-  description: 'Explore SQLAlchemy and SQLModel definitions with an interactive ERD, portable JSON snapshots, and read-only MCP tools.',
+  description: 'Explore SQLAlchemy, SQLModel, Django, Tortoise ORM, and Peewee definitions with an interactive ERD, portable JSON snapshots, and read-only MCP tools.',
   lang: 'en-US',
   base,
   cleanUrls: false,
@@ -45,10 +45,14 @@ export default defineConfig({
         { text: 'Introduction', link: '/introduction' },
         { text: 'Installation', link: '/installation' },
         { text: 'Quick start', link: '/quick-start' },
+        { text: 'Supported ORMs', link: '/orm-support' },
       ] },
       { text: 'WORK WITH YOUR SCHEMA', items: [
         { text: 'SQLAlchemy', link: '/sqlalchemy' },
         { text: 'SQLModel', link: '/sqlmodel' },
+        { text: 'Django', link: '/django' },
+        { text: 'Tortoise ORM', link: '/tortoise' },
+        { text: 'Peewee', link: '/peewee' },
         { text: 'Discovery & extraction', link: '/discovery' },
         { text: 'Interactive viewer', link: '/viewer' },
         { text: 'Live demo', link: '/demo' },

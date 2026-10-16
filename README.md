@@ -1,6 +1,6 @@
 # Laranex Schema Viewer
 
-Framework-independent schema snapshots, an interactive ERD, and read-only MCP tools for **SQLAlchemy 2.x and SQLModel**. Inspired by [Laravel Schema Viewer](https://github.com/laranex/laravel-schema-viewer).
+Framework-independent schema snapshots, an interactive ERD, and read-only MCP tools for **SQLAlchemy 2.x, SQLModel, Django, Tortoise ORM, and Peewee**. Inspired by [Laravel Schema Viewer](https://github.com/laranex/laravel-schema-viewer).
 
 Build once from model definitions, then browse or query the saved JSON without starting your application or accessing its database. Foreign keys and declared ORM relationships remain separate throughout extraction, viewing, and MCP queries.
 
@@ -19,6 +19,8 @@ laranex-schema-viewer build    # finds your models package; writes schema-viewer
 laranex-schema-viewer serve
 ```
 
+Replace `sqlmodel` with your ORM's extra: `sqlalchemy`, `django`, `tortoise`, or `peewee`. In a Django project, `build` reads the settings module from `manage.py`.
+
 With [uv](https://docs.astral.sh/uv/), add it to your application instead: `uv add --dev 'laranex-schema-viewer[sqlmodel,mcp]'`, then prefix commands with `uv run`. The `python3` bundled with macOS is 3.9 and is not supported; see [installation](https://laranex.github.io/python-schema-viewer/installation.html).
 
 Open **http://127.0.0.1:8765** to search tables, inspect indexes and relationships, and navigate the graph. The viewer needs no Node build or web framework.
@@ -28,7 +30,7 @@ Build only trusted modules: imports and mapper callbacks execute application cod
 ## Documentation
 
 - [Installation](https://laranex.github.io/python-schema-viewer/installation.html) and [quick start](https://laranex.github.io/python-schema-viewer/quick-start.html)
-- [SQLAlchemy](https://laranex.github.io/python-schema-viewer/sqlalchemy.html), [SQLModel](https://laranex.github.io/python-schema-viewer/sqlmodel.html), and [model discovery](https://laranex.github.io/python-schema-viewer/discovery.html)
+- [Supported ORMs](https://laranex.github.io/python-schema-viewer/orm-support.html): [SQLAlchemy](https://laranex.github.io/python-schema-viewer/sqlalchemy.html), [SQLModel](https://laranex.github.io/python-schema-viewer/sqlmodel.html), [Django](https://laranex.github.io/python-schema-viewer/django.html), [Tortoise ORM](https://laranex.github.io/python-schema-viewer/tortoise.html), [Peewee](https://laranex.github.io/python-schema-viewer/peewee.html), and [model discovery](https://laranex.github.io/python-schema-viewer/discovery.html)
 - [CLI reference](https://laranex.github.io/python-schema-viewer/cli.html) and [interactive viewer](https://laranex.github.io/python-schema-viewer/viewer.html)
 - [MCP for Codex and Claude Code](https://laranex.github.io/python-schema-viewer/mcp.html)
 - [Agent skills](https://laranex.github.io/python-schema-viewer/agent-skills.html) and [troubleshooting](https://laranex.github.io/python-schema-viewer/troubleshooting.html)
