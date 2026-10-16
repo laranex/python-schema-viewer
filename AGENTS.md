@@ -12,6 +12,7 @@ This is the independent Python package `laranex-schema-viewer`, imported as `lar
 - `server.py`: local HTTP viewer using saved snapshots and allowlisted packaged assets.
 - `query.py` and `mcp.py`: bounded, read-only snapshot queries and optional official MCP SDK stdio transport.
 - `cli.py`: lazy build/serve/MCP entry points. Keep optional ORM/MCP imports out of unrelated commands.
+- `config.py`: `[tool.laranex-schema-viewer]` defaults, the `init` writer, and filesystem-only model detection. It must never import application code.
 
 See [architecture](docs/architecture.md), [MCP contracts](docs/mcp.md), and [validation limitations](docs/validation.md) before changing these boundaries.
 

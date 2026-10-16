@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = "MIT"
 keywords = ["sqlalchemy", "sqlmodel", "erd", "schema", "database", "mcp"]
 authors = [{name = "Soe Thura", email = "thixpin@gmail.com"}]
-dependencies = ["pydantic>=2.7,<3"]
+dependencies = ["pydantic>=2.7,<3", "tomli>=1.1; python_version < '3.11'"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
