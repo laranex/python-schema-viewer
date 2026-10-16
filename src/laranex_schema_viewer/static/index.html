@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Laranex Schema Viewer</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-mark">L</span><div><h1>Laranex <span>Schema Viewer</span></h1><small>Explore your Python data model</small></div></div>
+    <div class="actions"><button id="theme" aria-label="Toggle dark theme">Theme</button><a class="button" href="/snapshot.json" download="schema-viewer.json">Download JSON</a></div>
+  </header>
+  <div class="layerbar">
+    <span class="eyebrow">CONNECTIONS &amp; LAYERS</span>
+    <label>Namespace <select id="namespace"><option value="">All namespaces</option></select></label>
+    <label><input type="checkbox" id="fk" checked><span class="line-key fk-key"></span>Foreign keys</label>
+    <label><input type="checkbox" id="orm" checked><span class="line-key orm-key"></span>ORM relationships</label>
+    <label><input type="checkbox" id="columns">All columns</label>
+    <span id="counts" role="status"></span>
+  </div>
+  <main>
+    <aside class="browse"><div class="panel-heading"><h2>Browse</h2><span id="table-count"></span></div>
+      <label class="search-label" for="search">Search tables, columns, models</label>
+      <input id="search" type="search" placeholder="Search schema…" autocomplete="off">
+      <div id="table-list" class="table-list"></div>
+      <p class="browse-foot">Declared metadata · no database access</p>
+    </aside>
+    <section id="canvas" tabindex="0" aria-label="Interactive entity relationship diagram. Drag background to pan, scroll to zoom.">
+      <div id="world"><svg id="edges" aria-label="Schema edges"></svg><div id="tables"></div></div>
+      <div class="canvas-top"><span class="pill">SCHEMA EXPLORER</span><button id="unfocus" hidden>Show all tables</button></div>
+      <div class="canvas-tools"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom-label">100%</span><button id="zoom-in" aria-label="Zoom in">+</button><button id="fit">Fit</button><button id="arrange">Arrange</button></div>
+      <div id="empty" class="empty" hidden>No matching tables.</div>
+    </section>
+    <aside id="details" class="details" aria-label="Selection details"><h2>Schema details</h2><p>Select a table or an edge to inspect its definition.</p><p class="muted">Solid gray lines are foreign-key constraints. Dashed teal lines are declared ORM relationships. Each has its own details.</p><p class="muted">Drag a table to move it. Use Focus to explore its neighbors.</p></aside>
+  </main>
+  <footer><span id="status" role="status">Loading saved snapshot…</span><span>Inspired by Laravel Schema Viewer · MIT</span></footer>
+</body>
+</html>

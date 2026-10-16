@@ -1,0 +1,37 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.12', '3.14', '3.15']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e '.[dev]'
+      - run: ruff check .
+      - run: python -m unittest discover -s tests -v
+      - run: python -m build
+      - run: python scripts/check_wheel.py
+  viewer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -e '.[dev]'
+      - run: npm install
+      - run: npm test
+      - run: |
+          python -m laranex_schema_viewer build --module tests.fixtures.sqlalchemy_models --output .validation/example.json
+          python -m laranex_schema_viewer serve --snapshot .validation/example.json > /tmp/viewer.log 2>&1 &
+          for i in $(seq 1 30); do curl --fail -s http://127.0.0.1:8765/ > /dev/null && break; sleep 1; done
+          EXPECTED_TABLES=6 npm run test:browser
+

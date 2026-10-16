@@ -1,0 +1,10 @@
+{
+    "name":"laranex-schema-viewer-ui",
+    "private":true,
+    "type":"module",
+    "scripts":{
+        "test":"node --test tests/graph.test.mjs tests/dom.test.mjs",
+        "test:browser":"node scripts/browser-smoke.mjs"
+        },
+    "devDependencies":{"linkedom":"0.18.12"}
+    }

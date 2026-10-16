@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "laranex-schema-viewer"
+version = "0.1.0"
+description = "Framework-independent SQLAlchemy and SQLModel schema snapshots, ERD viewer, and read-only MCP tools"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Laranex"}]
+dependencies = ["pydantic>=2.7,<3"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+sqlalchemy = ["SQLAlchemy>=2.0,<3"]
+sqlmodel = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1"]
+mcp = ["mcp>=2.3,<3"]
+dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "mcp>=2.3,<3", "ruff>=0.8", "build>=1.2"]
+
+[project.scripts]
+laranex-schema-viewer = "laranex_schema_viewer.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/laranex_schema_viewer"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.agents", "/.claude"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+
