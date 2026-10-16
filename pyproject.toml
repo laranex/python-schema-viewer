@@ -35,6 +35,7 @@ Homepage = "https://github.com/laranex/python-schema-viewer"
 Documentation = "https://laranex.github.io/python-schema-viewer/"
 Repository = "https://github.com/laranex/python-schema-viewer"
 Issues = "https://github.com/laranex/python-schema-viewer/issues"
+Changelog = "https://github.com/laranex/python-schema-viewer/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 sqlalchemy = ["SQLAlchemy>=2.0,<3"]

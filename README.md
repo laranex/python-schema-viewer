@@ -37,7 +37,7 @@ Install agent skills with `npx skills add laranex/python-schema-viewer`; see the
 
 ## Contributing
 
-See [AGENTS.md](https://github.com/laranex/python-schema-viewer/blob/main/AGENTS.md) for architecture, development commands, testing, and documentation maintenance. [Validation](https://github.com/laranex/python-schema-viewer/blob/main/docs/validation.md) and [skill verification](https://github.com/laranex/python-schema-viewer/blob/main/docs/agent-skills-validation.md) describe test coverage and limitations. Report vulnerabilities as described in [SECURITY.md](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md).
+See [AGENTS.md](https://github.com/laranex/python-schema-viewer/blob/main/AGENTS.md) for architecture, development commands, testing, and documentation maintenance. [Validation](https://github.com/laranex/python-schema-viewer/blob/main/docs/validation.md) and [skill verification](https://github.com/laranex/python-schema-viewer/blob/main/docs/agent-skills-validation.md) describe test coverage and limitations. Report vulnerabilities as described in [SECURITY.md](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md). Release notes are in the [changelog](https://github.com/laranex/python-schema-viewer/blob/main/CHANGELOG.md).
 
 Documentation Markdown lives in `docs/`; VitePress tooling lives in `.gh-page/`:
 
