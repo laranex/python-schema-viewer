@@ -60,6 +60,8 @@ Public documentation Markdown lives in `docs/`; the independent VitePress config
 
 Keep `/python-schema-viewer/` as the Pages base, use base-aware links, and document implemented CLI behavior. The demo preparation script copies the package's actual viewer assets and a synthetic schema; never substitute a reference application's snapshot. Generated demo assets, caches, and dependency directories are ignored. Documentation development must not require importing the Python application or connecting to a database.
 
+`.github/workflows/deploy-docs.yml` runs documentation checks for matching pull requests and main-branch pushes. Successful main-branch builds deploy `.gh-page/.vitepress/dist` to GitHub Pages; manual runs deploy only from `main`. Set repository Settings → Pages → Build and deployment → Source to GitHub Actions before the first deployment. The expected URL is `https://laranex.github.io/python-schema-viewer/`. Pull requests only build, with no deployment permissions. Do not claim a live deployment from local build success.
+
 ## Security and contribution guidelines
 
 - Model imports execute trusted application code and mapper callbacks; import suppression is not a sandbox. Do not move application imports into viewer, MCP, or skill-installation paths.
