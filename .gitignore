@@ -1,0 +1,25 @@
+.venv/
+.validation/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+.coverage
+htmlcov/
+schema-viewer.json
+
+# macOS Finder metadata and AppleDouble resource forks
+.DS_Store
+.AppleDouble/
+.LSOverride
+._*
+
+# macOS volume metadata, trash, and temporary items
+.Spotlight-V100/
+.Trashes/
+.TemporaryItems/
+.fseventsd/
+.VolumeIcon.icns
+
