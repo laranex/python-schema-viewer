@@ -1,12 +1,16 @@
 ---
 name: relationship-analysis
-description: Analyze SQLAlchemy, SQLModel, Django, Tortoise ORM, and Peewee joins, composite foreign keys, self references, and association tables with Laranex Schema Viewer MCP tools or JSON, separating ORM declarations from database constraints.
+description: Analyze joins, foreign keys, composite keys, self references, one-to-one claims, and many-to-many join tables from a Laranex Schema Viewer snapshot (SQLAlchemy, SQLModel, Django, Tortoise ORM, or Peewee), keeping ORM declarations separate from database-enforced constraints.
 license: MIT
 ---
 
 # Analyze relationships
 
-Prefer available read-only MCP tools. Find exact IDs through `schema_overview` or `schema_search` (`query_text`), then request each kind independently. Discover namespaced tool names rather than assuming prefixes.
+A snapshot holds two independent kinds of evidence: **database foreign keys** (`tables[].foreign_keys`) and **ORM relationships** (top-level `relationships`). Analyze each separately, then compare.
+
+## Gather evidence
+
+Find the table ID with `schema_overview` or `schema_search`, then fetch each kind on its own, paging through `next_offset` with the returned `revision`:
 
 ```json
 {"tool":"schema_get_relationships","arguments":{"table":"opaque-table-id","kind":"orm","limit":25}}
@@ -16,19 +20,21 @@ Prefer available read-only MCP tools. Find exact IDs through `schema_overview` o
 {"tool":"schema_get_relationships","arguments":{"table":"opaque-table-id","kind":"foreign_key","limit":25}}
 ```
 
-Follow `next_offset` with unchanged filters and `revision`; restart on mismatch. `schema_get_table` exposes separate FK, relationship, index, constraint, and model sections. `schema_get_model` includes outgoing declarations.
-
-If MCP is unavailable, read the selected saved JSON with `laranex_schema_viewer.read_snapshot` when installed. Check format `laranex-schema-viewer`, version 1, scope `declared_metadata`. Physical FKs are `tables[].foreign_keys`; ORM declarations are top-level `relationships`. Join opaque IDs to tables/models. Record freshness limitations and do not silently mix JSON with an older pinned MCP revision. Metadata is not deployed database state.
+`schema_get_table` sections and `schema_get_model` add context. Without MCP, read the saved JSON with `laranex_schema_viewer.read_snapshot` and join records by opaque ID.
 
 ## Trace each path
 
-Retain ordered FK source/target pairs and update/delete rules. For ORM declarations inspect `direction`, `uselist`, `viewonly`, `back_populates`, `primary_join`, `secondary_join`, `join_pairs`, and `secondary`. Compare actual join-column pairs with constraints; matching table names alone cannot establish FK backing. Keep multiple FK paths between the same tables distinguishable.
+- **Foreign keys:** keep ordered column pairs and update/delete actions. Several foreign keys between the same tables are separate paths.
+- **ORM relationships:** read `direction`, `uselist`, `viewonly`, `back_populates`, `primary_join`, `secondary_join`, `join_pairs`, and `secondary`. A relationship is backed by a foreign key only when its column pairs match one.
+- **One-to-one:** `uselist=false` is an ORM claim. The database enforces it only with an unconditional unique constraint or index on the joining columns.
+- **Many-to-many:** inspect the `secondary` join table and both join stages. Inverse declarations are separate records.
+- **Self references:** keep local and remote roles although both ends are the same table.
+- **Intentional gaps:** view-only or custom joins, and Django or Tortoise relations with `db_constraint=False`, may lack a foreign key. Django's usual `on_delete=CASCADE` runs in Python, not the database.
 
-Mapper direction and `uselist=false` do not prove database-enforced one-to-one cardinality. Check unconditional unique constraints/indexes and nullability. Partial uniqueness is conditional; view-only/custom joins may intentionally have no FK. ORM cascade behavior and FK action rules are different evidence; do not invent ORM cascade details absent from the snapshot.
+Do not infer polymorphism, tenancy, or cascades the snapshot does not record.
 
-For `MANYTOMANY`, inspect the secondary table and both join stages. Back-populated inverse declarations remain separate records. Self references retain local/remote roles even when both endpoints identify the same table. Do not infer polymorphism or tenant schemas from names.
+In the viewer, solid gray edges are foreign keys and dashed teal edges are ORM relationships. Composite edges anchor to the first column pair; the details panel lists all pairs.
 
-In the ERD, inspect solid gray FKs and dashed teal ORM edges independently, including overlapping endpoints and secondary paths. All composite pairs remain in details although graph edges anchor to the first pair. Visibility controls do not change saved definitions.
+## Reporting
 
-Report declared joins, physical enforcement, association/inverse paths, and unresolved evidence separately. Source locations identify model classes; inspect authorized source rather than inventing relationship lines. Never execute join SQL, invoke relationship callables, rebuild models, or edit application definitions solely to analyze a saved path.
-
+Report declared joins, database enforcement, join-table and inverse paths, and unresolved evidence separately, citing the snapshot or revision. Source locations identify classes, not relationship lines. Never execute join SQL, call relationship callables, rebuild, or edit definitions to analyze a path.

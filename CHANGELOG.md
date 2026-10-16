@@ -17,6 +17,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - PyPI publishing now runs the full test workflow on the release commit first, refuses versions already on PyPI, and never runs two publishes at once.
 - SQLAlchemy is imported only when the SQLAlchemy adapter is used.
+- Agent skills are reorganized as step-by-step workflows, with a tool reference and troubleshooting table for MCP, a diagnostic-kind table, and `init` and configuration coverage in the setup skill.
 
 ### Fixed
 

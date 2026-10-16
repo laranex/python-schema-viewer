@@ -1,43 +1,52 @@
 ---
 name: python-schema-viewer
-description: Install and configure Laranex Schema Viewer in a Python application, build SQLAlchemy, SQLModel, Django, Tortoise ORM, or Peewee snapshots, open the ERD, or connect its read-only MCP server. Use for package adoption rather than routine schema analysis.
+description: Install and configure Laranex Schema Viewer in a Python application - choose the ORM extra, build a snapshot from SQLAlchemy, SQLModel, Django, Tortoise ORM, or Peewee models, open the ERD, or connect the read-only MCP server. Use for adopting or rebuilding with the package, not for answering schema questions from an existing snapshot.
 license: MIT
 ---
 
 # Use Laranex Schema Viewer
 
-Inspect the application's dependencies and ORM module structure before choosing extras or imports. The package is framework-independent; do not add FastAPI wiring, startup hooks, or database connections to use it.
+The package imports model definitions once to save a JSON snapshot; the viewer and MCP server then read only that file. It needs no web-framework wiring, startup hooks, or database connection.
 
-## Read existing evidence
+If a snapshot or MCP server already exists, answer schema questions from it (MCP tools, or `laranex_schema_viewer.read_snapshot` on the JSON) instead of rebuilding. Missing or invalid evidence is not permission to import application code.
 
-Prefer available read-only MCP tools for schema facts. Start with `schema_overview` and `schema_search` (`query_text`), then use exact opaque IDs with `schema_get_table`, `schema_get_model`, and `schema_get_relationships`. Follow `next_offset` with unchanged filters and `revision`; restart on revision mismatch. Discover client-namespaced tool names rather than guessing prefixes.
+## 1. Install
 
-```json
-{"tool":"schema_overview","arguments":{"limit":25}}
-```
-
-If MCP is unavailable, read the selected saved JSON with `laranex_schema_viewer.read_snapshot`. Check format `laranex-schema-viewer`, version 1, scope `declared_metadata`; its top-level collections are `tables`, `models`, `relationships`, and `diagnostics`. Report unknown freshness. Saved metadata does not prove deployed state. Missing/invalid evidence is not permission to import application code.
-
-## Build and view
-
-Use the application's environment and package manager. Install the extra for the application's ORM (`sqlalchemy`, `sqlmodel`, `django`, `tortoise`, or `peewee`), adding `mcp` for MCP use.
+Use the application's environment and package manager. Add the extra for its ORM (`sqlalchemy`, `sqlmodel`, `django`, `tortoise`, or `peewee`) and `mcp` for agent access. Serving an existing snapshot needs no ORM extra.
 
 ```bash
 python -m pip install 'laranex-schema-viewer[sqlmodel,mcp]'
-laranex-schema-viewer build --project-root /path/to/application --module myapp.models --recursive --output /path/to/schema-viewer.json
-laranex-schema-viewer serve --snapshot /path/to/schema-viewer.json
+```
+
+## 2. Build
+
+Build only when importing the application's models is within the authorized task. Imports and mapper callbacks run application code; never start the app or run migrations to build.
+
+```bash
+laranex-schema-viewer init        # optional: save defaults in pyproject.toml ([tool.laranex-schema-viewer])
+laranex-schema-viewer build --module myapp.models --output /path/to/schema-viewer.json
+```
+
+- The ORM is detected from imported modules; pass `--orm` only when modules mix ORMs.
+- `--recursive` imports every submodule, including package initializers. Prefer explicit `--module` values; `--target module:attribute` selects specific metadata, bases, or registries.
+- **Django:** run from the directory with `manage.py`, or pass `--orm django --settings project.settings`. `--module` narrows to apps; database connections are blocked during the build.
+- **Tortoise:** for several apps or a specific SQL dialect, pass `--orm tortoise --target module:TORTOISE_ORM`. Only app labels and the connection scheme are read.
+- Config keys are `modules`, `targets`, `recursive`, `output`, `orm`, and `settings`; command-line flags override them.
+- Write output outside read-only reference projects. Report the actual table, model, and diagnostic counts from the build output.
+
+## 3. View and connect
+
+```bash
+laranex-schema-viewer serve --snapshot /path/to/schema-viewer.json   # http://127.0.0.1:8765
 laranex-schema-viewer mcp --snapshot /path/to/schema-viewer.json
 ```
 
-The ORM is detected from imported modules; pass `--orm` when modules mix ORMs. For Django, run from the directory with `manage.py` or pass `--orm django --settings project.settings`; `--module` then limits apps, and database connections are blocked. For Tortoise with several apps, pass `--orm tortoise --target module:TORTOISE_ORM`; only app labels and the connection scheme are read.
+In the ERD, solid gray edges are database foreign keys and dashed teal edges are ORM relationships. Reload the viewer after a rebuild; restart MCP to pick up the new revision.
 
-Build only when model loading is within the authorized task. `--recursive` imports every submodule, including initializers; omit it for explicit-module builds. Repeat `--module` or use `--target module:attribute` for selected metadata, bases, or registries. Metadata alone does not discover all classes. Imports and mapper callbacks can have side effects; never start the ASGI app or run migrations just to build. Keep outputs outside read-only reference projects and measure runtime counts.
+For MCP clients, configure a stdio server with the absolute executable path and arguments `mcp --snapshot /absolute/path/to/schema-viewer.json`, preserving unrelated settings. Skills do not register MCP or grant tool access.
 
-`serve` opens a local ERD at `http://127.0.0.1:8765`. Search, inspect table/edge details, drag, pan/zoom, and focus. Solid gray edges are FKs; dashed teal edges are ORM declarations. Keep layers separate, including association-table paths. Viewer/MCP read saved snapshots only. Reload the viewer after rebuilding; restart MCP for its new pinned revision.
+## Limits
 
-## Connect agents
-
-Configure the client's stdio MCP server with the absolute executable and arguments `mcp --snapshot /absolute/path/to/schema-viewer.json`. Preserve unrelated configuration. Skills do not register MCP or grant tool access. Respect existing client trust settings.
-
-Do not recommend nonexistent diff/check/export commands, a hints engine, live reflection, or production authentication. Do not expose the server or publish snapshots without authorization. Package contribution instructions belong to the package repository’s root `AGENTS.md`, not this application skill.
-
+- No diff, check, export, or hints commands exist, and nothing reflects a live database.
+- The server is local and unauthenticated; do not expose it or publish snapshots without authorization.
+- Package contribution rules live in the package repository's `AGENTS.md`, not in this skill.
