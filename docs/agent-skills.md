@@ -48,8 +48,6 @@ npx skills add /absolute/path/to/python-schema-viewer/skills \
 
 The CLI manages agent installation paths: Codex uses `.agents/skills/`; Claude Code uses `.claude/skills/`. Other supported agents can be selected through `--agent` or the interactive installer. Standard Markdown/YAML skills do not depend on Codex-specific execution features. These are project-scoped commands; use `--global` only when intentionally installing for your user account. The CLI can create compatibility symlinks; `--copy` requests independent copies.
 
-The checkout also contains legacy local skills under `.agents/skills/`, including `schema-viewer-development`. The CLI may discover these when listing the repository root. Select the five application skills above, or use the local `/skills` source, to exclude contributor guidance. The protected legacy files are not generated or synchronized by this distribution.
-
 ### Use skills with MCP
 
 See [MCP client configuration](./mcp.md) for Codex and Claude Code settings.

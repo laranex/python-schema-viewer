@@ -36,6 +36,6 @@ npx --yes skills add /absolute/path/to/python-schema-viewer/skills \
 
 All three attempts failed before CLI execution because npm could not resolve `registry.npmjs.org` (`ENOTFOUND`). Real CLI discovery, installed compatibility links, and client activation remain unverified. Retry on a network-enabled machine. Remote commands see published GitHub contents, not these uncommitted files.
 
-The CLI also searches `.agents/skills/`. Existing local skills there may appear in a repository-root catalog, including `schema-viewer-development`. A write to mark the development skill internal was rejected by the environment's protected-directory approval settings. Those files were preserved. Use explicit application skill names or the local `skills/` source to exclude contributor guidance; this remains a limitation of unfiltered root discovery.
+The CLI also searches `.agents/skills/`. The repository no longer commits legacy copies there, so a repository-root catalog lists only the five application skills.
 
 No skill synchronization or installation helper was introduced. The canonical distribution is independent of legacy local copies.
