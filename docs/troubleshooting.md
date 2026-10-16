@@ -1,5 +1,9 @@
 # Troubleshooting and limitations
 
+## pip finds no matching version
+
+`Could not find a version that satisfies the requirement laranex-schema-viewer (from versions: none)` usually means pip is running on Python older than 3.10, such as the `python3` bundled with macOS. Check with `python3 --version`, then install with Python 3.10+ or uv; see [installation](./installation.md).
+
 ## Module cannot be imported
 
 Check `--project-root`, your virtual environment, and application dependencies. Import a dedicated model package instead of an application entry point where possible. Recursive discovery imports every selected submodule and can trigger application initialization.

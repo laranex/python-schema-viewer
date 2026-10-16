@@ -21,6 +21,8 @@ laranex-schema-viewer build \
 laranex-schema-viewer serve --snapshot schema-viewer.json
 ```
 
+With [uv](https://docs.astral.sh/uv/), add it to your application instead: `uv add --dev 'laranex-schema-viewer[sqlmodel,mcp]'`, then prefix commands with `uv run`. The `python3` bundled with macOS is 3.9 and is not supported; see [installation](https://laranex.github.io/python-schema-viewer/installation.html).
+
 Open **http://127.0.0.1:8765** to search tables, inspect indexes and relationships, and navigate the graph. The viewer needs no Node build or web framework.
 
 Build only trusted modules: imports and mapper callbacks execute application code. Snapshots describe declared metadata, not deployed database state; review them before sharing.
