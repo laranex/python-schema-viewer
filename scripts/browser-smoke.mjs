@@ -104,6 +104,7 @@ try {
         const exited = new Promise(resolve => browser.once('exit', resolve));
         browser.kill(); await exited;
     }
-    await rm(profile, {recursive: true, force: true});
+    // Chrome helper processes can still write to the profile after the main process exits.
+    await rm(profile, {recursive: true, force: true, maxRetries: 10, retryDelay: 100});
 }
 
