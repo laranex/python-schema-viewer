@@ -22,9 +22,10 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--project-root", type=Path, default=Path.cwd())
     build.add_argument("--module", action="append", default=[],
                        help="Default: pyproject.toml config, else the detected models package")
-    build.add_argument("--target", action="append", default=[], help="module:metadata/base/registry")
+    build.add_argument("--target", action="append", default=[],
+                       help="SQLAlchemy module:metadata/base/registry, or Tortoise module:TORTOISE_ORM")
     build.add_argument("--recursive", action="store_true", help="Import every submodule of selected packages")
-    build.add_argument("--orm", help="auto, sqlalchemy, or django; default: pyproject.toml config, else auto")
+    build.add_argument("--orm", help="auto, sqlalchemy, django, or tortoise; default: pyproject.toml config, else auto")
     build.add_argument("--settings", help="Django settings module; default: config, else manage.py")
     build.add_argument("--output", type=Path, help="Default: pyproject.toml config, else schema-viewer.json")
     serve = commands.add_parser("serve", help="Serve the viewer from a saved snapshot only")

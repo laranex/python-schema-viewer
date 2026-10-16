@@ -8,6 +8,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - `build --orm` option and `orm` configuration key to choose the ORM adapter explicitly; `auto` (the default) detects it from the imported modules.
 - Django ORM adapter (`--orm django`, `django` extra): tables, columns, keys, indexes, unique and check constraints, forward and reverse relationships, many-to-many join tables, multi-table inheritance, proxy and unmanaged models, and composite primary keys on Django 5.2+. Database connections are blocked during extraction.
+- Tortoise ORM adapter (`--orm tortoise`, `tortoise` extra): tables, columns, keys with database `on_delete` actions, indexes including partial and PostgreSQL index types, unique and check constraints, forward, backward, and many-to-many relationships, and generated many-to-many join tables. Models are initialised with `Tortoise.init_models`, which does not connect. `--target module:TORTOISE_ORM` reads app labels and the SQL dialect from a Tortoise config.
 - `build --settings` option and `settings` configuration key for the Django settings module; without options, `build` and `init` read it from `manage.py`.
 
 ### Changed

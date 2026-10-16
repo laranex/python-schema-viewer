@@ -13,7 +13,7 @@ from typing import Iterator
 from .document import SchemaDocument
 
 # ORM name -> top-level package that application imports must already have loaded.
-ADAPTERS = {"sqlalchemy": "sqlalchemy"}
+ADAPTERS = {"sqlalchemy": "sqlalchemy", "tortoise": "tortoise"}
 # Django loads models from settings during django.setup(), so it is selected, not detected.
 ORMS = ("auto", *ADAPTERS, "django")
 
@@ -74,7 +74,7 @@ def build_document(
         raise ValueError(f"Unsupported ORM {orm!r}; choose one of {', '.join(ORMS)}")
     if orm == "django" or (orm == "auto" and settings):
         if targets:
-            raise ValueError("--target applies only to SQLAlchemy and SQLModel")
+            raise ValueError("--target applies only to SQLAlchemy, SQLModel, and Tortoise")
         root = project_root.resolve()
         with import_context(root):
             return adapter("django").document_from_settings(
@@ -83,8 +83,8 @@ def build_document(
         raise ValueError("--settings applies only to Django")
     if not modules and not targets:
         raise ValueError("Supply at least one --module or --target")
-    if targets and orm not in ("auto", "sqlalchemy"):
-        raise ValueError("--target applies only to SQLAlchemy and SQLModel")
+    if targets and orm not in ("auto", "sqlalchemy", "tortoise"):
+        raise ValueError("--target applies only to SQLAlchemy, SQLModel, and Tortoise")
     root = project_root.resolve()
     with import_context(root):
         loaded = import_modules(modules, recursive)
