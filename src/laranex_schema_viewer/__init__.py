@@ -4,5 +4,5 @@ from .document import SchemaDocument
 from .snapshot import read_snapshot, write_snapshot
 
 __all__ = ["SchemaDocument", "read_snapshot", "write_snapshot"]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
