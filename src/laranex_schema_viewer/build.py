@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import importlib
-import inspect as python_inspect
 import pkgutil
 import sys
 from contextlib import contextmanager
 from pathlib import Path
+from types import ModuleType
 from typing import Iterator
 
 from .document import SchemaDocument
+
+# ORM name -> top-level package that application imports must already have loaded.
+ADAPTERS = {"sqlalchemy": "sqlalchemy"}
+ORMS = ("auto", *ADAPTERS)
 
 
 @contextmanager
@@ -26,75 +30,53 @@ def import_context(project_root: Path) -> Iterator[None]:
         sys.dont_write_bytecode = previous_bytecode
 
 
+def adapter(orm: str) -> ModuleType:
+    return importlib.import_module(f".adapters.{orm}", __package__)
+
+
+def import_modules(modules: list[str], recursive: bool) -> dict[str, ModuleType]:
+    loaded = {}
+    for name in modules:
+        loaded[name] = importlib.import_module(name)
+        if recursive and hasattr(loaded[name], "__path__"):
+            def fail(package: str) -> None:
+                raise ImportError(f"Cannot discover package {package}")
+            for item in sorted(pkgutil.walk_packages(
+                loaded[name].__path__, name + ".", onerror=fail,
+            ), key=lambda item: item.name):
+                loaded[item.name] = importlib.import_module(item.name)
+    return loaded
+
+
+def detect_orm(loaded: dict[str, ModuleType]) -> str:
+    """Choose the ORM whose models the imported modules declare, without importing new ORMs."""
+    found = [orm for orm, package in ADAPTERS.items()
+             if package in sys.modules and adapter(orm).defines_models(loaded)]
+    if len(found) > 1:
+        raise ValueError(f"Modules declare models for several ORMs ({', '.join(found)}); choose one with --orm")
+    if not found:
+        raise ValueError("No SQLAlchemy metadata or ORM models found in the selected modules")
+    return found[0]
+
+
 def build_document(
     modules: list[str], *, project_root: Path, recursive: bool = False,
-    targets: list[str] | None = None,
+    targets: list[str] | None = None, orm: str = "auto",
 ) -> SchemaDocument:
-    """Load named modules and optional module:metadata/base/registry targets.
+    """Load named modules and extract them with the selected or detected ORM adapter.
 
     Run this in a fresh process: Python caches imports and ORMs keep registries.
     Imports are trusted application code, not a sandbox.
     """
-    from sqlalchemy import MetaData, inspect
-    from sqlalchemy.orm import Mapper, registry
-
-    from .adapters.sqlalchemy import SQLAlchemyAdapter
-
+    if orm not in ORMS:
+        raise ValueError(f"Unsupported ORM {orm!r}; choose one of {', '.join(ORMS)}")
     if not modules and not targets:
         raise ValueError("Supply at least one --module or --target")
-    metadata: dict[str, MetaData] = {}
-    classes: set[type] = set()
-
-    def add_metadata(value: MetaData, name: str) -> None:
-        if not any(m is value for m in metadata.values()):
-            metadata[name] = value
-
-    with import_context(project_root.resolve()):
-        loaded = {}
-        for name in modules:
-            loaded[name] = importlib.import_module(name)
-            if recursive and hasattr(loaded[name], "__path__"):
-                def fail(package: str) -> None:
-                    raise ImportError(f"Cannot discover package {package}")
-                for item in sorted(pkgutil.walk_packages(
-                    loaded[name].__path__, name + ".", onerror=fail,
-                ), key=lambda item: item.name):
-                    loaded[item.name] = importlib.import_module(item.name)
-        for name, module in sorted(loaded.items()):
-            for attribute, value in sorted(vars(module).items()):
-                if isinstance(value, MetaData):
-                    add_metadata(value, f"{name}:{attribute}")
-                elif python_inspect.isclass(value):
-                    mapper = inspect(value, raiseerr=False)
-                    if isinstance(mapper, Mapper):
-                        classes.add(value)
-                        for table in mapper.tables:
-                            add_metadata(table.metadata, f"{name}:{attribute}")
-        for target in targets or []:
-            module_name, separator, attribute = target.partition(":")
-            if not separator or not attribute:
-                raise ValueError("Targets use module:attribute syntax")
-            value = getattr(importlib.import_module(module_name), attribute)
-            if isinstance(value, registry):
-                add_metadata(value.metadata, target)
-                classes.update(m.class_ for m in value.mappers)
-            elif isinstance(value, MetaData):
-                add_metadata(value, target)
-            elif python_inspect.isclass(value) and isinstance(
-                getattr(value, "metadata", None), MetaData,
-            ):
-                add_metadata(value.metadata, target)
-                if hasattr(value, "registry"):
-                    classes.update(m.class_ for m in value.registry.mappers)
-                mapper = inspect(value, raiseerr=False)
-                if isinstance(mapper, Mapper):
-                    classes.add(value)
-            else:
-                raise ValueError(f"Unsupported metadata/base/registry target: {target}")
-        if not metadata:
-            raise ValueError("No SQLAlchemy metadata or mapped classes found")
-        # Stable names independent of which module first imports a shared registry.
-        named = {"default" if len(metadata) == 1 else name: value
-                 for name, value in metadata.items()}
-        return SQLAlchemyAdapter(named, list(classes), project_root.resolve()).extract()
-
+    if targets and orm not in ("auto", "sqlalchemy"):
+        raise ValueError("--target applies only to SQLAlchemy and SQLModel")
+    root = project_root.resolve()
+    with import_context(root):
+        loaded = import_modules(modules, recursive)
+        if orm == "auto":
+            orm = "sqlalchemy" if targets else detect_orm(loaded)
+        return adapter(orm).document_from_modules(loaded, project_root=root, targets=targets or [])

@@ -63,7 +63,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(resolve_snapshot(Path("x.json"), self.root), Path("x.json"))
 
     def test_invalid_section_is_rejected(self):
-        for body in ["module = 'app'", "modules = 'app'", "recursive = 'yes'", "output = 1"]:
+        for body in ["module = 'app'", "modules = 'app'", "recursive = 'yes'", "output = 1", "orm = 1"]:
             with self.subTest(body=body):
                 self.write_pyproject(f"[tool.laranex-schema-viewer]\n{body}\n")
                 with self.assertRaises(ValueError):
@@ -132,6 +132,15 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("Detected", result.stdout)
         self.assertTrue((self.root / "out/schema.json").is_file())
+
+    def test_build_uses_configured_orm(self):
+        package(self.root, "app.models", MODEL)
+        self.write_pyproject("[tool.laranex-schema-viewer]\norm = 'unknown'\n")
+        result = self.run_cli("build")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Unsupported ORM 'unknown'", result.stderr)
+        result = self.run_cli("build", "--orm", "sqlalchemy")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_serve_reports_the_configured_snapshot(self):
         self.write_pyproject("[tool.laranex-schema-viewer]\noutput = 'out/missing.json'\n")

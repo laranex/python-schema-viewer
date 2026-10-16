@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import importlib
 import inspect as python_inspect
-import json
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 from sqlalchemy import CheckConstraint, MetaData, Table, UniqueConstraint, inspect
 from sqlalchemy.exc import NoReferencedColumnError, NoReferencedTableError
+from sqlalchemy.orm import Mapper, registry
 
 from ..document import (
     Column,
@@ -25,10 +27,9 @@ from ..document import (
     Source,
 )
 from ..document import Table as DocumentTable
+from . import class_source, identifier
 
-
-def identifier(*parts: str | None) -> str:
-    return json.dumps(parts, ensure_ascii=False, separators=(",", ":"))
+__all__ = ["SQLAlchemyAdapter", "defines_models", "document_from_modules", "identifier"]
 
 
 def sql(expression: Any) -> str:
@@ -79,18 +80,7 @@ class SQLAlchemyAdapter:
         raise ValueError(f"Table outside selected metadata: {table}")
 
     def source(self, cls: type) -> Source | None:
-        try:
-            filename = python_inspect.getsourcefile(cls)
-            if filename is None:
-                return None
-            path = Path(filename).resolve()
-            # Do not publish absolute paths outside the selected project.
-            if self.project_root is None or not path.is_relative_to(self.project_root):
-                return None
-            return Source(file=path.relative_to(self.project_root).as_posix(),
-                          line=python_inspect.getsourcelines(cls)[1])
-        except (OSError, TypeError):
-            return None
+        return class_source(cls, self.project_root)
 
     def extract(self) -> SchemaDocument:
         self.diagnostics = []
@@ -227,3 +217,56 @@ class SQLAlchemyAdapter:
             constraints=sorted(constraints, key=lambda c: c.model_dump_json()),
         )
 
+
+
+def is_mapped_class(value: Any) -> bool:
+    return python_inspect.isclass(value) and isinstance(inspect(value, raiseerr=False), Mapper)
+
+
+def defines_models(loaded: dict[str, ModuleType]) -> bool:
+    return any(isinstance(value, MetaData) or is_mapped_class(value)
+               for module in loaded.values() for value in vars(module).values())
+
+
+def document_from_modules(
+    loaded: dict[str, ModuleType], *, project_root: Path, targets: list[str],
+) -> SchemaDocument:
+    """Collect metadata and mapped classes from imported modules and explicit targets."""
+    metadata: dict[str, MetaData] = {}
+    classes: set[type] = set()
+
+    def add_metadata(value: MetaData, name: str) -> None:
+        if not any(m is value for m in metadata.values()):
+            metadata[name] = value
+
+    for name, module in sorted(loaded.items()):
+        for attribute, value in sorted(vars(module).items()):
+            if isinstance(value, MetaData):
+                add_metadata(value, f"{name}:{attribute}")
+            elif is_mapped_class(value):
+                classes.add(value)
+                for table in inspect(value).tables:
+                    add_metadata(table.metadata, f"{name}:{attribute}")
+    for target in targets:
+        module_name, separator, attribute = target.partition(":")
+        if not separator or not attribute:
+            raise ValueError("Targets use module:attribute syntax")
+        value = getattr(importlib.import_module(module_name), attribute)
+        if isinstance(value, registry):
+            add_metadata(value.metadata, target)
+            classes.update(m.class_ for m in value.mappers)
+        elif isinstance(value, MetaData):
+            add_metadata(value, target)
+        elif python_inspect.isclass(value) and isinstance(getattr(value, "metadata", None), MetaData):
+            add_metadata(value.metadata, target)
+            if hasattr(value, "registry"):
+                classes.update(m.class_ for m in value.registry.mappers)
+            if is_mapped_class(value):
+                classes.add(value)
+        else:
+            raise ValueError(f"Unsupported metadata/base/registry target: {target}")
+    if not metadata:
+        raise ValueError("No SQLAlchemy metadata or mapped classes found")
+    # Stable names independent of which module first imports a shared registry.
+    named = {"default" if len(metadata) == 1 else name: value for name, value in metadata.items()}
+    return SQLAlchemyAdapter(named, list(classes), project_root).extract()

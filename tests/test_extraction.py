@@ -127,6 +127,16 @@ class ExtractionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "No SQLAlchemy"):
             build_document(["json"], project_root=Path.cwd())
 
+    def test_orm_selection(self):
+        explicit = build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd(),
+                                  orm="sqlalchemy")
+        detected = build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd())
+        self.assertEqual(snapshot_bytes(explicit), snapshot_bytes(detected))
+        with self.assertRaisesRegex(ValueError, "Unsupported ORM"):
+            build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd(), orm="nope")
+        with self.assertRaisesRegex(ValueError, "No SQLAlchemy metadata or mapped classes"):
+            build_document(["json"], project_root=Path.cwd(), orm="sqlalchemy")
+
     def test_imperative_mapping_with_multiple_foreign_key_paths(self):
         mappings = registry()
         person = Table("people", mappings.metadata, Column("id", Integer, primary_key=True))

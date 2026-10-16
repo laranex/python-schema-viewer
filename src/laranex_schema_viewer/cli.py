@@ -24,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
                        help="Default: pyproject.toml config, else the detected models package")
     build.add_argument("--target", action="append", default=[], help="module:metadata/base/registry")
     build.add_argument("--recursive", action="store_true", help="Import every submodule of selected packages")
+    build.add_argument("--orm", help="auto (default), sqlalchemy; default: pyproject.toml config, else auto")
     build.add_argument("--output", type=Path, help="Default: pyproject.toml config, else schema-viewer.json")
     serve = commands.add_parser("serve", help="Serve the viewer from a saved snapshot only")
     serve.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
@@ -65,7 +66,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"Detected model module {modules[0]}; importing it recursively")
             output = args.output or config.output or DEFAULT_SNAPSHOT
             document = build_document(modules, project_root=args.project_root,
-                                      recursive=recursive, targets=targets)
+                                      recursive=recursive, targets=targets,
+                                      orm=args.orm or config.orm or "auto")
             write_snapshot(document, output)
             print(f"Saved {len(document.tables)} tables, {len(document.models)} models, "
                   f"{len(document.relationships)} ORM relationships, "

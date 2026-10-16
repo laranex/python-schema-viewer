@@ -27,6 +27,7 @@ class ProjectConfig:
     targets: list[str] = field(default_factory=list)
     recursive: bool = False
     output: Path | None = None
+    orm: str | None = None
 
 
 def load_config(project_root: Path) -> ProjectConfig:
@@ -36,7 +37,7 @@ def load_config(project_root: Path) -> ProjectConfig:
         return ProjectConfig()
     with path.open("rb") as file:
         section = tomllib.load(file).get("tool", {}).get(SECTION, {})
-    unknown = set(section) - {"modules", "targets", "recursive", "output"}
+    unknown = set(section) - {"modules", "targets", "recursive", "output", "orm"}
     if unknown:
         raise ValueError(f"Unknown [tool.{SECTION}] keys in {path}: {', '.join(sorted(unknown))}")
     for key in ("modules", "targets"):
@@ -48,10 +49,12 @@ def load_config(project_root: Path) -> ProjectConfig:
     output = section.get("output")
     if output is not None and not isinstance(output, str):
         raise ValueError(f"[tool.{SECTION}] output must be a string path")
+    if not isinstance(section.get("orm", ""), str):
+        raise ValueError(f"[tool.{SECTION}] orm must be a string")
     return ProjectConfig(
         modules=section.get("modules", []), targets=section.get("targets", []),
         recursive=section.get("recursive", False),
-        output=project_root / output if output is not None else None,
+        output=project_root / output if output is not None else None, orm=section.get("orm"),
     )
 
 
