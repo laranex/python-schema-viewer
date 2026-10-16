@@ -30,7 +30,7 @@ from ..document import (
     SchemaDocument,
 )
 from ..document import Table as DocumentTable
-from . import class_source, identifier
+from . import callable_name, class_source, identifier
 
 DIALECTS = {"postgres": "postgres", "postgresql": "postgres", "asyncpg": "postgres",
             "psycopg": "postgres", "sqlite": "sqlite", "mysql": "mysql", "mssql": "mssql",
@@ -70,10 +70,6 @@ def dialect_from_config(config: dict) -> str | None:
     else:
         return None
     return DIALECTS.get(scheme)
-
-
-def callable_name(value: Any) -> str:
-    return f"{getattr(value, '__module__', '')}.{getattr(value, '__qualname__', type(value).__name__)}"
 
 
 class TortoiseAdapter:

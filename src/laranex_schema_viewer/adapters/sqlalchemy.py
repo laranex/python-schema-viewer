@@ -27,7 +27,7 @@ from ..document import (
     Source,
 )
 from ..document import Table as DocumentTable
-from . import class_source, identifier
+from . import callable_name, class_source, identifier
 
 __all__ = ["SQLAlchemyAdapter", "defines_models", "document_from_modules", "identifier"]
 
@@ -43,9 +43,7 @@ def describe_default(value: Any) -> Default | None:
         return None
     if getattr(value, "is_callable", False):
         function = value.arg
-        return Default(kind="callable", value=(
-            f"{getattr(function, '__module__', '')}.{getattr(function, '__qualname__', type(function).__name__)}"
-        ))
+        return Default(kind="callable", value=callable_name(function))
     if getattr(value, "is_sequence", False):
         return Default(kind="sequence", value=value.name)
     if getattr(value, "is_scalar", False):

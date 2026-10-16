@@ -1,3 +1,4 @@
+import datetime
 import tempfile
 import unittest
 from pathlib import Path
@@ -44,6 +45,12 @@ class ExtractionTests(unittest.TestCase):
         self.assertEqual(columns["name"].default.kind, "callable")
         self.assertTrue(columns["name"].default.value.endswith("never_call"))
         self.assertEqual(columns["active"].server_default.value, "1")
+
+    def test_builtin_callable_defaults_are_named_without_a_module(self):
+        metadata = MetaData()
+        Table("events", metadata, Column("at", DateTime, default=datetime.datetime.now))
+        column = SQLAlchemyAdapter({"default": metadata}).extract().tables[0].columns[0]
+        self.assertEqual(column.default.value, "datetime.now")
 
     def test_relationships_remain_separate(self):
         self.assertEqual(len(self.doc.relationships), 5)

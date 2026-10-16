@@ -27,7 +27,7 @@ from ..document import (
     SchemaDocument,
 )
 from ..document import Table as DocumentTable
-from . import class_source, identifier
+from . import callable_name, class_source, identifier
 
 NAMESPACE = "default"
 
@@ -70,10 +70,6 @@ def literal(value: Any) -> str:
     if isinstance(value, (int, float)):
         return str(value)
     return "'" + str(value).replace("'", "''") + "'"
-
-
-def callable_name(value: Any) -> str:
-    return f"{getattr(value, '__module__', '')}.{getattr(value, '__qualname__', type(value).__name__)}"
 
 
 class DjangoAdapter:

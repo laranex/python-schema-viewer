@@ -24,6 +24,13 @@ def identifier(*parts: str | None) -> str:
     return json.dumps(parts, ensure_ascii=False, separators=(",", ":"))
 
 
+def callable_name(value: object) -> str:
+    """Name a callable default without calling it; builtins such as datetime.now have no module."""
+    name = getattr(value, "__qualname__", type(value).__name__)
+    module = getattr(value, "__module__", None)
+    return f"{module}.{name}" if module else name
+
+
 def class_source(cls: type, project_root: Path | None) -> Source | None:
     """Source location relative to the project; never publish paths outside it."""
     try:

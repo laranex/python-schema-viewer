@@ -16,6 +16,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - PyPI publishing now runs the full test workflow on the release commit first, refuses versions already on PyPI, and never runs two publishes at once.
 - SQLAlchemy is imported only when the SQLAlchemy adapter is used.
 
+### Fixed
+
+- Callable defaults without a module, such as `datetime.datetime.now`, were recorded as `None.datetime.now`; they are now named `datetime.now`.
+
 ## [0.2.0] - 2026-10-16
 
 ### Added
