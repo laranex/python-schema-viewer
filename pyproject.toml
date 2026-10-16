@@ -21,7 +21,7 @@ classifiers = [
 sqlalchemy = ["SQLAlchemy>=2.0,<3"]
 sqlmodel = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1"]
 mcp = ["mcp>=2.3,<3"]
-dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "mcp>=2.3,<3", "ruff>=0.8", "build>=1.2"]
+dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "mcp>=2.3,<3", "ruff>=0.8", "build>=1.2", "PyYAML>=6,<7"]
 
 [project.scripts]
 laranex-schema-viewer = "laranex_schema_viewer.cli:main"
