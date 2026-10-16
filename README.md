@@ -13,12 +13,10 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install 'laranex-schema-viewer[sqlmodel,mcp]'
 
-laranex-schema-viewer build \
-  --project-root /absolute/path/to/application \
-  --module myapp.models --recursive \
-  --output schema-viewer.json
-
-laranex-schema-viewer serve --snapshot schema-viewer.json
+cd /absolute/path/to/application
+laranex-schema-viewer init     # optional: save defaults in pyproject.toml
+laranex-schema-viewer build    # finds your models package; writes schema-viewer.json
+laranex-schema-viewer serve
 ```
 
 With [uv](https://docs.astral.sh/uv/), add it to your application instead: `uv add --dev 'laranex-schema-viewer[sqlmodel,mcp]'`, then prefix commands with `uv run`. The `python3` bundled with macOS is 3.9 and is not supported; see [installation](https://laranex.github.io/python-schema-viewer/installation.html).

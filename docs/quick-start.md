@@ -31,15 +31,15 @@ class Task(Base):
 Run in that scratch directory, using the environment where you installed the package:
 
 ```bash
-laranex-schema-viewer build --module models --output schema-viewer.json
+laranex-schema-viewer build
 ```
 
-The output reports actual table, model, ORM relationship, and diagnostic counts. This example declares two tables, two models, one physical FK, and two ORM relationships.
+With no options, `build` finds the single `models.py` or `models` package in the current directory and writes `schema-viewer.json`. The output reports actual table, model, ORM relationship, and diagnostic counts. This example declares two tables, two models, one physical FK, and two ORM relationships.
 
 ## Open the viewer
 
 ```bash
-laranex-schema-viewer serve --snapshot schema-viewer.json --port 8765
+laranex-schema-viewer serve
 ```
 
 Open **http://127.0.0.1:8765**. Select a table for details, search for `owner_id`, and toggle the foreign-key and ORM layers independently.
