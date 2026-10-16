@@ -28,9 +28,9 @@ def manifest(root: Path) -> dict[str, str]:
             for p in root.rglob("*") if p.is_file() and ".git" not in p.parts}
 
 
-def discover_declarations(root: Path) -> list[tuple[str, str]]:
+def discover_declarations(root: Path, module: str) -> list[tuple[str, str]]:
     declarations = []
-    for path in sorted((root / "src/infrastructure/models").rglob("*.py")):
+    for path in sorted((root / module.replace(".", "/")).rglob("*.py")):
         tree = ast.parse(path.read_text())
         module = path.relative_to(root).with_suffix("")
         if module.name == "__init__":
@@ -44,9 +44,11 @@ def discover_declarations(root: Path) -> list[tuple[str, str]]:
     return declarations
 
 
-def run_mapper_checks(root: Path) -> int:
-    """Run this reference's reviewed zero-fixture tests without pytest conftest/DB setup."""
-    definitions = runpy.run_path(str(root / "tests/test_infrastructure_models.py"))
+def run_mapper_checks(path: Path | None) -> int:
+    """Run reviewed zero-fixture test classes without pytest conftest/DB setup."""
+    if path is None:
+        return 0
+    definitions = runpy.run_path(str(path))
     count = 0
     for name, cls in sorted(definitions.items()):
         if not name.startswith("Test") or not inspect.isclass(cls):
@@ -137,6 +139,9 @@ async def validate_mcp(snapshot: Path, expected: dict) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", type=Path)
+    parser.add_argument("--module", required=True, help="Model package to import recursively")
+    parser.add_argument("--mapper-tests", type=Path,
+                        help="Optional reviewed test file of zero-fixture mapper checks")
     parser.add_argument("--output", type=Path, default=Path(".validation/reference.json"))
     parser.add_argument("--report", type=Path, default=Path(".validation/reference-report.json"))
     args = parser.parse_args()
@@ -147,7 +152,7 @@ def main() -> None:
         parser.error("Outputs must remain outside the reference project")
     sys.dont_write_bytecode = True
     before = manifest(root)
-    declarations = discover_declarations(root)
+    declarations = discover_declarations(root, args.module)
     # A DB connection attempt is a failure, even if imports catch the exception.
     attempts = []
 
@@ -156,7 +161,7 @@ def main() -> None:
         raise AssertionError("Validation must not connect to a database")
 
     with patch.object(Engine, "connect", deny_connection):
-        document = build_document(["src.infrastructure.models"], project_root=root, recursive=True)
+        document = build_document([args.module], project_root=root, recursive=True)
         assert not attempts
         # Run a second independent build in a fresh process and compare bytes.
         write_snapshot(document, snapshot)
@@ -165,7 +170,7 @@ def main() -> None:
         env.pop("PYTHONPATH", None)
         result = subprocess.run([
             sys.executable, "-m", "laranex_schema_viewer", "build", "--project-root", str(root),
-            "--module", "src.infrastructure.models", "--recursive", "--output", str(second),
+            "--module", args.module, "--recursive", "--output", str(second),
         ], env=env, text=True, capture_output=True, timeout=30)
         assert result.returncode == 0, result.stderr
         assert snapshot_bytes(document) == second.read_bytes(), "Fresh builds are nondeterministic"
@@ -223,7 +228,7 @@ def main() -> None:
                 loaded.append(f"{module_name}.{name}")
             except Exception as error:
                 failures.append({"model": f"{module_name}.{name}", "error": str(error)})
-        mapper_checks = run_mapper_checks(root)
+        mapper_checks = run_mapper_checks(args.mapper_tests)
     from laranex_schema_viewer.query import SnapshotQuery
 
     counts = SnapshotQuery(snapshot).overview()["counts"]
