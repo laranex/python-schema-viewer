@@ -13,7 +13,7 @@ from typing import Iterator
 from .document import SchemaDocument
 
 # ORM name -> top-level package that application imports must already have loaded.
-ADAPTERS = {"sqlalchemy": "sqlalchemy", "tortoise": "tortoise"}
+ADAPTERS = {"sqlalchemy": "sqlalchemy", "tortoise": "tortoise", "peewee": "peewee"}
 # Django loads models from settings during django.setup(), so it is selected, not detected.
 ORMS = ("auto", *ADAPTERS, "django")
 
