@@ -6,7 +6,7 @@ Each ORM has its own adapter and optional extra. All adapters produce the same s
 | --- | --- | --- | --- |
 | [SQLAlchemy](./sqlalchemy.md) | `sqlalchemy` | 2.0 | Detected from modules, or `--orm sqlalchemy` |
 | [SQLModel](./sqlmodel.md) | `sqlmodel` | 0.0.22+ | Uses the SQLAlchemy adapter |
-| [Django](./django.md) | `django` | 5.2, 6.1 | Settings from `--settings`, configuration, or `manage.py` |
+| [Django](./django.md) | `django` | 4.2, 5.2, 6.1 | Settings from `--settings`, configuration, or `manage.py` |
 | [Tortoise ORM](./tortoise.md) | `tortoise` | 1.1 | Detected from modules, or `--orm tortoise` |
 | [Peewee](./peewee.md) | `peewee` | 3.19, 4.5 | Detected from modules, or `--orm peewee` |
 
