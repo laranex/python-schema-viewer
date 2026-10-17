@@ -13,13 +13,13 @@
   "files": [
     {
       "path": "app.css",
-      "size": 42197,
-      "sha256": "fadde6bf6977189cca8c7b018f9a293ccef8a01c679386e0999272e14819c7db"
+      "size": 49885,
+      "sha256": "aa14c6cf196506727d4036a45f32123971e554ab68e22954d641fcade9b31801"
     },
     {
       "path": "app.js",
-      "size": 521209,
-      "sha256": "30f739dd1db93fc01181d288ea684a81d10547ab3f7ee3ecdf159920cb42b54b"
+      "size": 558262,
+      "sha256": "aee791538688573bda11e8cc58f5849827315d0b825304a727e7eac9f011f6cb"
     },
     {
       "path": "assets/elk.bundled-Cijv1EqA.js",

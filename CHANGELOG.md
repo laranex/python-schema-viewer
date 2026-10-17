@@ -24,7 +24,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Declared indexes list each key part once: a column, with its order, or an expression. They previously listed a column key as an expression (`users.email`) and again as a column, which also made combined builds report index key parts as drift.
 - An unresolved foreign key gets one diagnostic naming it, with its own message, and a model-level diagnostic labels the field it is about.
 - The declared document records the detected ORM in `generator.orm` and its extensions namespace even when `--orm` is not given.
-- The vendored viewer is laranex-schema-viewer-ui 0.3.0-dev.0, which reads laranex-schema 2.x.
+- The vendored viewer is laranex-schema-viewer-ui 0.3.0-dev.0 (0902ccb), which reads laranex-schema 2.x and shows stored comparisons (the Compare tab, with `#view=compare` deep links), migration status and inferred associations.
 - Pydantic is no longer a dependency of the package (the `mcp` extra still brings it in).
 
 ### Removed
