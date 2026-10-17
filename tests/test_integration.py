@@ -89,9 +89,10 @@ class IntegrationTests(unittest.TestCase):
         # A version 1 snapshot reaches the viewer converted, as laranex-schema.
         body = json.loads(request("/snapshot.json").split(b"\r\n\r\n", 1)[1])
         self.assertEqual((body["format"], body["source"]), ("laranex-schema", "declared"))
-        for route in ["/../pyproject.toml", "/%2e%2e/pyproject.toml", "/.env", "/favicon.ico", "/manifest.json",
+        for route in ["/../pyproject.toml", "/%2e%2e/pyproject.toml", "/.env", "/manifest.json",
                       "/LICENSE.txt", "/graph.js", "/styles.css", "/assets/", "/assets/../manifest.json"]:
             self.assertIn(b"404 Not Found", request(route))
+        self.assertIn(b"204 No Content", request("/favicon.ico"))
         self.assertIn(b"403", request("/", host="untrusted.example"))
         self.assertIn(b"501", request("/snapshot.json", method="POST"))
         self.assertEqual(request("/snapshot.json", method="HEAD").split(b"\r\n\r\n")[1], b"")

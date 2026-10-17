@@ -55,9 +55,7 @@ try {
         if (data.method === 'Runtime.consoleAPICalled' && (params.type === 'error' || params.type === 'assert')) {
             problems.push(`console.${params.type}: ${params.args.map(a => a.value ?? a.description).join(' ')}`);
         }
-        // Chrome requests /favicon.ico by itself; the viewer page declares no icon, so its 404 is not a page error.
-        if (data.method === 'Log.entryAdded' && params.entry.level === 'error'
-            && !(params.entry.source === 'network' && params.entry.url === new URL('/favicon.ico', url).href)) {
+        if (data.method === 'Log.entryAdded' && params.entry.level === 'error') {
             problems.push(`log (${params.entry.source}): ${params.entry.text} ${params.entry.url ?? ''}`);
         }
         if (data.method === 'Network.requestWillBeSent') requests.push(params.request.url);

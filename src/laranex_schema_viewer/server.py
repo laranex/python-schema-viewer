@@ -55,6 +55,12 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
                 self.send_error(403, "Host not allowed")
                 return
             route = urlsplit(self.path).path
+            if route == "/favicon.ico":
+                # Browsers ask for it unprompted; the viewer has none, and a 404 would log a console error.
+                self.send_response(204)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
             if route == "/snapshot.json":
                 try:
                     content = canonical_json(load_document(path).unified).encode("utf-8")
