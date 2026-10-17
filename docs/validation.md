@@ -7,7 +7,7 @@ This page summarizes what the automated checks cover and what they cannot establ
 | Check | Command | Covers |
 | --- | --- | --- |
 | Python tests | `python -m unittest discover -s tests -v` | Extraction, the contract (validation, serialization, graph, comparison and migration rules against the shared fixtures), schema comparisons, documents, queries and MCP conformance, CLI, HTTP server, MCP stdio, skills |
-| Browser tests | `LSV_BROWSER=1 python -m unittest tests.test_browser -v` | The served shared viewer in headless Chrome for declared, database, combined and two-connection documents: every table as a node, edges, source badge, coverage, diagnostics, a table's indexes, relationships, drift and provenance badges, theme, phone layout; no exceptions, console errors, CSP violations or external requests |
+| Browser tests | `LSV_BROWSER=1 python -m unittest tests.test_browser -v` | The served shared viewer in headless Chrome for declared, database, combined and two-connection documents, a built two-connection comparison and the shared comparison, migration and inferred-association fixtures: every table as a node, edges, source badge, coverage, diagnostics, a table's indexes, relationships, drift and provenance badges, the Compare tab (summary, differences, incomplete note, navigation to a difference's table, deep links), migration tracks, inferred edges, theme, phone layout; no exceptions, console errors, CSP violations or external requests |
 | Lint | `ruff check .` | Python errors and undefined names |
 | Packaging | `python -m build` and `python scripts/check_wheel.py` | Wheel assets, the laranex-schema 2.0 JSON Schema, type marker, CLI entry point, isolated import |
 

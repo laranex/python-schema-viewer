@@ -14,6 +14,11 @@
 //                  labels, the connection select and ] key, reference nodes and cross-connection (ORM-only) edges for
 //                  every link between connections in /snapshot.json, #connection= and #table= deep links, search, per-
 //                  connection diagnostics, drift and coverage, and the duplicate's connection at phone width
+//   compare        true: the Compare tab shows the first stored comparison's summary, every listed difference and an
+//                  incomplete alert exactly when it is incomplete; a difference's "Show in" opens its table (#table=);
+//                  #view=compare&comparison=…&difference=… opens every stored comparison on its last difference
+//   migrations     number of migration track cards in the Migrations tab (one per stored track)
+//   inferred       true: the edges of the links inferred associations use are marked inferred, and only those
 // Fails on any uncaught exception, console error, CSP violation or request outside the viewer's origin.
 // SCREENSHOT=path writes a desktop screenshot.
 import {spawn} from 'node:child_process';
@@ -123,7 +128,9 @@ try {
     assert.deepEqual([...nodes].sort(), tableIds, 'every table renders as one node');
     if (expect.tables !== undefined) assert.equal(nodes.length, expect.tables);
     result.tables = nodes.length;
-    result.edges = await until(`document.querySelectorAll('.react-flow__edge').length`, 'edges');
+    result.edges = snapshot.links.length
+        ? await until(`document.querySelectorAll('.react-flow__edge').length`, 'edges')
+        : await evaluate(`document.querySelectorAll('.react-flow__edge').length`);
 
     // Details overview: source badge and coverage.
     await evaluate(`${tab('Details')}.click()`);
@@ -183,6 +190,70 @@ try {
                 'drift and provenance badges appear only for combined documents');
         }
         result.table = details;
+    }
+
+    // Stored comparisons: the Compare tab, navigation from a difference to its table, and deep links.
+    const differenceCard = id => `${panel}.querySelector('[data-difference="' + CSS.escape(${JSON.stringify(id)}) + '"]')`;
+    if (expect.compare) {
+        assert.ok(snapshot.comparisons.length > 0, 'the document stores comparisons');
+        const [first] = snapshot.comparisons;
+        await open(1440, 950, false);
+        await evaluate(`${tab('Compare')}.click()`);
+        await until(`${panel}.querySelector('.cmp-summary')`, 'the comparison summary');
+        const shown = await evaluate(`({
+            summary: [...${panel}.querySelectorAll('.cmp-summary dd')].map(d => d.firstChild.textContent.trim()),
+            cards: ${panel}.querySelectorAll('[data-difference]').length,
+            incomplete: !!${panel}.querySelector('[aria-label="Incomplete comparison"]'),
+            clean: !!${panel}.querySelector('.cmp-clean'),
+            hash: decodeURIComponent(location.hash)})`);
+        assert.deepEqual(shown.summary, [first.summary.missing, first.summary.extra, first.summary.changed,
+            first.differences.length].map(String), 'comparison summary');
+        assert.equal(shown.cards, first.differences.length, 'a card per listed difference');
+        assert.equal(shown.incomplete, !first.complete, 'incomplete alert');
+        assert.equal(shown.clean, first.complete && first.differences.length === 0 && first.omitted === 0, 'clean note');
+        assert.ok(shown.hash.includes('view=compare'), `hash ${shown.hash}`);
+        const compare = {comparisons: snapshot.comparisons.length, summary: shown.summary, complete: first.complete};
+        const difference = first.differences.find(d => d.target) ?? first.differences[0];
+        if (difference) {
+            const side = difference.target ? 'target' : 'baseline';
+            const ref = difference[side];
+            await evaluate(`[...${differenceCard(difference.id)}.querySelectorAll('.diff__actions button')]
+                .find(b => b.textContent.startsWith('Show in ${side}:')).click()`);
+            await until(`decodeURIComponent(location.hash).includes(${JSON.stringify(`table=${ref.table}`)})`,
+                `#table=${ref.table}`);
+            const opened = await details();
+            compare.navigated = [difference.id, ref.table, opened.title];
+        }
+        for (const c of snapshot.comparisons) {
+            const last = c.differences.at(-1);
+            await open(1440, 950, false, `#view=compare&comparison=${encodeURIComponent(c.id)}`
+                + (last ? `&difference=${encodeURIComponent(last.id)}` : ''));
+            if (last) {
+                await until(`${differenceCard(last.id)}?.classList.contains('selected')`, `difference ${last.id} selected`);
+            } else {
+                await until(`${panel}.querySelector('.cmp-clean, [aria-label="Incomplete comparison"]')`, `comparison ${c.id}`);
+            }
+        }
+        compare.deepLinks = snapshot.comparisons.length;
+        result.compare = compare;
+    }
+    if (expect.migrations !== undefined) {
+        assert.equal(snapshot.migrations.length, expect.migrations, 'stored migration tracks');
+        await open(1440, 950, false);
+        await evaluate(`${tab('Migrations')}.click()`);
+        assert.equal(await until(`${panel}.querySelectorAll('[data-track]').length`, 'migration tracks'),
+            expect.migrations, 'a card per migration track');
+        result.migrations = expect.migrations;
+    }
+    if (expect.inferred) {
+        const links = new Set(snapshot.inferredAssociations.flatMap(a => a.links));
+        assert.ok(links.size > 0, 'the document stores inferred associations');
+        await open(1440, 950, false);
+        assert.equal(await until(`document.querySelectorAll('.react-flow__edge-path.inferred').length`, 'inferred edges'),
+            links.size, 'inferred edges');
+        assert.equal(await evaluate(`document.querySelectorAll('.react-flow__edge').length`), snapshot.links.length,
+            'no extra edge for inferred associations');
+        result.inferred = links.size;
     }
 
     // Several connections: frames, qualified labels, one-connection views with reference nodes, deep links, search,
