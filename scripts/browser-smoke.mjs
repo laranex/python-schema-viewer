@@ -15,7 +15,8 @@
 //                  every link between connections in /snapshot.json, #connection= and #table= deep links, search, per-
 //                  connection diagnostics, drift and coverage, and the duplicate's connection at phone width
 //   compare        true: the Compare tab shows the first stored comparison's summary, every listed difference and an
-//                  incomplete alert exactly when it is incomplete; a difference's "Show in" opens its table (#table=);
+//                  incomplete alert exactly when it is incomplete; a difference's "Show in" (in the first comparison
+//                  that lists one) opens its table (#table=);
 //                  #view=compare&comparison=…&difference=… opens every stored comparison on its last difference
 //   migrations     number of migration track cards in the Migrations tab (one per stored track)
 //   inferred       true: the edges of the links inferred associations use are marked inferred, and only those
@@ -213,8 +214,14 @@ try {
         assert.equal(shown.clean, first.complete && first.differences.length === 0 && first.omitted === 0, 'clean note');
         assert.ok(shown.hash.includes('view=compare'), `hash ${shown.hash}`);
         const compare = {comparisons: snapshot.comparisons.length, summary: shown.summary, complete: first.complete};
-        const difference = first.differences.find(d => d.target) ?? first.differences[0];
+        // Navigation, from the first comparison that lists a difference, opened by its deep link.
+        const listing = snapshot.comparisons.find(c => c.differences.length > 0);
+        const difference = listing && (listing.differences.find(d => d.target) ?? listing.differences[0]);
         if (difference) {
+            if (listing !== first) {
+                await open(1440, 950, false, `#view=compare&comparison=${encodeURIComponent(listing.id)}`);
+                await until(differenceCard(difference.id), `difference ${difference.id}`);
+            }
             const side = difference.target ? 'target' : 'baseline';
             const ref = difference[side];
             await evaluate(`[...${differenceCard(difference.id)}.querySelectorAll('.diff__actions button')]
