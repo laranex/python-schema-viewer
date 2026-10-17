@@ -18,6 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- `serve` now shows the shared Laranex Schema Viewer UI (laranex-schema-viewer-ui 0.1.0, prebuilt and vendored, so no Node.js at runtime) in place of the HTML/SVG viewer. It opens declared, database and combined laranex-schema documents. A version 1 snapshot is converted explicitly with the same conversion as `convert`. The Content-Security-Policy, host check and loopback default are unchanged, and only the files the viewer's manifest lists are served.
 - Builds no longer see the caller's full environment. Settings that need a variable must list it in `env_passthrough`, or get a placeholder from `[tool.laranex-schema-viewer.env]`. Import-time writes outside `allow_writes` now fail the build. Database connections, network access and subprocesses at import time fail too. Migration notes are in [build security](docs/security.md#upgrading).
 - `serve` and `mcp` explain that a laranex-schema document is not a version 1 snapshot, instead of reporting validation errors.
 

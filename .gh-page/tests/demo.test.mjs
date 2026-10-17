@@ -1,41 +1,26 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {readFile} from 'node:fs/promises';
-import {schema} from '../demo/schema.mjs';
 import {prepareDemo, demoDirectory} from '../scripts/prepare-demo.mjs';
-import {edgesFor} from '../../src/laranex_schema_viewer/static/graph.js';
 
-test('synthetic graph has valid endpoints and independent FK/ORM paths', () => {
-    const tables = new Map(schema.tables.map(t => [t.id, t]));
-    const models = new Set(schema.models.map(m => m.id));
-    for (const table of tables.values()) for (const fk of table.foreign_keys) {
-        assert.ok(tables.has(fk.target_table));
-        assert.equal(fk.columns.length, fk.target_columns.length);
-        for (const column of fk.target_columns) assert.ok(tables.get(fk.target_table).columns.some(c => c.name === column));
+test('synthetic demo is a laranex-schema document with links of both kinds', async () => {
+    const schema = JSON.parse(await readFile(new URL('../demo/schema.json', import.meta.url), 'utf8'));
+    assert.equal(schema.format, 'laranex-schema');
+    const tables = new Map(schema.connections.flatMap(c => c.tables).map(t => [t.id, t]));
+    assert.equal(tables.size, 9);
+    for (const link of schema.links) for (const end of [link.from, link.to]) {
+        assert.ok(end.columns.every(c => tables.get(end.table).columns.some(column => column.name === c)));
     }
-    for (const relation of schema.relationships) {
-        assert.ok(models.has(relation.model) && models.has(relation.target_model));
-        for (const pair of relation.join_pairs) for (const endpoint of [pair.local, pair.remote]) {
-            assert.ok(tables.get(endpoint.table).columns.some(c => c.name === endpoint.column));
-        }
-    }
-    const edges = edgesFor(schema);
-    assert.ok(edges.some(e => e.kind === 'foreign_key'));
-    assert.ok(edges.some(e => e.kind === 'orm'));
-    assert.ok(edges.some(e => e.source === e.target));
-    assert.equal(new Set(edges.map(e => e.id)).size, edges.length);
-    assert.equal(schema.tables.length, 9);
+    assert.ok(schema.links.some(l => l.state === 'both'));
+    assert.ok(schema.links.some(l => l.state === 'foreign_key'));
 });
 
-test('demo uses packaged viewer assets and relative, base-safe URLs', async () => {
-    await prepareDemo();
+test('demo uses the packaged viewer and relative, base-safe URLs', async () => {
+    const {schema, manifest} = await prepareDemo();
     const html = await readFile(new URL('index.html', demoDirectory), 'utf8');
-    const app = await readFile(new URL('app.js', demoDirectory), 'utf8');
-    assert.ok(html.includes('href="./styles.css"'));
-    assert.ok(html.includes('src="./app.js"'));
-    assert.ok(app.includes("fetch('./snapshot.json')"));
+    assert.ok(html.includes('href="app.css"') && html.includes('src="app.js"'));
+    assert.ok(html.includes('data-snapshot-url="snapshot.json"'));
     assert.ok(!html.match(/(?:src|href)="\/(?!\/)/));
+    for (const {path} of manifest.files) await readFile(new URL(path, demoDirectory));
     assert.deepEqual(JSON.parse(await readFile(new URL('snapshot.json', demoDirectory))), schema);
-    const source = await readFile(new URL('../scripts/prepare-demo.mjs', import.meta.url), 'utf8');
-    assert.ok(!source.includes('reference.json'));
 });

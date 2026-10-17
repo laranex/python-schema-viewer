@@ -34,8 +34,7 @@ def read_snapshot(path: str | Path) -> SchemaDocument:
         except (ValueError, AttributeError):
             unified = False
         if unified:
-            raise ValueError(f"{path} is a laranex-schema document; serve and mcp read version 1 snapshots, which "
-                             "build writes with --source declared (the default)")
+            raise ValueError(f"{path} is already a laranex-schema document, not a version 1 snapshot")
     return SchemaDocument.model_validate_json(data)
 
 

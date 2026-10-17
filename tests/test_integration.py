@@ -76,12 +76,21 @@ class IntegrationTests(unittest.TestCase):
             handler(Connection(), ("127.0.0.1", 10000), None)
             return output.getvalue()
 
-        for route in ["/", "/app.js", "/graph.js", "/styles.css", "/snapshot.json"]:
+        from laranex_schema_viewer.server import POLICY, viewer_routes
+
+        routes = viewer_routes()
+        self.assertGreater(len(routes), 10)
+        for route in [*routes, "/snapshot.json"]:
             response = request(route)
             self.assertIn(b"200 OK", response)
             self.assertIn(b"X-Content-Type-Options: nosniff", response)
-        self.assertIn(b'"laranex-schema-viewer"', request("/snapshot.json"))
-        for route in ["/../pyproject.toml", "/%2e%2e/pyproject.toml", "/.env", "/favicon.ico"]:
+            self.assertIn(f"Content-Security-Policy: {POLICY}".encode(), response)
+        self.assertIn(b"Content-Type: font/woff2", request(next(r for r in routes if r.endswith(".woff2"))))
+        # A version 1 snapshot reaches the viewer converted, as laranex-schema.
+        body = json.loads(request("/snapshot.json").split(b"\r\n\r\n", 1)[1])
+        self.assertEqual((body["format"], body["source"]), ("laranex-schema", "declared"))
+        for route in ["/../pyproject.toml", "/%2e%2e/pyproject.toml", "/.env", "/favicon.ico", "/manifest.json",
+                      "/LICENSE.txt", "/graph.js", "/styles.css", "/assets/", "/assets/../manifest.json"]:
             self.assertIn(b"404 Not Found", request(route))
         self.assertIn(b"403", request("/", host="untrusted.example"))
         self.assertIn(b"501", request("/snapshot.json", method="POST"))
@@ -99,7 +108,9 @@ class IntegrationTests(unittest.TestCase):
         try:
             base = f"http://127.0.0.1:{server.server_port}"
             with urlopen(base + "/snapshot.json", timeout=5) as response:
-                self.assertEqual(len(json.load(response)["tables"]), 6)
+                self.assertEqual(len(json.load(response)["connections"][0]["tables"]), 6)
+            with urlopen(base + "/", timeout=5) as response:
+                self.assertIn(b'data-snapshot-url="snapshot.json"', response.read())
             with self.assertRaises(HTTPError):
                 urlopen(base + "/../pyproject.toml", timeout=5)
         finally:

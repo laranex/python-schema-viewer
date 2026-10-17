@@ -204,5 +204,4 @@ def run_build(args: argparse.Namespace) -> None:
         counts[diagnostic["category"]] = counts.get(diagnostic["category"], 0) + 1
     summary = ", ".join(f"{n} {category}" for category, n in sorted(counts.items())) or "no"
     tables = sum(len(c["tables"]) for c in document["connections"])
-    print(f"Saved laranex-schema 1.0 ({document['source']}): {tables} tables, {summary} diagnostics, to {output}. "
-          "serve and mcp read version 1 snapshots; open this document in laranex-schema-viewer-ui.")
+    print(f"Saved laranex-schema 1.0 ({document['source']}): {tables} tables, {summary} diagnostics, to {output}")

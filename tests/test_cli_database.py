@@ -114,12 +114,13 @@ class DatabaseBuilds(unittest.TestCase):
         result = self.run_cli("build", env={"APP_DB": f"sqlite:///{self.database}"})
         self.assertIn("must not be passed to the extraction worker", result.stderr)
 
-    def test_serve_explains_laranex_schema_documents(self):
-        self.assertEqual(self.run_cli("build", "--source", "database", "--output", "db.json").returncode, 0)
-        result = self.run_cli("serve", "--snapshot", "db.json", "--port", "0")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("is a laranex-schema document", result.stderr)
+    def test_serve_and_mcp_open_laranex_schema_documents(self):
+        from laranex_schema_viewer.query import SnapshotQuery
+        from laranex_schema_viewer.server import create_server
 
+        self.assertEqual(self.run_cli("build", "--source", "database", "--output", "db.json").returncode, 0)
+        create_server(self.root / "db.json", port=0).server_close()
+        self.assertEqual(SnapshotQuery(self.root / "db.json").overview()["source"], "database")
 
 if __name__ == "__main__":
     unittest.main()
