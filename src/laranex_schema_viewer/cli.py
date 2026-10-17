@@ -7,8 +7,8 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .config import (DEFAULT_SNAPSHOT, FORMATS, SOURCES, add_config, config_section, detect_django_settings,
-                     detect_model_module, load_config, resolve_snapshot)
+from .config import (DEFAULT_SNAPSHOT, FORMATS, SOURCES, DatabaseConfig, ProjectConfig, add_config, config_section,
+                     database_option, detect_django_settings, detect_model_module, load_config, resolve_snapshot)
 
 DATABASE_URL_ENV = "LARANEX_SCHEMA_DATABASE_URL"
 
@@ -43,6 +43,9 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--schema", action="append", default=[], help="Database schema to inspect; repeatable")
     build.add_argument("--database-connection", metavar="NAME",
                        help="Declared connection the database belongs to; default: config, else the only one")
+    build.add_argument("--database", action="append", default=[], metavar="NAME=ENV_VAR",
+                       help="Inspect connection NAME, whose URL is in ENV_VAR; repeatable. Replaces the single "
+                            "database options and [tool.laranex-schema-viewer.databases]")
     build.add_argument("--allow-write-privileges", action="store_true",
                        help="Inspect with a role that can change the database (sessions stay read-only)")
     convert = commands.add_parser("convert", help="Convert a version 1 snapshot to a laranex-schema 1.0 document")
@@ -130,15 +133,23 @@ def run_build(args: argparse.Namespace) -> None:
                          "database metadata")
     output = args.output or config.output or DEFAULT_SNAPSHOT
     timeout = args.timeout or config.timeout or IsolationConfig.timeout
+    databases = database_connections(args, config)
     url_env = args.database_url_env or config.database_url_env or DATABASE_URL_ENV
-    if url_env in config.env_passthrough or url_env in config.env:
-        raise ValueError(f"{url_env} holds the database URL and must not be passed to the extraction worker")
-    url = None
+    for variable in [d.url_env for d in databases] or [url_env]:
+        if variable in config.env_passthrough or variable in config.env:
+            raise ValueError(f"{variable} holds a database URL and must not be passed to the extraction worker")
+    url, urls = None, {}
     if source != "declared":
-        url = os.environ.get(url_env)
-        if not url:
-            raise ValueError(f"Set {url_env} to a read-only database URL (see docs/database.md); URLs are never read "
-                             "from arguments or configuration")
+        for database in databases:
+            urls[database.name] = os.environ.get(database.url_env)
+            if not urls[database.name]:
+                raise ValueError(f"Set {database.url_env} to a read-only database URL for connection {database.name} "
+                                 "(see docs/database.md); URLs are never read from arguments or configuration")
+        if not databases:
+            url = os.environ.get(url_env)
+            if not url:
+                raise ValueError(f"Set {url_env} to a read-only database URL (see docs/database.md); URLs are never "
+                                 "read from arguments or configuration")
 
     v1 = None
     orm = args.orm or config.orm or "auto"
@@ -180,7 +191,23 @@ def run_build(args: argparse.Namespace) -> None:
 
     declared = from_v1(v1, orm=None if orm == "auto" else orm) if v1 is not None else None
     document = declared
-    if source != "declared":
+    if source != "declared" and databases:
+        from .introspection import DatabaseRequest
+        from .introspection.runner import introspect_all
+
+        database = introspect_all([DatabaseRequest(
+            url=urls[d.name], schemas=d.schemas, connection=d.name,
+            allow_write_privileges=args.allow_write_privileges, timeout=timeout,
+        ) for d in databases], project_roots=[str(Path(args.project_root).resolve())])
+        for connection in database["connections"]:
+            print(f"Inspected connection {connection['name']} read-only ({connection['driver']})")
+        if declared is None:
+            document = database
+        else:
+            from .reconcile import combine
+
+            document = combine(declared, database, namespaces={d.name: d.namespace for d in databases if d.namespace})
+    elif source != "declared":
         from .introspection import DatabaseRequest
         from .introspection.runner import introspect
 
@@ -205,3 +232,32 @@ def run_build(args: argparse.Namespace) -> None:
     summary = ", ".join(f"{n} {category}" for category, n in sorted(counts.items())) or "no"
     tables = sum(len(c["tables"]) for c in document["connections"])
     print(f"Saved laranex-schema 1.0 ({document['source']}): {tables} tables, {summary} diagnostics, to {output}")
+
+
+def database_connections(args: argparse.Namespace, config: ProjectConfig) -> list[DatabaseConfig]:
+    """The named connections to inspect, or [] for the single-database options. Never both."""
+    single = [option for option, value in (("--database-url-env", args.database_url_env), ("--schema", args.schema),
+                                           ("--database-connection", args.database_connection)) if value]
+    single_config = [key for key, value in (("database_url_env", config.database_url_env),
+                                            ("database_schemas", config.database_schemas),
+                                            ("database_connection", config.database_connection)) if value]
+    if args.database and single:
+        raise ValueError(f"--database cannot be combined with {', '.join(single)}; give each connection as "
+                         "NAME=ENV_VAR and its schemas in [tool.laranex-schema-viewer.databases.NAME]")
+    if args.database and single_config:
+        raise ValueError(f"--database cannot be combined with {', '.join(single_config)} in pyproject.toml; "
+                         "configure the connections under [tool.laranex-schema-viewer.databases.NAME]")
+    if config.databases and single:
+        raise ValueError(f"{', '.join(single)} cannot be combined with [tool.laranex-schema-viewer.databases]; "
+                         "select connections with --database NAME=ENV_VAR")
+    if not args.database:
+        return [config.databases[name] for name in sorted(config.databases)]
+    selected: dict[str, DatabaseConfig] = {}
+    for value in args.database:
+        name, url_env = database_option(value)
+        if name in selected:
+            raise ValueError(f"--database names connection {name} more than once")
+        configured = config.databases.get(name)
+        selected[name] = DatabaseConfig(name=name, url_env=url_env, schemas=configured.schemas if configured else (),
+                                        namespace=configured.namespace if configured else None)
+    return [selected[name] for name in sorted(selected)]
