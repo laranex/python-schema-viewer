@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-17
+
+**Upgrading:** `build` now imports your models in an isolated worker by default. The worker gets a filtered environment without credentials, and import-time database connections, network access, subprocesses and file writes fail. Projects whose models depend on those need configuration or small fixes; see [Upgrading from 0.3](docs/security.md#upgrading). There is no in-process mode. Version 1 snapshots stay the default output, and `serve` and `mcp` still open them.
+
 ### Added
 
 - The laranex-schema 1.0 contract shared with laranex-schema-viewer-ui (`laranex_schema_viewer.contract`): Pydantic models, strict (producer) and lenient (reader) validation with the shared reference rules, canonical serialization and revisions, and the shared graph builder for links and derived links. The contract's valid, invalid and graph conformance fixtures run in the test suite.
@@ -19,11 +23,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- **Breaking:** builds no longer see the caller's full environment. Settings that need a variable must list it in `env_passthrough`, or get a placeholder from `[tool.laranex-schema-viewer.env]`. Import-time writes outside `allow_writes` now fail the build. Database connections, network access and subprocesses at import time fail too. Migration notes are in [build security](docs/security.md#upgrading).
 - The vendored viewer is laranex-schema-viewer-ui 0.2.0. With every connection shown, each connection is framed in its own region. With one connection shown, tables that its relationships reach on other connections appear as reference nodes. Tables with the same name on two connections are labelled with their connection, and deep links switch to the right connection. The viewer ships its own favicon, served from its manifest. The UI's validator now rejects a foreign key that crosses connections, which this package never writes.
 - `serve` now shows the shared Laranex Schema Viewer UI (laranex-schema-viewer-ui 0.2.0, prebuilt and vendored, so no Node.js at runtime) in place of the HTML/SVG viewer. It opens declared, database and combined laranex-schema documents. A version 1 snapshot is converted explicitly with the same conversion as `convert`. The Content-Security-Policy, host check and loopback default are unchanged, and only the files the viewer's manifest lists are served.
-- Builds no longer see the caller's full environment. Settings that need a variable must list it in `env_passthrough`, or get a placeholder from `[tool.laranex-schema-viewer.env]`. Import-time writes outside `allow_writes` now fail the build. Database connections, network access and subprocesses at import time fail too. Migration notes are in [build security](docs/security.md#upgrading).
-- `reconcile.combine` reconciles every connection of a database document, and keeps declared connections it has no database for as declared-only, with an `inspection_unavailable` diagnostic (previously such documents failed validation). Without `connection=`, a database connection the models do not declare stays database-only instead of failing.
-- `serve` and `mcp` explain that a laranex-schema document is not a version 1 snapshot, instead of reporting validation errors.
+- In a combined document, a declared connection with no database configured stays declared-only, with `unavailable` database coverage and an `inspection_unavailable` diagnostic. A database connection that the models don't declare stays database-only.
+
+### Removed
+
+- The HTML/SVG viewer (`static/index.html`, `app.js`, `graph.js`, `styles.css`) and its Node.js tests. `serve` uses the vendored shared UI instead.
 
 ## [0.3.1] - 2026-10-17
 
@@ -73,7 +80,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - Distributable agent skills, installable with `npx skills add laranex/python-schema-viewer`.
 - Documentation site and security policy.
 
-[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/laranex/python-schema-viewer/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/laranex/python-schema-viewer/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/laranex/python-schema-viewer/compare/v0.1.0...v0.2.0

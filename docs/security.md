@@ -86,13 +86,19 @@ The introspection worker reads the database's catalogs. It is a separate process
 
 ## Upgrading
 
-Isolated extraction changes what existing builds see:
+### From 0.3 to 0.4
+
+Isolated extraction is the default in 0.4. It changes what existing builds see:
 
 - **Environment.** Only allowlisted variables reach your models. Settings that read other variables at import time fail, or get the default. List harmless ones in `env_passthrough`, and give required secrets a placeholder in `[tool.laranex-schema-viewer.env]`, for example `SECRET_KEY = "schema-viewer-placeholder"`.
 - **Files.** Imports that write files outside the worker's temporary directories now fail with `PermissionError`. Log directories can be listed in `allow_writes`.
 - **Databases and network.** Imports that connect to a database, call a service or start a process at import time now fail with `PermissionError`, where they previously had side effects. The fix belongs in the application: do the work lazily, not at import.
 - **Time.** Builds that take longer than 120 seconds need `timeout`.
 - **Output.** Snapshots are unchanged for every supported ORM; the test suite compares isolated and in-process output byte for byte.
+- **No in-process mode.** If a project cannot build in the `process` worker, fix the import-time side effect, or build at the `container` level with an image that has what the models need. The build never falls back to importing models in-process.
+- **Viewer.** `serve` shows the shared Laranex Schema Viewer UI instead of the previous HTML/SVG page. It opens version 1 snapshots and laranex-schema documents. Bookmarked URLs of the old page's assets (`/app.js`, `/graph.js`, `/styles.css`) now return 404.
+- **Python API.** `read_snapshot` still reads version 1 snapshots only. Use `snapshot.load_document` to read either format.
+- **Database drivers.** Live introspection needs `pip install 'laranex-schema-viewer[postgresql]'` or `[mysql]`; SQLite needs no extra.
 
 ## Remaining risks
 
@@ -126,5 +132,5 @@ A container image needs your application's dependencies and the same `laranex-sc
 ```dockerfile
 FROM python:3.12-slim
 COPY requirements.txt .
-RUN pip install -r requirements.txt laranex-schema-viewer==0.3.1
+RUN pip install -r requirements.txt laranex-schema-viewer==0.4.0
 ```
