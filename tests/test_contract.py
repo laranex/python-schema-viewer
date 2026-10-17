@@ -3,8 +3,9 @@
 tests/fixtures/contract is vendored unchanged from laranex-schema-viewer-ui by scripts/sync_contract.py; its manifest
 records the source commit and every file's SHA-256. The Python implementation validates them independently: every
 valid document passes strict validation and serializes back to the same bytes, every invalid one fails with the
-expected rule, and the graph, comparison and migration conformance cases give the expected results, and the gate
-conformance cases give byte-identical reports through gate_document. Inference conformance belongs to a later
+expected rule, the graph, comparison, request, coverage-gap, override, comparison-diagnostic, store and migration
+conformance cases give byte-identical results, and the gate conformance cases give byte-identical reports through
+gate_document. Inference conformance belongs to a later
 milestone; its cases are vendored but not run yet.
 """
 
@@ -16,7 +17,10 @@ from pathlib import Path
 from laranex_schema_viewer import model as m
 from laranex_schema_viewer.contract import (assert_document, build_graph, canonical_json, document_to_json,
                                             finalize, from_json, revision, to_json, validate_document)
-from laranex_schema_viewer.contract.comparison import SeverityOverride, compare_scopes
+from laranex_schema_viewer.contract.comparison import (DIFFERENCE_FIELDS, SeverityOverride, compare_scopes,
+                                                       comparison_diagnostics, coverage_gap_text, coverage_gaps,
+                                                       expand_comparison_requests, scope_covered, store_comparisons,
+                                                       validate_severity_overrides)
 from laranex_schema_viewer.contract.gate import UNPARSED, gate_document, gate_json_schema, validate_gate_report
 from laranex_schema_viewer.contract.migration import migration_history, migration_state
 from laranex_schema_viewer.contract.shape import json_schema
@@ -33,6 +37,12 @@ def load(path: Path):
 
 def cases(directory: str) -> list[Path]:
     return sorted((CONTRACT / directory).glob("*.json"))
+
+
+def compared_document(data) -> m.Document:
+    """The part of a document a comparison reads ({source, connections}) as a model document."""
+    return m.Document(source=data["source"], generator=m.Generator(name="conformance"),
+                      connections=tuple(from_json(m.Connection, c) for c in data["connections"]))
 
 
 class VendoredCopy(unittest.TestCase):
@@ -160,6 +170,67 @@ class Conformance(unittest.TestCase):
                                                 overrides=overrides.get(path.name, ()))
                     self.assertEqual(to_json(comparison), to_json(stored))
 
+    def test_requests(self):
+        paths = cases("conformance/requests")
+        self.assertEqual(len(paths), 13)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                pairs, errors = expand_comparison_requests(compared_document(case["input"]["document"]),
+                                                           case["input"]["requests"])
+                result = {"pairs": [{"baseline": to_json(p.baseline), "target": to_json(p.target),
+                                     "request": p.request} for p in pairs],
+                          "errors": [{"kind": e.kind, "request": e.request, "message": e.message} for e in errors]}
+                self.assertEqual(canonical_json(result), canonical_json(case["expected"]))
+
+    def test_coverage_gaps(self):
+        paths = cases("conformance/coverage-gaps")
+        self.assertEqual(len(paths), 11)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                document = compared_document(case["input"]["document"])
+                scope = from_json(m.Scope, case["input"]["scope"])
+                connection = next(c for c in document.connections if c.id == scope.connection)
+                coverage = connection.coverage.declared if document.source == "declared" else connection.coverage.database
+                result = {"gaps": coverage_gaps(document, scope),
+                          "covered": scope_covered(coverage, connection, scope.schema)}
+                self.assertEqual(canonical_json(result), canonical_json(case["expected"]))
+
+    def test_overrides(self):
+        paths = cases("conformance/overrides")
+        self.assertEqual(len(paths), 9)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                self.assertEqual(canonical_json({"errors": validate_severity_overrides(case["input"]["overrides"])}),
+                                 canonical_json(case["expected"]))
+
+    def test_comparison_diagnostics(self):
+        paths = cases("conformance/comparison-diagnostics")
+        self.assertEqual(len(paths), 6)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                diagnostics = comparison_diagnostics(compared_document(case["input"]["document"]),
+                                                     from_json(m.Comparison, case["input"]["comparison"]))
+                self.assertEqual(canonical_json({"diagnostics": to_json(diagnostics)}),
+                                 canonical_json(case["expected"]))
+
+    def test_store(self):
+        paths = cases("conformance/store")
+        self.assertEqual(len(paths), 4)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                document = assert_document(case["input"]["document"], strict=True)
+                expected = assert_document(case["expected"]["document"], strict=True)
+                comparisons = [from_json(m.Comparison, c) for c in case["input"]["comparisons"]]
+                self.assertEqual(canonical_json(document_to_json(store_comparisons(document, comparisons))),
+                                 canonical_json(case["expected"]["document"]))
+                self.assertEqual(canonical_json(document_to_json(store_comparisons(expected, comparisons))),
+                                 canonical_json(case["expected"]["document"]))
+
     def test_migrations(self):
         paths = cases("conformance/migrations")
         self.assertEqual(len(paths), 14)
@@ -174,6 +245,55 @@ class Conformance(unittest.TestCase):
                 self.assertEqual({"history": to_json(history), "status": state.status,
                                   "pending": to_json(state.pending),
                                   "unknownRevisions": list(state.unknown_revisions)}, case["expected"])
+
+
+class ProducerHelpers(unittest.TestCase):
+    """The checks laranex-schema-viewer-ui's "producer helpers" tests make of the same functions."""
+
+    def setUp(self):
+        self.tenants = assert_document(load(CONTRACT / "fixtures" / "valid" / "comparison-tenant-schemas.json"),
+                                       strict=True)
+
+    def test_compare_scopes_rejects_invalid_overrides(self):
+        stored = self.tenants.comparisons[0]
+        with self.assertRaisesRegex(ValueError, r"^Invalid severity overrides: overrides\[0\]\.field applies only to "
+                                                "changed differences, not missing$"):
+            compare_scopes(self.tenants, stored.baseline, stored.target,
+                           overrides=[SeverityOverride(object_type="column", change="missing", field="type",
+                                                       severity="error")])
+
+    def test_difference_fields_list_every_field_compare_scopes_reports(self):
+        for c in self.tenants.comparisons:
+            for d in c.differences:
+                for f in d.fields:
+                    self.assertIn(f.field, DIFFERENCE_FIELDS[d.object_type])
+
+    def test_complete_follows_from_the_coverage_gaps_and_the_omitted_differences(self):
+        doc = assert_document(load(CONTRACT / "fixtures" / "valid" / "comparison-incomplete.json"), strict=True)
+        for c in doc.comparisons:
+            gaps = [*coverage_gaps(doc, c.baseline), *coverage_gaps(doc, c.target)]
+            self.assertEqual(c.complete, c.omitted == 0 and not gaps)
+            self.assertEqual([coverage_gap_text(g) for g in gaps],
+                             ["checkConstraints unavailable", "checkConstraints unavailable"])
+
+    def test_expansion_never_raises(self):
+        empty = m.Document(source="database", generator=m.Generator(name="conformance"))
+        _, errors = expand_comparison_requests(empty, [{"baseline": {"connection": "a", "schema": None},
+                                                        "target": {"connection": "a", "schema": "*"}}])
+        self.assertEqual([e.kind for e in errors], ["unknown_connection"])
+
+    def test_every_valid_fixture_stores_the_template_diagnostics(self):
+        for path in cases("fixtures/valid"):
+            with self.subTest(path.name):
+                doc = assert_document(load(path), strict=True)
+                stored = [d for d in doc.diagnostics if d.kind == "comparison_incomplete"]
+                self.assertEqual(stored, [d for c in doc.comparisons for d in comparison_diagnostics(doc, c)])
+                self.assertEqual(store_comparisons(doc, doc.comparisons), doc)
+
+    def test_storing_two_comparisons_with_one_id_raises(self):
+        stored = self.tenants.comparisons[0]
+        with self.assertRaisesRegex(ValueError, f"^Comparison {stored.id} is listed more than once$"):
+            store_comparisons(self.tenants, [stored, stored])
 
 
 class GateReports(unittest.TestCase):

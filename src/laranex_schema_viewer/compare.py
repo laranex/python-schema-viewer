@@ -13,8 +13,8 @@ from collections.abc import Iterable, Sequence
 
 from . import model as m
 from .config import WILDCARD, ComparisonConfig, ScopeConfig
-from .contract import finalize, to_json
-from .contract.comparison import SeverityOverride, compare_scopes, coverage_gaps
+from .contract import to_json
+from .contract.comparison import SeverityOverride, compare_scopes, comparison_diagnostics, store_comparisons
 
 MAX_VALUE_CHARACTERS = 80
 
@@ -75,35 +75,14 @@ def compute(document: m.Document, specs: Iterable[ComparisonConfig]
                      for o in spec.overrides]
         comparison = compare_scopes(document, baseline, target, overrides=overrides, limit=spec.limit)
         comparisons.append(comparison)
-        if not comparison.complete:
-            diagnostics.append(_incomplete(document, comparison, spec.limit))
+        diagnostics += comparison_diagnostics(document, comparison)
     return tuple(sorted(comparisons, key=lambda c: c.id)), tuple(diagnostics)
-
-
-def _incomplete(document: m.Document, comparison: m.Comparison, limit: int) -> m.Diagnostic:
-    reasons = []
-    if comparison.omitted:
-        total = comparison.summary.missing + comparison.summary.extra + comparison.summary.changed
-        reasons.append(f"{comparison.omitted} of {total} differences are left out by the limit of {limit}")
-    for side, scope in (("baseline", comparison.baseline), ("target", comparison.target)):
-        gaps = coverage_gaps(document, scope)
-        if gaps:
-            reasons.append(f"the {side} {scope_label(document, scope)} is not completely covered ({', '.join(gaps)})")
-    label = f"{scope_label(document, comparison.baseline)}={scope_label(document, comparison.target)}"
-    return m.Diagnostic(kind="comparison_incomplete", category="inspection", severity="warning", certainty="certain",
-                        subject=m.Subject(type="comparison", id=comparison.id, label=label),
-                        message=f"Comparison {label} is incomplete: {'; '.join(reasons)}")
 
 
 def store(document: m.Document, comparisons: Sequence[m.Comparison], diagnostics: Sequence[m.Diagnostic]
           ) -> m.Document:
-    """The document with computed comparisons and their diagnostics. Comparisons it already holds for the same
-    scopes, and their diagnostics, are replaced; others are kept."""
-    ids = {c.id for c in comparisons}
-    kept = [c for c in document.comparisons if c.id not in ids]
-    previous = [d for d in document.diagnostics if not (d.subject.type == "comparison" and d.subject.id in ids)]
-    return finalize(m.replace(document, comparisons=tuple(sorted([*kept, *comparisons], key=lambda c: c.id)),
-                              diagnostics=(*previous, *diagnostics)))
+    """The document with computed comparisons stored (store_comparisons), with their diagnostics."""
+    return store_comparisons(document, comparisons)
 
 
 def _value(value: object) -> str:

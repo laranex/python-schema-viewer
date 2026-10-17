@@ -223,7 +223,8 @@ def database_section(value: object) -> dict[str, DatabaseConfig]:
 def comparison_section(value: object) -> tuple[ComparisonConfig, ...]:
     """[[tool.laranex-schema-viewer.comparisons]] entries: baseline and target ({connection, schema}), limit,
     overrides ([{object_type, change, field, severity}])."""
-    from .contract.comparison import FIELDS, SEVERITIES
+    from .contract.comparison import DIFFERENCE_FIELDS as FIELDS
+    from .contract.comparison import SEVERITIES
     from .contract.shape import CHANGES
 
     if not isinstance(value, list) or not all(isinstance(v, dict) for v in value):
