@@ -72,11 +72,13 @@ def main(argv: list[str] | None = None) -> int:
     check = commands.add_parser(
         "check", help="Check a saved document's comparisons, migrations and diagnostics against thresholds, for CI",
         description="Exit codes: 0 passed; 1 a finding meets the thresholds; 2 the check could not be completed "
-                    "(an incomplete comparison, an unknown migration status, an inspection error, an invalid or "
-                    "unreadable document, or invalid arguments or configuration).")
+                    "(an invalid or unreadable document, a requested comparison not in it, an incomplete comparison or "
+                    "database inspection, a failed inspection, an unknown migration status, or invalid arguments or "
+                    "configuration).")
     check.add_argument("comparisons", nargs="*", metavar="BASELINE=TARGET",
-                       help="Also compare these scopes of the document first, as `compare` would, without writing it; "
-                            "default: check the stored comparisons only")
+                       help="Compare these scopes in memory, as `compare` would without writing, then check only "
+                            "them; default: only the configured [[tool.laranex-schema-viewer.comparisons]], which "
+                            "must be stored in the document, else every stored comparison")
     check.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     check.add_argument("--severity", choices=CHECK_SEVERITIES,
                        help="Lowest severity that fails the check; default: [tool.laranex-schema-viewer.check], "
@@ -310,38 +312,26 @@ def run_check(args: argparse.Namespace) -> int:
     """The drift gate. Returns its exit code: 0 passed, 1 qualifying findings, 2 for anything that kept the check from
     completing, including invalid arguments, configuration and documents. Never 0 or 1 on a failure."""
     try:
-        from .check import check, invalid, summary
-        from .compare import compute, store
-        from .contract import VERSION, assert_document, canonical_json
-        from .snapshot import read_document, write_atomically
+        from .check import run, summary
+        from .contract import canonical_json
+        from .snapshot import write_atomically
 
         config = load_config(Path.cwd())
-        thresholds = {"severity": args.severity or config.check.severity or DEFAULT_CHECK_SEVERITY,
-                      "certainty": args.certainty or config.check.certainty or DEFAULT_CHECK_CERTAINTY}
+        thresholds = {"severity": args.severity or config.check.severity,
+                      "certainty": args.certainty or config.check.certainty}
         if args.limit is not None and not args.comparisons:
             raise ValueError("--limit applies to comparisons named on the command line")
-        specs = comparison_specs(args.comparisons, args.limit, ProjectConfig()) if args.comparisons else ()
+        ad_hoc = comparison_specs(args.comparisons, args.limit, ProjectConfig()) if args.comparisons else ()
         path = resolve_snapshot(args.snapshot, Path.cwd())
         if path.is_absolute() and path.is_relative_to(Path.cwd()):
             path = path.relative_to(Path.cwd())
-        document = None
-        try:
-            snapshot = read_document(path)
-            version = snapshot.data["version"]
-            document = assert_document(snapshot.data, strict=True) if version == VERSION else snapshot.document
-        except OSError as error:
-            report = invalid(thresholds, f"Cannot read {path}: {error.strerror or error}")
-        except ValueError as error:
-            message = str(error)
-            report = invalid(thresholds, message if message.startswith(str(path)) else f"{path}: {message}")
-        if document is not None:
-            if specs:
-                document = store(document, *compute(document, specs))
-            report = check(document, version, thresholds)
+        report, notes = run(path, thresholds, config.comparisons, ad_hoc)
         text = canonical_json(report)
         if args.output:
             write_atomically(text.encode("utf-8"), args.output)
-        print(text if args.json else summary(report, document), end="" if args.json else "\n", flush=True)
+        for note in notes:
+            print(note, file=sys.stderr)
+        print(text if args.json else summary(report), end="" if args.json else "\n", flush=True)
         return report["exitCode"]
     except (Exception, KeyboardInterrupt) as error:
         print(f"Error: {error or type(error).__name__}", file=sys.stderr)

@@ -44,6 +44,74 @@
       ],
       "additionalProperties": false
     },
+    "requested": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "type": "object",
+            "properties": {
+              "connection": {
+                "type": "string",
+                "minLength": 1
+              },
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "connection",
+              "schema"
+            ],
+            "additionalProperties": false
+          },
+          "target": {
+            "type": "object",
+            "properties": {
+              "connection": {
+                "type": "string",
+                "minLength": 1
+              },
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "connection",
+              "schema"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "baseline",
+          "target"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
     "counts": {
       "type": "object",
       "properties": {
@@ -135,8 +203,15 @@
         "type": "object",
         "properties": {
           "kind": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_]*$"
+            "enum": [
+              "comparison_incomplete",
+              "comparison_not_found",
+              "coverage_incomplete",
+              "inspection_failed",
+              "invalid_document",
+              "migration_unknown",
+              "validation_incomplete"
+            ]
           },
           "message": {
             "type": "string",
@@ -157,6 +232,8 @@
     "passed",
     "exitCode",
     "thresholds",
+    "requested",
+    "comparisons",
     "counts",
     "findings",
     "errors"

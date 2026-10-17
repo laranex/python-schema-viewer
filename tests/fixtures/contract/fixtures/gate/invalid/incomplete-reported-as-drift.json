@@ -4,6 +4,9 @@
     "expected 2"
   ],
   "report": {
+    "comparisons": [
+      "cb00c43b2ff67d1ed"
+    ],
     "counts": {
       "error": 4,
       "findings": 5,
@@ -14,7 +17,11 @@
     "errors": [
       {
         "kind": "comparison_incomplete",
-        "message": "Comparison cb00c43b2ff67d1ed is incomplete: 20 differences omitted, and check constraints were not read."
+        "message": "Comparison app:tenant_b → app:tenant_a is incomplete: 20 of 25 differences omitted; the baseline app:tenant_b was not inspected completely; the target app:tenant_a was not inspected completely."
+      },
+      {
+        "kind": "coverage_incomplete",
+        "message": "Connection app: the database inspection is incomplete: checkConstraints unavailable."
       }
     ],
     "exitCode": 1,
@@ -23,7 +30,7 @@
         "certainty": "certain",
         "id": "x01b0c5848b789435",
         "kind": "table_missing",
-        "label": "tenant_b.refunds",
+        "label": "app:tenant_b → app:tenant_a · tenant_b.refunds",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -32,8 +39,8 @@
         "certainty": "certain",
         "id": "x5f218dcadd681f4a",
         "kind": "table_changed",
-        "label": "tenant_b.users",
-        "message": "comment differ",
+        "label": "app:tenant_b → app:tenant_a · tenant_b.users",
+        "message": "Differs in comment",
         "severity": "info",
         "source": "comparison"
       },
@@ -41,7 +48,7 @@
         "certainty": "certain",
         "id": "x6be27d3071edea12",
         "kind": "table_extra",
-        "label": "tenant_a.products",
+        "label": "app:tenant_b → app:tenant_a · tenant_a.products",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -50,7 +57,7 @@
         "certainty": "certain",
         "id": "xe8707e18552bc0b9",
         "kind": "table_extra",
-        "label": "tenant_a.invoices",
+        "label": "app:tenant_b → app:tenant_a · tenant_a.invoices",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -59,7 +66,7 @@
         "certainty": "certain",
         "id": "xecf388bd6301fe50",
         "kind": "table_missing",
-        "label": "tenant_b.coupons",
+        "label": "app:tenant_b → app:tenant_a · tenant_b.coupons",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -67,6 +74,7 @@
     ],
     "format": "laranex-schema-gate",
     "passed": false,
+    "requested": [],
     "thresholds": {
       "certainty": "likely",
       "severity": "error"

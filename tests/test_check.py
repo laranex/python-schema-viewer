@@ -1,41 +1,38 @@
-"""The drift gate (`check`): findings, errors, thresholds, exit codes, the JSON report and its determinism.
+"""The drift gate (`check`): the command over the shared gate (contract/gate.py, whose conformance test_contract.py
+runs), the comparisons it requests, its output, exit codes and determinism.
 
-The report format is checked against the shared fixtures in test_contract.py; here the valid fixtures are also
-reproduced from the documents they were made from. The command reads only the saved document: an audit-hook test
-proves it opens no socket, subprocess or database and imports no application code. CIEndToEnd builds a disposable
-PostgreSQL multi-tenant database with comparisons and gates it, as a CI job would (needs LSV_TEST_POSTGRES_URL).
+CLIConformance runs every shared gate conformance case through the command and compares the printed report's bytes.
+The command reads only the saved document: an audit-hook test proves it opens no socket, subprocess or database and
+imports no application code. CIEndToEnd builds a disposable PostgreSQL multi-tenant database with comparisons and
+gates it, as a CI job would (needs LSV_TEST_POSTGRES_URL).
 """
 
+import importlib.util
 import json
 import os
+import sqlite3
 import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from laranex_schema_viewer import model as m
-from laranex_schema_viewer.check import check, errors as gate_errors, findings as gate_findings
+from laranex_schema_viewer.check import summary
 from laranex_schema_viewer.config import CheckConfig, load_config
-from laranex_schema_viewer.contract import assert_document, canonical_json
-from laranex_schema_viewer.contract.gate import gate_report, qualifies, validate_gate_report
+from laranex_schema_viewer.contract import canonical_json, document_to_json, finalize
+from laranex_schema_viewer.contract.gate import gate_document, validate_gate_report
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "tests" / "fixtures" / "contract"
 VALID = CONTRACT / "fixtures" / "valid"
+GATE_CASES = CONTRACT / "conformance" / "gate"
+COMPLETE = {f: "complete" for f in m.FEATURES}
 
 
 def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def fixture(name: str) -> m.Document:
-    return assert_document(load(VALID / f"{name}.json"), strict=True)
-
-
-def diagnostic(severity: str, certainty: str, kind: str = "column_drift", category: str = "drift") -> m.Diagnostic:
-    return m.Diagnostic(kind=kind, category=category, severity=severity, certainty=certainty,
-                        subject=m.Subject(type="document", label="doc"), message=f"{severity} {certainty}")
 
 
 def run_cli(cwd: Path, *args: str) -> subprocess.CompletedProcess:
@@ -44,60 +41,206 @@ def run_cli(cwd: Path, *args: str) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, timeout=120)
 
 
-class Conformance(unittest.TestCase):
-    def test_valid_reports_are_reproduced(self):
-        # Each fixture's findings and errors come from the shared valid documents, selected as gate.ts selects them;
-        # the Python finding and error rules (check.py) and report assembly must give the same bytes.
-        def document(name):
-            return assert_document(load(CONTRACT / "fixtures" / "valid" / f"{name}.json"), strict=True)
+def toml_scope(scope: dict) -> str:
+    schema = "" if scope["schema"] is None else f", schema = {json.dumps(scope['schema'])}"
+    return f"{{ connection = {json.dumps(scope['connection'])}{schema} }}"
 
-        tenants, migrations, incomplete = (document(n) for n in ("comparison-tenant-schemas", "migrations-alembic",
-                                                                  "comparison-incomplete"))
-        differences = [f for f in gate_findings(tenants) if f["source"] == "comparison"]
-        behind = next(t for t in migrations.migrations if t.status == "behind")
-        [migration] = [f for f in gate_findings(migrations) if f["id"] == behind.id]
-        [incomplete_error] = gate_errors(incomplete, "2.0")
-        expected = {
-            "passed.json": gate_report({"severity": "warning", "certainty": "certain"},
-                                       [f for f in differences if f["severity"] == "info"]),
-            "drift.json": gate_report({"severity": "warning", "certainty": "certain"}, [*differences, migration]),
-            "incomplete.json": gate_report({"severity": "error", "certainty": "likely"},
-                                           [f for f in gate_findings(incomplete) if f["source"] == "comparison"],
-                                           [incomplete_error]),
+
+def comparisons_toml(requested) -> str:
+    return "".join(f"[[tool.laranex-schema-viewer.comparisons]]\nbaseline = {toml_scope(r['baseline'])}\n"
+                   f"target = {toml_scope(r['target'])}\n" for r in requested)
+
+
+def database_document(features=None, diagnostics=(), schemas=None) -> dict:
+    """A one-connection database document with one table, finalized as the build writes it."""
+    table = m.Table(id="t_users", name="users", schema=None, provenance=("database",), columns=(
+        m.Column(name="id", type="integer", nullable=False, provenance=("database",)),))
+    connection = m.Connection(id="c_app", name="app", driver="sqlite", tables=(table,), coverage=m.ConnectionCoverage(
+        database=m.Coverage(complete=False, schemas=schemas, features={**COMPLETE, **(features or {})})))
+    document = m.Document(source="database", generator=m.Generator(name="test"), connections=(connection,),
+                          diagnostics=tuple(diagnostics))
+    return document_to_json(finalize(document))
+
+
+class Fixture(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        self.snapshot = self.root / "schema.json"
+        self.snapshot.write_text((VALID / "comparison-tenant-schemas.json").read_text())
+        self.configure("")
+
+    def cli(self, *args):
+        return run_cli(self.root, "check", *args)
+
+    def write(self, data, name="schema.json"):
+        (self.root / name).write_text(canonical_json(data))
+
+    def configure(self, text: str):
+        (self.root / "pyproject.toml").write_text("[tool.laranex-schema-viewer]\noutput = 'schema.json'\n" + text)
+
+    def assert_report(self, result, exit_code):
+        self.assertEqual(result.returncode, exit_code, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(validate_gate_report(report, strict=True)[1], [])
+        self.assertEqual(report["exitCode"], exit_code)
+        self.assertEqual(result.stdout, canonical_json(report))
+        return report
+
+
+class CLIConformance(Fixture):
+    def test_every_gate_case_through_the_command(self):
+        # Each case's document is the snapshot, its thresholds the --severity and --certainty flags, and its requested
+        # comparisons [[tool.laranex-schema-viewer.comparisons]] entries, which the command requests as configured.
+        # Every case is expressible; unparseable input, which no case covers (gateDocument(undefined)), is checked
+        # in Command.test_invalid_documents_exit_2_with_a_report.
+        paths = sorted(GATE_CASES.glob("*.json"))
+        self.assertEqual(len(paths), 23)
+        for path in paths:
+            case = load(path)
+            given = case["input"]
+            with self.subTest(path.name):
+                self.write(given["document"])
+                self.configure(comparisons_toml(given["requested"] or []))
+                flags = [f"--{k}={v}" for k, v in sorted((given["thresholds"] or {}).items()) if v is not None]
+                result = self.cli("--json", *flags)
+                self.assertEqual(result.returncode, case["expected"]["exitCode"], result.stderr)
+                self.assertEqual(result.stdout, canonical_json(case["expected"]))
+
+
+class Requests(Fixture):
+    """Which comparisons are checked: the ones named on the command line (computed in memory first), else the
+    configured ones (as stored), else every stored one."""
+
+    def setUp(self):
+        super().setUp()
+        data = load(VALID / "comparison-tenant-schemas.json")
+        data["migrations"] = []
+        self.write(data)
+
+    def test_no_comparisons_configured_checks_every_stored_one(self):
+        report = self.assert_report(self.cli("--json", "--severity", "error"), 1)
+        self.assertEqual(report["requested"], [])
+        self.assertEqual(len(report["comparisons"]), 1)
+        data = load(self.snapshot)
+        data["comparisons"] = []
+        self.write(data)
+        report = self.assert_report(self.cli("--json"), 0)
+        self.assertEqual((report["comparisons"], report["requested"]), ([], []))
+
+    def test_a_configured_comparison_missing_from_the_document_exits_2(self):
+        self.configure(comparisons_toml([{"baseline": {"connection": "app", "schema": "tenant_b"},
+                                          "target": {"connection": "app", "schema": "tenant_a"}}]))
+        report = self.assert_report(self.cli("--json"), 2)
+        self.assertEqual(report["errors"], [{"kind": "comparison_not_found", "message": "Requested comparison "
+                                             "app:tenant_b → app:tenant_a is not in the document."}])
+        self.assertEqual((report["comparisons"], report["findings"]), ([], []))
+
+    def test_a_configured_wildcard_that_expands_to_nothing_exits_2(self):
+        data = load(self.snapshot)
+        data["comparisons"] = []
+        data["connections"][0]["coverage"]["database"]["schemas"] = ["tenant_a"]
+        self.write(data)
+        self.configure(comparisons_toml([{"baseline": {"connection": "app", "schema": "tenant_a"},
+                                          "target": {"connection": "app", "schema": "*"}}]))
+        report = self.assert_report(self.cli("--json"), 2)
+        self.assertEqual(report["errors"], [{"kind": "comparison_not_found",
+                                             "message": "Requested comparison app:tenant_a → app:* matches no schema."}])
+        # The same request named on the command line computes nothing, so it fails the same way.
+        self.configure("")
+        self.assertEqual(self.assert_report(self.cli("--json", "app:tenant_a=app:*"), 2)["errors"], report["errors"])
+
+    def test_requested_comparisons_naming_unknown_connections_exit_2(self):
+        report = self.assert_report(self.cli("--json", "app:tenant_a=app:tenant_b", "app:tenant_a=replica"), 2)
+        self.assertEqual(report["errors"], [{"kind": "comparison_not_found", "message": "Requested comparison "
+                                             "app:tenant_a → replica names connection replica, which the document "
+                                             "does not have."}])
+        self.assertEqual(len(report["comparisons"]), 1)
+
+    def test_command_line_comparisons_are_computed_then_requested_and_never_written(self):
+        data = load(self.snapshot)
+        data["comparisons"] = []
+        self.write(data)
+        before = self.snapshot.read_bytes()
+        # Configured requests are replaced by the ones named here.
+        self.configure(comparisons_toml([{"baseline": {"connection": "app", "schema": "tenant_b"},
+                                          "target": {"connection": "app", "schema": "tenant_a"}}]))
+        report = self.assert_report(self.cli("--json", "app:tenant_a=app:*"), 1)
+        self.assertEqual(report["requested"], [{"baseline": {"connection": "app", "schema": "tenant_a"},
+                                                "target": {"connection": "app", "schema": "*"}}])
+        self.assertEqual(report["counts"]["findings"], 25)
+        self.assertEqual(len(report["comparisons"]), 1)
+        report = self.assert_report(self.cli("--json", "--limit", "2", "app:tenant_a=app:tenant_b"), 2)
+        self.assertEqual([e["message"] for e in report["errors"]], [
+            "Comparison app:tenant_a → app:tenant_b is incomplete: 23 of 25 differences omitted."])
+        self.assertEqual(self.snapshot.read_bytes(), before)
+
+    def test_a_newer_minor_keeps_its_version_with_ad_hoc_comparisons(self):
+        data = load(self.snapshot)
+        data["version"] = "2.4"
+        self.write(data)
+        report = self.assert_report(self.cli("--json", "app:tenant_a=app:tenant_b"), 2)
+        self.assertEqual([e["kind"] for e in report["errors"]], ["validation_incomplete"])
+        self.assertEqual(report["counts"]["findings"], 25)
+
+
+class Findings(Fixture):
+    def test_extraction_warnings_never_fail_the_gate(self):
+        unresolved = m.Diagnostic(kind="unresolved_foreign_key", category="extraction", severity="warning",
+                                  certainty="certain", subject=m.Subject(type="table", id="t_users"),
+                                  message="users.team_id references teams, which is not mapped")
+        self.write(database_document(diagnostics=[unresolved]))
+        report = self.assert_report(self.cli("--json"), 0)
+        self.assertEqual(report["counts"]["findings"], 0)
+        result = self.cli("--severity", "info", "--certainty", "likely")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("Schema check PASSED (exit code 0)", result.stdout)
+
+    def test_incomplete_required_inspections_exit_2(self):
+        failed = m.Diagnostic(kind="catalog_query_failed", category="inspection", severity="error", certainty="certain",
+                              subject=m.Subject(type="connection", id="c_app"), message="permission denied")
+        cases = {
+            "tables partial": (database_document({"tables": "partial"}), "coverage_incomplete",
+                               "Connection app: the database inspection is incomplete: tables partial."),
+            "columns unavailable": (database_document({"columns": "unavailable"}), "coverage_incomplete",
+                                    "Connection app: the database inspection is incomplete: columns unavailable."),
+            "a feature unavailable": (database_document({"comments": "unavailable"}), "coverage_incomplete",
+                                      "Connection app: the database inspection is incomplete: comments unavailable."),
+            "an inspection error": (database_document(diagnostics=[failed]), "inspection_failed",
+                                    "catalog_query_failed on app: permission denied"),
         }
-        for name, report in expected.items():
+        for name, (data, kind, message) in cases.items():
             with self.subTest(name):
-                self.assertEqual(canonical_json(report),
-                                 (CONTRACT / "fixtures" / "gate" / "valid" / name).read_text(encoding="utf-8"))
-        # The whole document's check adds its diagnostics as findings; errors and exit code are the fixture's.
-        whole = check(incomplete, "2.0", {"severity": "error", "certainty": "likely"})
-        fixture = load(CONTRACT / "fixtures" / "gate" / "valid" / "incomplete.json")
-        self.assertEqual((whole["errors"], whole["exitCode"]), (fixture["errors"], 2))
-        self.assertEqual([f for f in whole["findings"] if f["source"] == "comparison"], fixture["findings"])
+                self.write(data)
+                report = self.assert_report(self.cli("--json"), 2)
+                self.assertEqual(report["errors"], [{"kind": kind, "message": message}])
 
+    def test_partial_dialect_features_pass(self):
+        self.write(database_document({"checkConstraints": "partial", "indexExpressions": "partial",
+                                      "models": "not_applicable", "relationships": "not_applicable"}))
+        self.assert_report(self.cli("--json"), 0)
 
+    @unittest.skipUnless(importlib.util.find_spec("sqlalchemy"), "SQLAlchemy is not installed")
+    def test_a_built_sqlite_document_without_drift_passes(self):
+        database = self.root / "app.db"
+        with closing(sqlite3.connect(database)) as connection:
+            connection.executescript(
+                "CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT NOT NULL CHECK (length(name) > 0));"
+                "CREATE TABLE users (id INTEGER PRIMARY KEY, team_id INTEGER REFERENCES teams (id));")
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(ROOT / "src"),
+                           LARANEX_SCHEMA_DATABASE_URL=f"sqlite:///{database}")
+        built = subprocess.run([sys.executable, "-m", "laranex_schema_viewer", "build", "--source", "database",
+                                "--output", "schema.json"], cwd=self.root, env=environment, capture_output=True,
+                               text=True, timeout=120)
+        self.assertEqual(built.returncode, 0, built.stderr)
+        features = load(self.snapshot)["connections"][0]["coverage"]["database"]["features"]
+        self.assertEqual(features["checkConstraints"], "partial")
+        report = self.assert_report(self.cli("--json"), 0)
+        self.assertEqual(report["errors"], [])
 
 
 class Thresholds(unittest.TestCase):
-    def test_severity_and_certainty_matrix(self):
-        found = [diagnostic(s, c) for s in ("error", "warning", "info") for c in ("certain", "likely")]
-        document = m.Document(source="declared", generator=m.Generator(name="test"), diagnostics=tuple(found))
-        expected = {("error", "certain"): 1, ("error", "likely"): 2, ("warning", "certain"): 2,
-                    ("warning", "likely"): 4, ("info", "certain"): 3, ("info", "likely"): 6}
-        for (severity, certainty), qualifying in expected.items():
-            with self.subTest(severity=severity, certainty=certainty):
-                report = check(document, "2.0", {"severity": severity, "certainty": certainty})
-                self.assertEqual(report["counts"], {"findings": 6, "qualifying": qualifying, "error": 2,
-                                                    "warning": 2, "info": 2})
-                self.assertEqual((report["exitCode"], report["passed"]), (1, False))
-                self.assertEqual(validate_gate_report(report, strict=True)[1], [])
-        info = m.Document(source="declared", generator=m.Generator(name="test"),
-                          diagnostics=(diagnostic("info", "certain"), diagnostic("warning", "likely")))
-        report = check(info, "2.0", {"severity": "warning", "certainty": "certain"})
-        self.assertEqual((report["exitCode"], report["passed"], report["counts"]["qualifying"]), (0, True, 0))
-        self.assertTrue(qualifies({"severity": "error", "certainty": "likely"},
-                                  {"severity": "info", "certainty": "likely"}))
-
     def test_configuration(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -116,89 +259,35 @@ class Thresholds(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must be a table"):
                 load_config(root)
 
-
-class Errors(unittest.TestCase):
-    def test_errors_win_over_findings_and_never_pass(self):
-        document = fixture("comparison-incomplete")
-        for severity, certainty in (("error", "certain"), ("info", "likely")):
-            report = check(document, "2.0", {"severity": severity, "certainty": certainty})
-            self.assertEqual((report["exitCode"], report["passed"]), (2, False))
-        # Nothing listed, nothing qualifying: an incomplete comparison still fails with 2.
-        [comparison] = document.comparisons
-        empty = m.replace(document, diagnostics=(), comparisons=(m.replace(
-            comparison, differences=(), omitted=25,
-            summary=m.Summary(missing=25, extra=0, changed=0)),))
-        report = check(empty, "2.0", {"severity": "error", "certainty": "certain"})
-        self.assertEqual((report["counts"]["findings"], report["exitCode"]), (0, 2))
-        self.assertEqual([e["kind"] for e in report["errors"]], ["comparison_incomplete"])
-
-    def test_migration_inspection_and_version_errors(self):
-        document = fixture("migrations-alembic")
-        kinds = [e["kind"] for e in gate_errors(document, "2.0")]
-        self.assertEqual(kinds, ["migration_unknown"] * 3 + ["inspection_failed"])
-        statuses = {f["kind"] for f in gate_findings(document) if f["source"] == "migration"}
-        self.assertEqual(statuses, {"migration_behind", "migration_diverged", "migration_uninitialized"})
-        clean = fixture("declared-sqlalchemy")
-        self.assertEqual(gate_errors(clean, "2.0"), [])
-        self.assertEqual([e["kind"] for e in gate_errors(clean, "2.3")], ["validation_incomplete"])
-
-    def test_reports_are_deterministic(self):
-        document = fixture("comparison-tenant-schemas")
-        thresholds = {"severity": "warning", "certainty": "certain"}
-        first = canonical_json(check(document, "2.0", thresholds))
-        reordered = m.replace(document, diagnostics=tuple(reversed(document.diagnostics)))
-        self.assertEqual(canonical_json(check(reordered, "2.0", thresholds)), first)
-        self.assertEqual(canonical_json(gate_report(thresholds, reversed(gate_findings(document)))), first)
+    def test_reports_and_summaries_are_deterministic(self):
+        data = load(VALID / "comparison-tenant-schemas.json")
+        first = gate_document(data)
+        reordered = {**data, "diagnostics": list(reversed(data["diagnostics"]))}
+        self.assertEqual(canonical_json(gate_document(reordered)), canonical_json(first))
+        self.assertEqual(summary(gate_document(reordered)), summary(first))
 
 
-class Command(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name).resolve()
-        self.snapshot = self.root / "schema.json"
-        self.snapshot.write_text((VALID / "comparison-tenant-schemas.json").read_text())
-
-    def cli(self, *args):
-        return run_cli(self.root, "check", *args)
-
-    def assert_report(self, text, exit_code):
-        report = json.loads(text)
-        self.assertEqual(validate_gate_report(report, strict=True)[1], [])
-        self.assertEqual(report["exitCode"], exit_code)
-        self.assertEqual(text, canonical_json(report))
-        return report
-
+class Command(Fixture):
     def test_exit_codes_and_output(self):
         before = self.snapshot.read_bytes()
         result = self.cli("--snapshot", "schema.json")
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertTrue(result.stdout.startswith("Schema check FAILED (exit code 1): 23 of 26 findings"),
                         result.stdout)
+        self.assertIn("  error   certain migration  migration_behind  app · tenant_b: alembic revisions not applied: "
+                      "3c4d5e6f7a8b [", result.stdout)
+        self.assertIn("app:tenant_a → app:tenant_b · tenant_a.orders.total: Differs in type [", result.stdout)
         self.assertNotIn(str(self.root), result.stdout + result.stderr)
         self.assertNotIn("\x1b", result.stdout)
-        result = self.cli("--snapshot", "schema.json", "--json", "--severity", "error")
-        report = self.assert_report(result.stdout, 1)
+        report = self.assert_report(self.cli("--snapshot", "schema.json", "--json", "--severity", "error"), 1)
         # 12 error differences and tenant_b's migration track, behind its head.
         self.assertEqual(report["counts"]["qualifying"], 13)
-        self.assertIn(("migration", "migration_behind"), {(f["source"], f["kind"]) for f in report["findings"]})
-        (self.root / "pyproject.toml").write_text("[tool.laranex-schema-viewer]\noutput = 'schema.json'\n"
-                                                  "[tool.laranex-schema-viewer.check]\nseverity = 'info'\n")
-        result = self.cli("--json")
-        self.assertEqual(self.assert_report(result.stdout, 1)["thresholds"], {"severity": "info",
-                                                                              "certainty": "certain"})
-        result = self.cli("--json", "--severity", "error", "--certainty", "likely")
-        self.assertEqual(self.assert_report(result.stdout, 1)["thresholds"], {"severity": "error",
-                                                                              "certainty": "likely"})
+        self.configure("[tool.laranex-schema-viewer.check]\nseverity = 'info'\n")
+        self.assertEqual(self.assert_report(self.cli("--json"), 1)["thresholds"],
+                         {"severity": "info", "certainty": "certain"})
+        self.assertEqual(self.assert_report(self.cli("--json", "--severity", "error", "--certainty", "likely"),
+                                            1)["thresholds"], {"severity": "error", "certainty": "likely"})
         self.assertEqual(self.snapshot.read_bytes(), before)
-
-    def test_a_clean_document_passes(self):
-        clean = load(VALID / "comparison-tenant-schemas.json")
-        clean["comparisons"], clean["migrations"] = [], []
-        self.snapshot.write_text(canonical_json(clean))
-        result = self.cli("--snapshot", "schema.json")
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Schema check PASSED (exit code 0)", result.stdout)
 
     def test_output_file_and_determinism(self):
         runs = [self.cli("--snapshot", "schema.json", "--output", f"reports/gate-{n}.json") for n in range(2)]
@@ -206,48 +295,38 @@ class Command(unittest.TestCase):
         self.assertEqual(runs[0].stdout, runs[1].stdout)
         written = [(self.root / f"reports/gate-{n}.json").read_text() for n in range(2)]
         self.assertEqual(written[0], written[1])
-        self.assert_report(written[0], 1)
         printed = self.cli("--snapshot", "schema.json", "--json")
+        self.assert_report(printed, 1)
         self.assertEqual(printed.stdout, written[0])
-        self.assertEqual(sorted(p.name for p in (self.root / "reports").iterdir()), sorted(["gate-0.json", "gate-1.json"]))
-
-    def test_ad_hoc_comparisons_are_not_written(self):
-        data = load(VALID / "comparison-tenant-schemas.json")
-        data["comparisons"], data["migrations"] = [], []
-        self.snapshot.write_text(canonical_json(data))
-        before = self.snapshot.read_bytes()
-        result = self.cli("--snapshot", "schema.json", "--json", "app:tenant_a=app:tenant_b")
-        report = self.assert_report(result.stdout, 1)
-        self.assertEqual(report["counts"]["findings"], 25)
-        result = self.cli("--snapshot", "schema.json", "--json", "--limit", "2", "app:tenant_a=app:tenant_b")
-        report = self.assert_report(result.stdout, 2)
-        self.assertEqual([e["kind"] for e in report["errors"]], ["comparison_incomplete"])
-        self.assertEqual(self.snapshot.read_bytes(), before)
+        self.assertEqual(sorted(p.name for p in (self.root / "reports").iterdir()), ["gate-0.json", "gate-1.json"])
 
     def test_invalid_documents_exit_2_with_a_report(self):
-        newer = load(VALID / "comparison-tenant-schemas.json")
-        newer["version"] = "2.1"
-        unknown = load(VALID / "comparison-tenant-schemas.json")
-        unknown["unexpected"] = True
+        valid = load(VALID / "comparison-tenant-schemas.json")
         broken = load(VALID / "comparison-tenant-schemas.json")
         broken["comparisons"][0]["differences"][0]["key"] = ["no_such_table"]
-        cases = {"missing.json": None, "text.json": "not json", "v1.json": json.dumps({"format": "laranex-schema-viewer"}),
-                 "v3.json": json.dumps({**newer, "version": "3.0"}), "unknown.json": json.dumps(unknown),
-                 "broken.json": json.dumps(broken)}
-        for name, text in cases.items():
+        cases = {
+            "missing.json": (None, "The input could not be parsed as JSON.", "Cannot read missing.json"),
+            "text.json": ("not json", "The input could not be parsed as JSON.", "text.json is not JSON"),
+            "nan.json": ('{"format": NaN}', "The input could not be parsed as JSON.", "NaN is not JSON"),
+            "v1.json": (json.dumps({"format": "laranex-schema-viewer"}), "The input is not a laranex-schema document.",
+                        None),
+            "v3.json": (json.dumps({**valid, "version": "3.0"}),
+                        "The document is laranex-schema 3.0; the gate reads 2.x.", None),
+            "unknown.json": (json.dumps({**valid, "unexpected": True}),
+                             "The document fails laranex-schema 2.0 validation.", "$: unknown property unexpected"),
+            "broken.json": (json.dumps(broken), "The document fails laranex-schema 2.0 validation.", "broken.json: "),
+        }
+        for name, (text, message, note) in cases.items():
             with self.subTest(name):
                 if text is not None:
                     (self.root / name).write_text(text)
-                result = self.cli("--snapshot", name, "--json")
-                self.assertEqual(result.returncode, 2, result.stderr)
-                report = self.assert_report(result.stdout, 2)
-                [error] = report["errors"]
-                self.assertEqual(error["kind"], "invalid_document")
-                self.assertTrue(error["message"].startswith(name) or name in error["message"], error)
-                self.assertNotIn(str(self.root), result.stdout)
-        (self.root / "newer.json").write_text(json.dumps(newer))
-        result = self.cli("--snapshot", "newer.json", "--json")
-        self.assertIn("validation_incomplete", [e["kind"] for e in self.assert_report(result.stdout, 2)["errors"]])
+                result = self.cli("--snapshot", name, "--json", "app:tenant_a=app:tenant_b")
+                report = self.assert_report(result, 2)
+                self.assertEqual(report["errors"], [{"kind": "invalid_document", "message": message}])
+                self.assertEqual(len(report["requested"]), 1)
+                if note:
+                    self.assertIn(note, result.stderr)
+                self.assertNotIn(str(self.root), result.stdout + result.stderr)
 
     def test_invalid_arguments_and_configuration_exit_2(self):
         for args, message in (
@@ -256,8 +335,8 @@ class Command(unittest.TestCase):
                 (("--unknown",), "unrecognized arguments"),
                 (("--limit", "2"), "--limit applies to comparisons named on the command line"),
                 (("--limit", "-1", "app=app:*"), "nonnegative"),
-                (("nope=app",), "names connection nope"),
                 (("app:tenant_a",), "A comparison is BASELINE=TARGET"),
+                (("app:tenant_a=app:tenant_b", "app:tenant_a=app:tenant_b"), "more than once"),
                 (("--output", "."), "Error:")):
             with self.subTest(args):
                 result = self.cli("--snapshot", "schema.json", *args)
@@ -301,8 +380,9 @@ class Command(unittest.TestCase):
 
 
 class CIEndToEnd(unittest.TestCase):
-    """A CI job: build a disposable PostgreSQL multi-tenant database with --source database and comparisons, then gate
-    the saved document. tenant_b equals tenant_a; tenant_c has planted drift."""
+    """A CI job: build a disposable PostgreSQL multi-tenant database with --source database and the configured
+    comparisons, then gate the saved document, which checks exactly those comparisons. tenant_b equals tenant_a;
+    tenant_c has planted drift."""
 
     @classmethod
     def setUpClass(cls):
@@ -330,13 +410,16 @@ class CIEndToEnd(unittest.TestCase):
         cls.tmp.cleanup()
         cls.database.drop()
 
-    def build(self, target: str) -> subprocess.CompletedProcess:
+    def configure(self, target: str):
         (self.root / "pyproject.toml").write_text(
             "[tool.laranex-schema-viewer]\noutput = 'schema-viewer.json'\nsource = 'database'\n"
             "[tool.laranex-schema-viewer.databases.app]\nurl_env = 'APP_DATABASE_URL'\n"
             "schemas = ['tenant_a', 'tenant_b', 'tenant_c']\n"
             "[[tool.laranex-schema-viewer.comparisons]]\n"
             f"baseline = {{ connection = 'app', schema = 'tenant_a' }}\ntarget = {{ connection = 'app', schema = '{target}' }}\n")
+
+    def build(self, target: str) -> subprocess.CompletedProcess:
+        self.configure(target)
         environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(ROOT / "src"),
                            APP_DATABASE_URL=self.database.urls["pg"])
         return subprocess.run([sys.executable, "-m", "laranex_schema_viewer", "build"], cwd=self.root,
@@ -347,7 +430,7 @@ class CIEndToEnd(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         result = run_cli(self.root, "check")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Checked 1 comparisons, 0 migration tracks and 0 diagnostics", result.stdout)
+        self.assertIn("Checked 1 comparisons (requested: app:tenant_a → app:tenant_b)", result.stdout)
 
         result = self.build("*")
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -356,14 +439,23 @@ class CIEndToEnd(unittest.TestCase):
         report = json.loads(result.stdout)
         self.assertEqual(validate_gate_report(report, strict=True)[1], [])
         self.assertEqual((self.root / "gate.json").read_text(), result.stdout)
+        self.assertEqual(len(report["comparisons"]), 2)
         kinds = {(f["kind"], f["label"]) for f in report["findings"] if f["severity"] != "info"}
-        self.assertIn(("table_missing", "tenant_a.audit_log"), kinds)
-        self.assertIn(("column_changed", "tenant_a.orders.total"), kinds)
+        self.assertIn(("table_missing", "app:tenant_a → app:tenant_c · tenant_a.audit_log"), kinds)
+        self.assertIn(("column_changed", "app:tenant_a → app:tenant_c · tenant_a.orders.total"), kinds)
         self.assertNotIn(self.database.password, result.stdout + result.stderr)
         # Only certain errors: the missing and extra tables.
         result = run_cli(self.root, "check", "--severity", "error", "--json")
         self.assertEqual(json.loads(result.stdout)["counts"]["qualifying"], 2)
+        # Configuring a comparison the build did not store fails the gate, as nothing checked it.
+        self.configure("tenant_d")
+        result = run_cli(self.root, "check", "--json")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(json.loads(result.stdout)["errors"], [{
+            "kind": "comparison_not_found",
+            "message": "Requested comparison app:tenant_a → app:tenant_d is not in the document."}])
         # Two runs of the gate give identical bytes, and the document is never rewritten.
+        self.configure("*")
         before = (self.root / "schema-viewer.json").read_bytes()
         self.assertEqual(run_cli(self.root, "check").stdout, run_cli(self.root, "check").stdout)
         self.assertEqual((self.root / "schema-viewer.json").read_bytes(), before)

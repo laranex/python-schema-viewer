@@ -99,7 +99,7 @@ app:tenant_template -> app:tenant_initech (complete): 3 missing, 2 extra, 5 chan
   ...
 ```
 
-`--write` rewrites only laranex-schema 2.0 documents, so nothing a newer minor version added is lost. `compare` always exits 0 when it could compare; failing a check on differences is not part of this version.
+`--write` rewrites only laranex-schema 2.0 documents, so nothing a newer minor version added is lost. `compare` always exits 0 when it could compare; to fail CI on differences, use the [`check` drift gate](./check.md).
 
 ## Reading the result
 

@@ -100,11 +100,11 @@ Compares scopes of a saved document without a database or application imports, a
 laranex-schema-viewer check --output gate-report.json
 ```
 
-The CI schema drift gate: checks a saved document's comparisons, migration tracks and diagnostics against severity and certainty thresholds, without a database or application imports, and never writes the document. Prints a summary (`--json`: the `laranex-schema-gate` 1.0 report). Exit code 0 passed, 1 a finding meets the thresholds, 2 the check is incomplete or invalid (incomplete comparison, unknown migration status, inspection error, invalid document, arguments or configuration); 2 wins over 1. See [schema drift gate](./check.md).
+The CI schema drift gate, a thin layer over the port of the shared reference gate: checks a saved document's comparisons, drift and reconciliation diagnostics and migration tracks against severity and certainty thresholds, without a database or application imports, and never writes the document. It checks the comparisons named on the command line (computed in memory first), else the configured `[[tool.laranex-schema-viewer.comparisons]]` (which must be stored in the document), else every stored one. Prints a summary (`--json`: the `laranex-schema-gate` 1.0 report). Exit code 0 passed, 1 a finding meets the thresholds, 2 the check is incomplete or invalid (an invalid or unreadable document, a requested comparison not found, an incomplete comparison or database inspection, a failed inspection, an unknown migration status, invalid arguments or configuration); 2 wins over 1. See [schema drift gate](./check.md).
 
 | Option | Default |
 | --- | --- |
-| `BASELINE=TARGET` | None: the stored comparisons; named scopes are compared first, in memory; repeatable |
+| `BASELINE=TARGET` | The configured comparisons, else every stored one; named scopes are compared in memory, then checked; repeatable |
 | `--snapshot PATH` | Config `output`, else `schema-viewer.json` |
 | `--severity LEVEL` | Config `[check] severity`, else `warning` |
 | `--certainty LEVEL` | Config `[check] certainty`, else `certain` |

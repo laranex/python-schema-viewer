@@ -38,6 +38,7 @@ def main():
         assert schema["$id"].endswith("/laranex-schema/2.0.json"), schema["$id"]
         gate = json.loads(wheel.read("laranex_schema_viewer/contract/gate-report.schema.json"))
         assert gate["$id"].endswith("/laranex-schema-gate/1.0.json"), gate["$id"]
+        assert {"requested", "comparisons"} <= set(gate["properties"]), sorted(gate["properties"])
         # The removed version 1 snapshot format: its JSON Schema, models and converter.
         for removed in ("schema.json", "document.py", "unified.py", "contract/models.py"):
             assert f"laranex_schema_viewer/{removed}" not in names, removed

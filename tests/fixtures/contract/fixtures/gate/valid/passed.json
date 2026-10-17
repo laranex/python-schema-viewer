@@ -1,29 +1,58 @@
 {
+  "comparisons": [],
   "counts": {
     "error": 0,
-    "findings": 1,
-    "info": 1,
+    "findings": 4,
+    "info": 3,
     "qualifying": 0,
-    "warning": 0
+    "warning": 1
   },
   "errors": [],
   "exitCode": 0,
   "findings": [
     {
       "certainty": "certain",
-      "id": "x3ae7dedbaee6ab19",
-      "kind": "table_changed",
-      "label": "tenant_a.users",
-      "message": "comment differ",
+      "id": "n4b860c21878c5454",
+      "kind": "table_without_model",
+      "label": "public.post_tags",
+      "message": "No model maps public.post_tags.",
       "severity": "info",
-      "source": "comparison"
+      "source": "diagnostic"
+    },
+    {
+      "certainty": "certain",
+      "id": "n593966053407f12d",
+      "kind": "table_without_model",
+      "label": "public.import_rows",
+      "message": "No model maps public.import_rows.",
+      "severity": "info",
+      "source": "diagnostic"
+    },
+    {
+      "certainty": "certain",
+      "id": "n8fcbf4a52eb281cd",
+      "kind": "table_without_model",
+      "label": "public.friendships",
+      "message": "No model maps public.friendships.",
+      "severity": "info",
+      "source": "diagnostic"
+    },
+    {
+      "certainty": "certain",
+      "id": "nf397a33bee4c7941",
+      "kind": "declared_only",
+      "label": "users.team_id",
+      "message": "The model declares a foreign key on users.team_id; the database does not enforce one.",
+      "severity": "warning",
+      "source": "diagnostic"
     }
   ],
   "format": "laranex-schema-gate",
   "passed": true,
+  "requested": [],
   "thresholds": {
     "certainty": "certain",
-    "severity": "warning"
+    "severity": "error"
   },
   "version": "1.0"
 }

@@ -34,7 +34,7 @@ laranex-schema-viewer build --module myapp.models --output /path/to/schema-viewe
 - Config keys are `modules`, `targets`, `recursive`, `output`, `orm`, `settings`, and `source`; command-line flags override them.
 - `--source database` reads a live database's catalogs instead, and `--source combined` reconciles both and records drift. The URL comes only from an environment variable (`LARANEX_SCHEMA_DATABASE_URL` by default) and should belong to a read-only role; never put it in arguments or `pyproject.toml`. Inspect a database only when the user authorized it.
 - A database or combined build can compare inspected scopes (tenant schemas, connections): `--compare app:tenant_template=app:*`, or `[[tool.laranex-schema-viewer.comparisons]]` entries. `laranex-schema-viewer compare BASELINE=TARGET [--json] [--write]` compares scopes of a saved document without a database. `likely` differences rest on normalized text.
-- `laranex-schema-viewer check [--severity error|warning|info] [--certainty certain|likely] [--json] [--output FILE]` is the CI drift gate over a saved document (stored comparisons, migration tracks, diagnostics); it never connects or writes. Exit 0 passed, 1 a finding meets the thresholds (defaults `warning`, `certain`; config `[tool.laranex-schema-viewer.check]`), 2 incomplete or invalid (an incomplete comparison never passes). Report the exit code and qualifying findings as printed.
+- `laranex-schema-viewer check [BASELINE=TARGET ...] [--severity error|warning|info] [--certainty certain|likely] [--json] [--output FILE]` is the CI drift gate over a saved document; it never connects or writes. It checks the named comparisons (computed in memory), else the configured ones (which must be stored), else every stored one, plus drift and reconciliation diagnostics and migration tracks; extraction, lint and inspection warnings never fail it. Exit 0 passed, 1 a finding meets the thresholds (defaults `warning`, `certain`; config `[tool.laranex-schema-viewer.check]`), 2 incomplete or invalid (an invalid document, a requested comparison not found, an incomplete comparison or database inspection, a failed inspection). Report the exit code, errors and qualifying findings as printed.
 - Every build writes laranex-schema 2.0 (default `schema-viewer.json`); `serve` and `mcp` read 2.x only, so rebuild files of any other format or version.
 - Write output outside read-only reference projects. Report the actual table, model, and diagnostic counts from the build output.
 
@@ -51,6 +51,6 @@ For MCP clients, configure a stdio server with the absolute executable path and 
 
 ## Limits
 
-- No check (CI gate), export, or hints commands exist; migration status and inferred associations are not produced yet (their document arrays are empty).
+- No export or hints commands exist; migration status and inferred associations are not produced yet (their document arrays are empty).
 - The server is local and unauthenticated; do not expose it or publish documents without authorization.
 - Package contribution rules live in the package repository's `AGENTS.md`, not in this skill.
