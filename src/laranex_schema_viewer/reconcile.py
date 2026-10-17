@@ -414,7 +414,9 @@ def combine(declared: dict[str, Any], database: dict[str, Any], *, connection: s
     namespace ``namespaces`` maps its name to; the combined connection takes the database connection's name. A
     database connection the models do not declare stays database-only, and a declared connection no database was
     inspected for stays declared-only; each gets a connection diagnostic, and the side that was not read has
-    ``unavailable`` coverage. ``connection`` is the single-database form: it names the declared connection the
+    ``unavailable`` coverage. A single database connection belongs to the only declared namespace, whatever their
+    names; when no database connection matches any declared namespace, this fails and lists them. ``connection`` is
+    the single-database form: it names the declared connection the
     document's only database connection belongs to, and fails when the models do not declare it.
     """
     if declared["source"] != "declared" or database["source"] != "database":

@@ -30,6 +30,52 @@ The URL is read only from the environment variable named by `--database-url-env`
 | `--allow-write-privileges` | none | Inspect with a role that could change the database; see below |
 | `--timeout SECONDS` | `timeout` | Also bounds introspection |
 
+## Several connections
+
+When the models span several databases, name each connection in `pyproject.toml`. The table name is the connection name, and `url_env` names the environment variable that holds its URL:
+
+```toml
+[tool.laranex-schema-viewer.databases.default]
+url_env = "APP_DATABASE_URL"
+schemas = ["public", "billing"]          # optional; default: the connection's default schema
+
+[tool.laranex-schema-viewer.databases.analytics]
+url_env = "ANALYTICS_DATABASE_URL"
+namespace = "app.models:AnalyticsBase"   # optional; the declared namespace it reconciles with
+```
+
+Or select them on the command line with `--database NAME=ENV_VAR`, repeated once per connection. When `--database` is given, only the named connections are inspected; `schemas` and `namespace` still come from `[tool.laranex-schema-viewer.databases.NAME]` when that table exists.
+
+```bash
+laranex-schema-viewer build --source combined \
+  --database default=APP_DATABASE_URL --database analytics=ANALYTICS_DATABASE_URL
+```
+
+- Each connection is read by its own introspection worker, one after the other. A worker receives only its own connection's URL, on stdin, and every connection gets the same read-only session and privilege check. If one connection fails, the build fails and writes nothing.
+- Connections may use different drivers: PostgreSQL, MySQL, MariaDB and SQLite can be mixed.
+- The output has one connection per name, each with its own driver, default schema and coverage. Table ids are qualified by connection, so a `users` table on two connections stays two tables, with separate links and diagnostics.
+- URLs are never accepted in the configuration or as arguments. A `url` key, or an `url_env` variable listed in `env_passthrough` or `[tool.laranex-schema-viewer.env]`, stops the build.
+- The single-database options (`--database-url-env`, `--schema`, `--database-connection` and their configuration keys) keep working unchanged, but cannot be mixed with `--database` or `[tool.laranex-schema-viewer.databases]`; the build stops and says which options conflict.
+
+### Mapping connections to declared namespaces
+
+Each table in a declared build belongs to a namespace, and in a combined build each database connection is reconciled with one of them: the namespace named by its `namespace` key, else the namespace with the connection's own name. When there is exactly one database connection and one declared namespace, they belong together whatever their names. The combined connection takes the database connection's name. Table ids keep the declared namespace; ids are opaque, so this changes nothing a reader relies on.
+
+Run `laranex-schema-viewer build --format laranex-schema` and read the `connections[].name` values to see your declared namespaces. They depend on the ORM:
+
+| ORM | Declared namespace | What to map |
+| --- | --- | --- |
+| SQLAlchemy, SQLModel | `default` with one `MetaData`. With several, the `module:attribute` that first holds each one: the `--target` you gave, or, for discovered modules, the first attribute in sorted order (often a model class rather than the base) | Set `namespace` for every connection. Prefer `targets = ["app.models:Base", "app.models:AnalyticsBase"]`, which keeps the names stable. Flask-SQLAlchemy bind keys are not read; map each bind's metadata |
+| Django | Always `default`, for every app | One connection only. Database routers and per-model databases in `DATABASES` are not represented; inspecting a second database reports it as database-only |
+| Tortoise ORM | The app label (`apps` keys in `TORTOISE_ORM`), not the connection name | Set `namespace` to the app label when the connection is named differently, for example `[...databases.default]` with `namespace = "models"` |
+| Peewee | Always `default` | One connection only; models bound to other `Database` objects are not told apart |
+
+- A database connection that matches no declared namespace stays database-only: its tables have database provenance, its declared coverage is `unavailable`, and one `database_only` diagnostic names the connection, instead of a `table_without_model` for every table.
+- A declared namespace with no database connection stays declared-only: its database coverage is `unavailable`, with an `inspection_unavailable` diagnostic.
+- The build stops when no connection matches any declared namespace (it lists the declared names), when a `namespace` does not exist, when two connections map to one namespace, or when a connection is renamed onto another declared namespace's name.
+
+Nothing is compared across connections. An ORM relationship from a model on one connection to a table on another (SQLAlchemy `primaryjoin` with `foreign()`, for example) is kept as a relationship-only link; it never calls for a foreign key, and it is not reported as a missing one. Where a table name occurs on more than one connection, drift and reconciliation messages start with `Connection NAME:`.
+
 Supported databases: PostgreSQL (psycopg 3 or psycopg2), MySQL and MariaDB (PyMySQL or mysqlclient), and SQLite files. The test suite runs against PostgreSQL 17.6, MySQL 8.4.6, MariaDB 11.4.8 and SQLite 3.53; older versions may report less.
 
 ## Use a read-only role
