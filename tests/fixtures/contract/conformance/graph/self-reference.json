@@ -1,0 +1,159 @@
+{
+  "description": "A table referencing itself",
+  "expected": {
+    "derivedLinks": [],
+    "links": [
+      {
+        "foreignKey": "t:nodes:fk:nodes_parent_fk",
+        "from": {
+          "columns": [
+            "parent_id"
+          ],
+          "table": "t:nodes"
+        },
+        "id": "lcec626799d9898f4",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [
+          "r:parent"
+        ],
+        "state": "both",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:nodes"
+        }
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "pgsql",
+        "id": "connection:c",
+        "name": "c",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "parent_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "parent_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:nodes",
+                "id": "t:nodes:fk:nodes_parent_fk",
+                "initially": null,
+                "name": "nodes_parent_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:nodes",
+            "indexes": [],
+            "name": "nodes",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "cardinality": "many-to-one",
+        "collection": false,
+        "constraints": [],
+        "id": "r:parent",
+        "inverse": null,
+        "join": null,
+        "keys": {
+          "from": {
+            "columns": [
+              "parent_id"
+            ],
+            "table": "t:nodes"
+          },
+          "to": {
+            "columns": [
+              "id"
+            ],
+            "table": "t:nodes"
+          }
+        },
+        "model": "m",
+        "name": "r:parent",
+        "note": null,
+        "pivot": null,
+        "polymorphic": null,
+        "readOnly": false,
+        "relatedModel": null,
+        "relatedTable": "t:nodes",
+        "source": null,
+        "table": "t:nodes",
+        "through": null,
+        "type": "test"
+      }
+    ]
+  }
+}

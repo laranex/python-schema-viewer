@@ -4,6 +4,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- The laranex-schema 1.0 contract shared with laranex-schema-viewer-ui (`laranex_schema_viewer.contract`): Pydantic models, strict (producer) and lenient (reader) validation with the shared reference rules, canonical serialization and revisions, and the shared graph builder for links and derived links. The contract's valid, invalid and graph conformance fixtures run in the test suite.
+- Unified serialization (`laranex_schema_viewer.unified.from_v1`): every adapter's declared metadata, and any version 1 snapshot, as a laranex-schema 1.0 document. Database and ORM defaults stay apart, index key parts keep their order with dialect options, keys are oriented like foreign keys, secondary tables become pivots, and inverse relationships are resolved from back_populates.
+
 ## [0.3.1] - 2026-10-17
 
 ### Changed
