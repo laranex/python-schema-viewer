@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: '3.13'
       - run: pip install -e '.[dev]'
-      - run: python -m unittest tests.test_introspection tests.test_reconcile tests.test_cli_database -v
+      - run: python -m unittest tests.test_introspection tests.test_reconcile tests.test_cli_database tests.test_multiconnection -v
   viewer:
     # The vendored shared viewer in headless Chrome (preinstalled on ubuntu-latest) for declared, database and
     # combined documents.
