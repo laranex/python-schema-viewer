@@ -145,6 +145,18 @@ class AdversarialModules(unittest.TestCase):
             time.sleep(0.1)
         self.assertFalse(alive(pid))
 
+    @unittest.skipUnless(os.name == "posix", "uses libc")
+    def test_libc_calls_bypass_the_guards_at_the_process_level(self):
+        # Documents that the guards are not a boundary: only the container level stops these.
+        listener = socket.create_server(("127.0.0.1", 0))
+        self.addCleanup(listener.close)
+        host, port = listener.getsockname()
+        result = isolated("raw_bypass", env=[("LSV_ADVERSARIAL_TCP", f"{host}:{port}"),
+                                             ("LSV_ADVERSARIAL_WRITE", str(self.file))])
+        self.assertEqual(json.loads(comment(result, "bypass_teams")), {"tcp": "connected", "write": "written"})
+        self.assertTrue(self.file.exists())
+        self.assertEqual(result.blocked, [])
+
     def test_writes_outside_the_project_cannot_be_allowed(self):
         with self.assertRaisesRegex(IsolationError, "outside the project"):
             isolated("import_write", allow_writes=("../elsewhere",))
@@ -228,19 +240,55 @@ class FailingClosed(unittest.TestCase):
 IMAGE = os.environ.get("LSV_TEST_CONTAINER_IMAGE")
 
 
-@unittest.skipUnless(IMAGE, "set LSV_TEST_CONTAINER_IMAGE to an image with this package and SQLAlchemy installed")
+@unittest.skipUnless(IMAGE, "set LSV_TEST_CONTAINER_IMAGE to an image with this package and SQLAlchemy installed "
+                            "(tests/containers/README.md)")
 class ContainerIsolation(unittest.TestCase):
+    """What only the container level guarantees, tested with calls the in-process guards cannot see."""
+
     def config(self, **kw):
-        return IsolationConfig(level="container", container_image=IMAGE, timeout=180, **kw)
+        return IsolationConfig(level="container", container_image=IMAGE, timeout=kw.pop("timeout", 180), **kw)
+
+    def run_module(self, module, **kw):
+        request = ExtractRequest(project_root=str(ROOT), modules=(f"{ADVERSARIAL}.{module}",))
+        return extract(request, self.config(**kw))
 
     def test_matches_process_isolation(self):
         request = ExtractRequest(project_root=str(ROOT), modules=("tests.fixtures.sqlalchemy_models",))
         self.assertEqual(extract(request, self.config()).document, extract(request, IsolationConfig()).document)
 
-    def test_has_no_network_and_a_read_only_project(self):
-        request = ExtractRequest(project_root=str(ROOT), modules=(f"{ADVERSARIAL}.network",))
-        result = extract(request, self.config(env=(("LSV_ADVERSARIAL_TCP", "1.1.1.1:53"),)))
-        self.assertNotIn("succeeded", comment(result, "net_teams"))
+    def test_has_no_network_even_past_the_guards(self):
+        result = self.run_module("raw_bypass", env=(("LSV_ADVERSARIAL_TCP", "1.1.1.1:53"),
+                                                    ("LSV_ADVERSARIAL_WRITE", "/tmp/bypass.txt")))
+        outcome = json.loads(comment(result, "bypass_teams"))
+        self.assertTrue(outcome["tcp"].startswith("errno"), outcome)
+
+    def test_the_project_is_read_only_even_past_the_guards(self):
+        target = ROOT / "tests" / ".lsv-container-write"
+        self.addCleanup(target.unlink, missing_ok=True)
+        result = self.run_module("raw_bypass", env=(("LSV_ADVERSARIAL_TCP", "1.1.1.1:53"),
+                                                    ("LSV_ADVERSARIAL_WRITE", "/project/tests/.lsv-container-write")))
+        outcome = json.loads(comment(result, "bypass_teams"))
+        self.assertEqual(outcome["write"], "errno 30")  # EROFS
+        self.assertFalse(target.exists())
+
+    def test_credentials_are_withheld(self):
+        with mock.patch.dict(os.environ, {"DATABASE_URL": "postgresql://app:hunter2@db/app"}):
+            result = self.run_module("secrets_probe")
+        found = json.loads(comment(result, "secret_teams"))
+        self.assertIsNone(found["env"]["DATABASE_URL"])
+        self.assertNotIn("hunter2", json.dumps(result.document))
+
+    def test_timeouts_remove_the_container(self):
+        with self.assertRaisesRegex(IsolationError, "within 10 seconds"):
+            self.run_module("slow_import", timeout=10)
+        names = subprocess.run(["docker", "ps", "-a", "--filter", "name=lsv-extract-", "--format", "{{.Names}}"],
+                               capture_output=True, text=True).stdout.split()
+        self.assertEqual(names, [])
+
+    def test_mismatched_images_are_refused(self):
+        with self.assertRaisesRegex(IsolationError, "must have laranex-schema-viewer"):
+            extract(ExtractRequest(project_root=str(ROOT)),
+                    IsolationConfig(level="container", container_image="python:3.13-slim"))
 
 
 if __name__ == "__main__":
