@@ -132,8 +132,8 @@ class Configuration(unittest.TestCase):
             "baseline = { connection = 'app', schema = 'tenant_template' }\n"
             "target = { connection = 'app', schema = '*' }\n"
             "limit = 20\n"
-            "overrides = [{ objectType = 'index', change = 'missing', severity = 'error' },\n"
-            "  { objectType = 'foreignKey', change = 'changed', field = 'onDelete', severity = 'info' }]\n"
+            "overrides = [{ object_type = 'index', change = 'missing', severity = 'error' },\n"
+            "  { object_type = 'foreignKey', change = 'changed', field = 'onDelete', severity = 'info' }]\n"
             "[[tool.laranex-schema-viewer.comparisons]]\n"
             "baseline = { connection = 'primary' }\n"
             "target = { connection = 'replica' }\n")
@@ -165,30 +165,36 @@ class Configuration(unittest.TestCase):
                 (entry + "baseline = { connection = 'a' }\ntarget = { connection = 'a' }\n", "with itself"),
                 (entry + scopes + "limit = -1\n", "nonnegative integer"),
                 (entry + scopes + "limit = true\n", "nonnegative integer"),
-                (entry + scopes + "overrides = [{ objectType = 'view', change = 'missing', severity = 'error' }]\n",
-                 r"entry 1 overrides\[0\]\.objectType must be one of table, column, primaryKey, index, foreignKey, "
+                (entry + scopes + "overrides = [{ object_type = 'view', change = 'missing', severity = 'error' }]\n",
+                 r"entry 1 overrides\[0\]\.object_type must be one of table, column, primaryKey, index, foreignKey, "
                  "constraint$"),
-                (entry + scopes + "overrides = [{ objectType = 'table', change = 'gone', severity = 'error' }]\n",
+                (entry + scopes + "overrides = [{ object_type = 'table', change = 'gone', severity = 'error' }]\n",
                  r"entry 1 overrides\[0\]\.change must be one of missing, extra, changed$"),
-                (entry + scopes + "overrides = [{ objectType = 'table', change = 'missing', severity = 'fatal' }]\n",
+                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'fatal' }]\n",
                  r"entry 1 overrides\[0\]\.severity must be one of error, warning, info$"),
-                (entry + scopes + "overrides = [{ objectType = 'foreignKey', change = 'changed', "
+                (entry + scopes + "overrides = [{ object_type = 'foreignKey', change = 'changed', "
                                   "field = 'on_delete', severity = 'info' }]\n",
                  r"overrides\[0\]\.field must be one of columns, deferrable, foreignColumns, foreignTable, initially, "
-                 "name, onDelete, onUpdate for objectType foreignKey$"),
-                (entry + scopes + "overrides = [{ objectType = 'column', change = 'missing', field = 'type', "
+                 "name, onDelete, onUpdate for object_type foreignKey$"),
+                (entry + scopes + "overrides = [{ object_type = 'column', change = 'missing', field = 'type', "
                                   "severity = 'info' }]\n",
                  r"overrides\[0\]\.field applies only to changed differences, not missing$"),
-                (entry + scopes + "overrides = [{ objectType = 'table', change = 'missing', severity = 'info', "
+                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'info', "
                                   "level = 1 }]\n", r"overrides\[0\] has unknown keys: level$"),
-                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'info' }]\n",
-                 r"overrides\[0\] has unknown keys: object_type; \[\[tool.laranex-schema-viewer.comparisons\]\] "
-                 r"entry 1 overrides\[0\]\.objectType must be one of"),
-                (entry + scopes + "overrides = { objectType = 'table', change = 'missing', severity = 'info' }\n",
+                (entry + scopes + "overrides = [{ objectType = 'table', change = 'missing', severity = 'info' }]\n",
+                 r"^\[\[tool.laranex-schema-viewer.comparisons\]\] entry 1 overrides\[0\] has unknown keys: objectType; "
+                 r"\[\[tool.laranex-schema-viewer.comparisons\]\] entry 1 overrides\[0\]\.object_type must be one of"),
+                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'info' },\n"
+                                  "  { object_type = 'table', change = 'gone', severity = 'info', level = 1 },\n"
+                                  "  { object_type = 'table', change = 'missing', severity = 'error' }]\n",
+                 r"entry 1 overrides\[1\] has unknown keys: level; \[\[tool.laranex-schema-viewer.comparisons\]\] "
+                 r"entry 1 overrides\[1\]\.change must be one of missing, extra, changed; "
+                 r"\[\[tool.laranex-schema-viewer.comparisons\]\] entry 1 overrides\[2\] repeats overrides\[0\]$"),
+                (entry + scopes + "overrides = { object_type = 'table', change = 'missing', severity = 'info' }\n",
                  r"entry 1 overrides must be an array$"),
                 (entry + scopes + "overrides = ['table']\n", r"entry 1 overrides\[0\] must be an object$"),
-                (entry + scopes + "overrides = [{ objectType = 'column', change = 'changed', field = 'type', "
-                                  "severity = 'error' },\n  { objectType = 'column', change = 'changed', field = 'type', "
+                (entry + scopes + "overrides = [{ object_type = 'column', change = 'changed', field = 'type', "
+                                  "severity = 'error' },\n  { object_type = 'column', change = 'changed', field = 'type', "
                                   "severity = 'info' }]\n", r"entry 1 overrides\[1\] repeats overrides\[0\]$")):
             with self.subTest(text):
                 with self.assertRaisesRegex(ValueError, message):

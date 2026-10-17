@@ -28,8 +28,8 @@ baseline = { connection = "app", schema = "tenant_template" }
 target = { connection = "app", schema = "*" }
 limit = 500
 overrides = [
-  { objectType = "index", change = "extra", severity = "info" },
-  { objectType = "column", change = "changed", field = "comment", severity = "warning" },
+  { object_type = "index", change = "extra", severity = "info" },
+  { object_type = "column", change = "changed", field = "comment", severity = "warning" },
 ]
 
 [[tool.laranex-schema-viewer.comparisons]]
@@ -42,21 +42,21 @@ target = { connection = "replica" }
 | `baseline` | `{ connection, schema }`: a connection name and an optional schema |
 | `target` | The same; `schema = "*"` compares the baseline with every schema the target connection's inspection read |
 | `limit` | Differences listed in the document, default **500**; the rest are counted in `summary` and `omitted`, and the comparison is incomplete. `0` keeps only the counts |
-| `overrides` | The contract's [severity overrides](https://laranex.github.io/schema-viewer-ui/contract#the-comparison-algorithm): severities for `(objectType, change)`, or for one `field` of a `changed` difference. A field override wins over a general one, and a changed difference takes its most severe field |
+| `overrides` | The contract's [severity overrides](https://laranex.github.io/schema-viewer-ui/contract#the-comparison-algorithm): severities for `(object_type, change)`, or for one `field` of a `changed` difference. A field override wins over a general one, and a changed difference takes its most severe field |
 
-`objectType` is `table`, `column`, `primaryKey`, `index`, `foreignKey` or `constraint`; `change` is `missing` (in the baseline only), `extra` (in the target only) or `changed`; `severity` is `error`, `warning` or `info`. The fields each object type can list are the contract's: `comment` (table); `type`, `nullable`, `default`, `collation`, `enum`, `generated`, `comment` (column); `columns` (primary key); `name`, `unique`, `parts`, `method`, `predicate`, `included` (index); `name`, `columns`, `foreignTable`, `foreignColumns`, `onDelete`, `onUpdate`, `deferrable`, `initially` (foreign key); `name`, `columns`, `expression` (constraint).
+`object_type` (the contract's `objectType`) is `table`, `column`, `primaryKey`, `index`, `foreignKey` or `constraint`; `change` is `missing` (in the baseline only), `extra` (in the target only) or `changed`; `severity` is `error`, `warning` or `info`. The fields each object type can list are the contract's: `comment` (table); `type`, `nullable`, `default`, `collation`, `enum`, `generated`, `comment` (column); `columns` (primary key); `name`, `unique`, `parts`, `method`, `predicate`, `included` (index); `name`, `columns`, `foreignTable`, `foreignColumns`, `onDelete`, `onUpdate`, `deferrable`, `initially` (foreign key); `name`, `columns`, `expression` (constraint).
 
-Unknown keys, values and fields are errors. The configuration names connections and schemas only, never URLs. Overrides are checked with the shared validator, and each error is its message prefixed with the entry:
+Unknown keys, values and fields are errors. The configuration names connections and schemas only, never URLs. Unknown override keys are checked first; each override is then mapped to the contract's `{objectType, change, field, severity}` and checked with the shared validator. Each error is the shared message, with `object_type` for `objectType`, prefixed with the entry:
 
 | Problem | Error |
 | --- | --- |
 | `overrides` is not an array | `[[tool.laranex-schema-viewer.comparisons]] entry 1 overrides must be an array` |
 | An override is not a table | `... entry 1 overrides[0] must be an object` |
-| A key other than `objectType`, `change`, `field`, `severity` (such as `object_type`) | `... entry 1 overrides[0] has unknown keys: object_type` |
-| An unknown `objectType`, `change` or `severity` | `... entry 1 overrides[0].objectType must be one of table, column, primaryKey, index, foreignKey, constraint` (and likewise) |
+| A key other than `object_type`, `change`, `field`, `severity` (such as `objectType`) | `... entry 1 overrides[0] has unknown keys: objectType` |
+| An unknown `object_type`, `change` or `severity` | `... entry 1 overrides[0].object_type must be one of table, column, primaryKey, index, foreignKey, constraint` (and likewise) |
 | A `field` on a `missing` or `extra` override | `... entry 1 overrides[0].field applies only to changed differences, not missing` |
-| A field the object type's differences never list | `... entry 1 overrides[0].field must be one of collation, comment, default, enum, generated, nullable, type for objectType column` |
-| The same `(objectType, change, field)` twice | `... entry 1 overrides[2] repeats overrides[0]` |
+| A field the object type's differences never list | `... entry 1 overrides[0].field must be one of collation, comment, default, enum, generated, nullable, type for object_type column` |
+| The same `(object_type, change, field)` twice | `... entry 1 overrides[2] repeats overrides[0]` |
 
 ### Requested comparisons
 
