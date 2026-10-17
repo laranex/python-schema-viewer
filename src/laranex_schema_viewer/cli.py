@@ -6,9 +6,12 @@ import argparse
 import sys
 from pathlib import Path
 
+from dataclasses import replace
+
 from . import __version__
-from .config import (DEFAULT_SNAPSHOT, SOURCES, DatabaseConfig, ProjectConfig, add_config, config_section,
-                     database_option, detect_django_settings, detect_model_module, load_config, resolve_snapshot)
+from .config import (DEFAULT_COMPARISON_LIMIT, DEFAULT_SNAPSHOT, SOURCES, ComparisonConfig, DatabaseConfig,
+                     ProjectConfig, add_config, comparison_option, config_section, database_option,
+                     detect_django_settings, detect_model_module, load_config, resolve_snapshot)
 
 DATABASE_URL_ENV = "LARANEX_SCHEMA_DATABASE_URL"
 
@@ -46,10 +49,25 @@ def main(argv: list[str] | None = None) -> int:
                             "database options and [tool.laranex-schema-viewer.databases]")
     build.add_argument("--allow-write-privileges", action="store_true",
                        help="Inspect with a role that can change the database (sessions stay read-only)")
+    build.add_argument("--compare", action="append", default=[], metavar="BASELINE=TARGET",
+                       help="Compare two inspected scopes, each CONNECTION or CONNECTION:SCHEMA (target schema * for "
+                            "every inspected schema); repeatable. Replaces [[tool.laranex-schema-viewer.comparisons]]")
+    build.add_argument("--compare-limit", type=int, metavar="N",
+                       help=f"Differences listed per --compare comparison; default {DEFAULT_COMPARISON_LIMIT}")
     serve = commands.add_parser("serve", help="Serve the viewer for a saved laranex-schema 2.0 document")
     serve.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
+    compare = commands.add_parser("compare", help="Compare scopes of a saved document, without a database")
+    compare.add_argument("comparisons", nargs="*", metavar="BASELINE=TARGET",
+                         help="Scopes, each CONNECTION or CONNECTION:SCHEMA (target schema * for every inspected "
+                              "schema); default: [[tool.laranex-schema-viewer.comparisons]]")
+    compare.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
+    compare.add_argument("--limit", type=int, metavar="N",
+                         help=f"Differences listed per comparison named here; default {DEFAULT_COMPARISON_LIMIT}")
+    compare.add_argument("--json", action="store_true", help="Print the comparisons as laranex-schema JSON")
+    compare.add_argument("--write", action="store_true",
+                         help="Store the comparisons in the snapshot, replacing those of the same scopes")
     mcp = commands.add_parser("mcp", help="Run read-only MCP tools over a saved document, on stdio")
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
@@ -81,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
         elif args.command == "build":
             run_build(args)
+        elif args.command == "compare":
+            run_compare(args)
         elif args.command == "serve":
             from .server import create_server
 
@@ -117,6 +137,10 @@ def run_build(args: argparse.Namespace) -> None:
     output = args.output or config.output or DEFAULT_SNAPSHOT
     timeout = args.timeout or config.timeout or IsolationConfig.timeout
     databases = database_connections(args, config)
+    comparisons = comparison_specs(args.compare, args.compare_limit, config)
+    if args.compare and source == "declared":
+        raise ValueError("--compare compares inspected databases; build with --source database or combined, or run "
+                         "`laranex-schema-viewer compare` on a saved document")
     url_env = args.database_url_env or config.database_url_env or DATABASE_URL_ENV
     for variable in [d.url_env for d in databases] or [url_env]:
         if variable in config.env_passthrough or variable in config.env:
@@ -200,6 +224,16 @@ def run_build(args: argparse.Namespace) -> None:
             from .reconcile import combine
 
             document = combine(declared, database, connection=connection)
+    if comparisons and source == "declared":
+        print(f"Skipped {len(comparisons)} configured comparisons: they compare inspected databases "
+              "(--source database or combined)")
+    elif comparisons:
+        from .compare import compute, store
+
+        document = store(document, *compute(document, comparisons))
+        incomplete = sum(1 for c in document.comparisons if not c.complete)
+        print(f"Compared {len(document.comparisons)} scope pairs"
+              + (f" ({incomplete} incomplete)" if incomplete else ""))
     write_document(document, output)
     counts: dict[str, int] = {}
     for diagnostic in document.diagnostics:
@@ -208,6 +242,46 @@ def run_build(args: argparse.Namespace) -> None:
     print(f"Saved laranex-schema 2.0 ({document.source}): {len(document.tables())} tables, "
           f"{len(document.models)} models, {len(document.relationships)} ORM relationships, {summary} diagnostics, "
           f"to {output}")
+
+
+def comparison_specs(options: list[str], limit: int | None, config: ProjectConfig) -> tuple[ComparisonConfig, ...]:
+    """Comparisons named on the command line (with ``limit``), or else the configured ones."""
+    if limit is not None and limit < 0:
+        raise ValueError("The comparison limit must be a nonnegative integer")
+    if not options:
+        if limit is not None:
+            raise ValueError("A comparison limit applies to comparisons named on the command line; configure limit "
+                             "per [[tool.laranex-schema-viewer.comparisons]] entry")
+        return config.comparisons
+    return tuple(replace(comparison_option(o), limit=DEFAULT_COMPARISON_LIMIT if limit is None else limit)
+                 for o in options)
+
+
+def run_compare(args: argparse.Namespace) -> None:
+    """Compare scopes of a saved document. Reads only the document (and pyproject.toml): no database, no imports."""
+    from .compare import compute, describe, store
+    from .contract import VERSION, canonical_json, to_json
+    from .snapshot import read_document, write_document
+
+    config = load_config(Path.cwd())
+    specs = comparison_specs(args.comparisons, args.limit, config)
+    if not specs:
+        raise ValueError("Name comparisons as BASELINE=TARGET, or configure [[tool.laranex-schema-viewer.comparisons]] "
+                         "in pyproject.toml")
+    path = resolve_snapshot(args.snapshot, Path.cwd())
+    snapshot = read_document(path)
+    if args.write and snapshot.data["version"] != VERSION:
+        raise ValueError(f"{path} is laranex-schema {snapshot.data['version']}; --write rewrites only {VERSION} "
+                         "documents, so nothing a newer version added is lost")
+    document = snapshot.document
+    comparisons, diagnostics = compute(document, specs)
+    if args.json:
+        print(canonical_json(to_json(comparisons)), end="")
+    else:
+        print(describe(document, comparisons) or "No scope pairs to compare")
+    if args.write:
+        write_document(store(document, comparisons, diagnostics), path)
+        print(f"Stored {len(comparisons)} comparisons in {path}", file=sys.stderr if args.json else sys.stdout)
 
 
 def database_connections(args: argparse.Namespace, config: ProjectConfig) -> list[DatabaseConfig]:

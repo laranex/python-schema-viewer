@@ -22,6 +22,12 @@ SKIPPED_DIRECTORIES = {"build", "dist", "docs", "node_modules", "site-packages",
                        "venv", "__pycache__"}
 CONNECTION_NAME = re.compile(r"[A-Za-z0-9_][\w.-]*")
 ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+# Differences listed per comparison; the rest are counted as omitted. Keeps a document with many tenant comparisons
+# well inside the 32 MiB snapshot limit.
+DEFAULT_COMPARISON_LIMIT = 500
+WILDCARD = "*"
+COMPARISON_FORMAT = ("A comparison is BASELINE=TARGET, each scope a connection name, optionally with :SCHEMA "
+                     "(the target's schema may be *)")
 
 
 @dataclass(frozen=True)
@@ -33,6 +39,36 @@ class DatabaseConfig:
     schemas: tuple[str, ...] = ()
     # The declared namespace this connection reconciles with; None means the connection's own name.
     namespace: str | None = None
+
+
+@dataclass(frozen=True)
+class ScopeConfig:
+    """A comparison side: a connection by name and a schema, None for the unqualified scope, or "*" (targets only)
+    for every schema the connection's inspection read."""
+
+    connection: str
+    schema: str | None = None
+
+    def __str__(self) -> str:
+        return self.connection if self.schema is None else f"{self.connection}:{self.schema}"
+
+
+@dataclass(frozen=True)
+class OverrideConfig:
+    """A severity for (object_type, change), or for one field of a changed difference; contract spellings."""
+
+    object_type: str
+    change: str
+    severity: str
+    field: str | None = None
+
+
+@dataclass(frozen=True)
+class ComparisonConfig:
+    baseline: ScopeConfig
+    target: ScopeConfig
+    limit: int = DEFAULT_COMPARISON_LIMIT
+    overrides: tuple[OverrideConfig, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -55,6 +91,7 @@ class ProjectConfig:
     database_schemas: list[str] = field(default_factory=list)
     database_connection: str | None = None
     databases: dict[str, DatabaseConfig] = field(default_factory=dict)
+    comparisons: tuple[ComparisonConfig, ...] = ()
 
 
 SOURCES = ("declared", "database", "combined")
@@ -77,7 +114,8 @@ def load_config(project_root: Path) -> ProjectConfig:
     if "format" in section:
         raise ValueError(f"[tool.{SECTION}] format was removed: build always writes laranex-schema 2.0; delete the "
                          "format key")
-    known = {"modules", "targets", "recursive", "output", "orm", "settings", *ISOLATION_KEYS, *DATABASE_KEYS}
+    known = {"modules", "targets", "recursive", "output", "orm", "settings", "comparisons", *ISOLATION_KEYS,
+             *DATABASE_KEYS}
     unknown = set(section) - known
     if unknown:
         raise ValueError(f"Unknown [tool.{SECTION}] keys in {path}: {', '.join(sorted(unknown))}")
@@ -119,7 +157,7 @@ def load_config(project_root: Path) -> ProjectConfig:
         container_image=section.get("container_image"), container_runtime=section.get("container_runtime"),
         source=section.get("source"), database_url_env=section.get("database_url_env"),
         database_schemas=section.get("database_schemas", []), database_connection=section.get("database_connection"),
-        databases=databases,
+        databases=databases, comparisons=comparison_section(section.get("comparisons", [])),
     )
 
 
@@ -150,6 +188,91 @@ def database_section(value: object) -> dict[str, DatabaseConfig]:
             raise ValueError(f"{table} namespace must be a non-empty string")
         databases[name] = DatabaseConfig(name=name, url_env=url_env, schemas=tuple(schemas), namespace=namespace)
     return databases
+
+
+def comparison_section(value: object) -> tuple[ComparisonConfig, ...]:
+    """[[tool.laranex-schema-viewer.comparisons]] entries: baseline and target ({connection, schema}), limit,
+    overrides ([{object_type, change, field, severity}])."""
+    from .contract.comparison import FIELDS, SEVERITIES
+    from .contract.shape import CHANGES
+
+    if not isinstance(value, list) or not all(isinstance(v, dict) for v in value):
+        raise ValueError(f"[tool.{SECTION}] comparisons must be an array of tables, "
+                         f"such as [[tool.{SECTION}.comparisons]]")
+    comparisons = []
+    for n, entry in enumerate(value, start=1):
+        where = f"[[tool.{SECTION}.comparisons]] entry {n}"
+        unknown = set(entry) - {"baseline", "target", "limit", "overrides"}
+        if unknown:
+            raise ValueError(f"Unknown {where} keys: {', '.join(sorted(unknown))}")
+        baseline = scope_config(entry.get("baseline"), f"{where} baseline", wildcard=False)
+        target = scope_config(entry.get("target"), f"{where} target", wildcard=True)
+        if baseline == target:
+            raise ValueError(f"{where} compares {baseline} with itself")
+        limit = entry.get("limit", DEFAULT_COMPARISON_LIMIT)
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:
+            raise ValueError(f"{where} limit must be a nonnegative integer")
+        overrides = entry.get("overrides", [])
+        if not isinstance(overrides, list) or not all(isinstance(o, dict) for o in overrides):
+            raise ValueError(f"{where} overrides must be an array of tables")
+        parsed = []
+        for o in overrides:
+            unknown = set(o) - {"object_type", "change", "field", "severity"}
+            if unknown:
+                raise ValueError(f"Unknown {where} override keys: {', '.join(sorted(unknown))}")
+            object_type, change, severity, name = (o.get("object_type"), o.get("change"), o.get("severity"),
+                                                   o.get("field"))
+            if object_type not in FIELDS:
+                raise ValueError(f"{where} override object_type must be one of {', '.join(FIELDS)}")
+            if change not in CHANGES:
+                raise ValueError(f"{where} override change must be one of {', '.join(CHANGES)}")
+            if severity not in SEVERITIES:
+                raise ValueError(f"{where} override severity must be one of {', '.join(SEVERITIES)}")
+            if name is not None and (change != "changed" or name not in FIELDS[object_type]):
+                raise ValueError(f"{where} override field applies to changed differences; a {object_type} field is "
+                                 f"one of {', '.join(FIELDS[object_type])}")
+            parsed.append(OverrideConfig(object_type=object_type, change=change, severity=severity, field=name))
+        comparisons.append(ComparisonConfig(baseline=baseline, target=target, limit=limit, overrides=tuple(parsed)))
+    return tuple(comparisons)
+
+
+def scope_config(value: object, where: str, *, wildcard: bool) -> ScopeConfig:
+    if not isinstance(value, dict):
+        raise ValueError(f"{where} must be a table: {{ connection = \"NAME\", schema = \"SCHEMA\" }}")
+    unknown = set(value) - {"connection", "schema"}
+    if unknown:
+        raise ValueError(f"Unknown {where} keys: {', '.join(sorted(unknown))}")
+    connection, schema = value.get("connection"), value.get("schema")
+    if not isinstance(connection, str) or not CONNECTION_NAME.fullmatch(connection):
+        raise ValueError(f"{where} needs connection, a connection name")
+    if schema is not None and (not isinstance(schema, str) or not schema):
+        raise ValueError(f"{where} schema must be a non-empty string")
+    if schema == WILDCARD and not wildcard:
+        raise ValueError(f"{where} schema cannot be \"*\"; only a target expands to every inspected schema")
+    return ScopeConfig(connection=connection, schema=schema)
+
+
+def comparison_option(value: str) -> ComparisonConfig:
+    """``BASELINE=TARGET``, each scope ``CONNECTION`` or ``CONNECTION:SCHEMA``; the target schema may be ``*``."""
+    baseline, separator, target = value.partition("=")
+    if not separator:
+        raise ValueError(COMPARISON_FORMAT)
+    spec = ComparisonConfig(baseline=scope_option(baseline, wildcard=False), target=scope_option(target, wildcard=True))
+    if spec.baseline == spec.target:
+        raise ValueError(f"A comparison compares two different scopes, not {spec.baseline} with itself")
+    return spec
+
+
+def scope_option(text: str, *, wildcard: bool) -> ScopeConfig:
+    # Never echo the value: a URL passed by mistake would end up in the error output.
+    connection, separator, schema = text.partition(":")
+    if not CONNECTION_NAME.fullmatch(connection) or (separator and not schema):
+        raise ValueError(COMPARISON_FORMAT)
+    if "@" in schema or "//" in schema:
+        raise ValueError(f"{COMPARISON_FORMAT}; database URLs are never accepted as arguments")
+    if schema == WILDCARD and not wildcard:
+        raise ValueError("Only a comparison target's schema can be \"*\"")
+    return ScopeConfig(connection=connection, schema=schema if separator else None)
 
 
 def database_option(value: str) -> tuple[str, str]:

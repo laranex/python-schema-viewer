@@ -20,7 +20,7 @@ from .graph import in_scope
 from .ids import by_list, comparison_id, difference_id
 from .shape import CHANGES, OBJECT_TYPES
 
-__all__ = ["COMPARISON_FEATURES", "SeverityOverride", "compare_scopes", "coverage_gaps", "default_severity",
+__all__ = ["COMPARISON_FEATURES", "FIELDS", "SeverityOverride", "compare_scopes", "coverage_gaps", "default_severity",
            "normalize_sql", "normalize_type", "table_label"]
 
 # The features a comparison reads; a side whose coverage does not have them all complete makes it incomplete.
@@ -28,6 +28,18 @@ COMPARISON_FEATURES = (
     "tables", "columns", "columnTypes", "defaults", "comments", "primaryKeys", "foreignKeys", "referentialActions",
     "indexes", "indexExpressions", "indexPredicates", "uniqueConstraints", "checkConstraints",
 )
+
+# The fields a changed difference of each object type can list.
+FIELDS = {
+    "table": ("comment",),
+    "column": ("collation", "comment", "default", "enum", "generated", "nullable", "type"),
+    "primaryKey": ("columns",),
+    "index": ("included", "method", "name", "parts", "predicate", "unique"),
+    "foreignKey": ("columns", "deferrable", "foreignColumns", "foreignTable", "initially", "name", "onDelete",
+                   "onUpdate"),
+    "constraint": ("columns", "expression", "name"),
+}
+SEVERITIES = ("error", "warning", "info")
 
 # Fields whose comparison rests on normalized text: their differences are "likely".
 LIKELY_FIELDS = {"table": (), "column": ("default", "generated"), "primaryKey": (), "index": ("predicate",),
