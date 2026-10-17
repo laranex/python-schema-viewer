@@ -4,6 +4,34 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-17
+
+**Upgrading:** `build` now imports your models in an isolated worker by default. The worker gets a filtered environment without credentials, and import-time database connections, network access, subprocesses and file writes fail. Projects whose models depend on those need configuration or small fixes; see [Upgrading from 0.3](docs/security.md#upgrading). There is no in-process mode. Version 1 snapshots stay the default output, and `serve` and `mcp` still open them.
+
+### Added
+
+- The laranex-schema 1.0 contract shared with laranex-schema-viewer-ui (`laranex_schema_viewer.contract`): Pydantic models, strict (producer) and lenient (reader) validation with the shared reference rules, canonical serialization and revisions, and the shared graph builder for links and derived links. The contract's valid, invalid and graph conformance fixtures run in the test suite.
+- Unified serialization (`laranex_schema_viewer.unified.from_v1`): every adapter's declared metadata, and any version 1 snapshot, as a laranex-schema 1.0 document. Database and ORM defaults stay apart, index key parts keep their order with dialect options, keys are oriented like foreign keys, secondary tables become pivots, and inverse relationships are resolved from back_populates.
+- `build` runs application code in an isolated extraction worker. `--isolation process` (the default) uses a subprocess with an allowlisted environment, so database URLs, passwords and tokens are withheld; it also gets a private `HOME` and `TMPDIR`, a timeout (`--timeout`, default 120 seconds), and cleanup of its whole process group. `--isolation container` runs Docker or Podman with no network, a read-only project and root filesystem, dropped capabilities and a version-checked image. A level that cannot be established fails the build instead of falling back.
+- Best-effort guards in the worker: audit hooks refuse network access, subprocesses and writes outside allowed directories; file-backed `sqlite3` is refused; SQLAlchemy, Peewee and Tortoise connect calls raise. Blocked operations are printed as warnings. New configuration keys: `isolation`, `timeout`, `env_passthrough`, `env`, `allow_writes`, `container_image` and `container_runtime`. See [build security](docs/security.md).
+- Live database introspection (`laranex_schema_viewer.introspection`) for PostgreSQL, MySQL, MariaDB and SQLite, as a laranex-schema 1.0 document with database provenance: native column types, defaults, identity and generated columns, enums, collations, comments, composite primary and foreign keys across schemas, unique and check constraints, and indexes with key order, nulls order, prefix lengths, collations, operator classes, methods, predicates, included columns and the constraints they back. It runs in its own worker, which never imports application code, receives the URL on stdin, and verifies a database-enforced read-only session. It refuses roles that could change the schema or data unless that is explicitly accepted. New `postgresql` and `mysql` extras install the drivers.
+- Reconciliation (`laranex_schema_viewer.reconcile.combine`): declared models and a live database as one combined laranex-schema document. Database facts win; ORM defaults, models and relationships come from the declarations. Provenance is recorded on every table, column, key, index and constraint, and drift entries and diagnostics cover types, nullability, defaults, comments, primary keys, referential actions, index uniqueness and key parts, check expressions, missing and extra columns, tables, keys, indexes and constraints. Comparisons that rely on normalizing type names or SQL text are marked `likely`.
+- `build --source database|combined` writes laranex-schema 1.0 documents from a live database, or from models reconciled with it, and `--format laranex-schema` does the same for declared builds. The database URL is read only from an environment variable (`--database-url-env`, default `LARANEX_SCHEMA_DATABASE_URL`), never from arguments or configuration. New options: `--schema`, `--database-connection` and `--allow-write-privileges`, with matching configuration keys. See [database introspection](docs/database.md).
+- Several database connections: `[tool.laranex-schema-viewer.databases.NAME]` (`url_env`, `schemas`, `namespace`) or a repeatable `--database NAME=ENV_VAR`. Each connection is inspected by its own introspection worker that receives only its own URL, drivers can be mixed, and the output has one connection per name with connection-qualified table ids. Combined builds reconcile each connection with its declared namespace (by name, or the explicit `namespace` mapping); unmatched connections stay database-only or declared-only with `unavailable` coverage, and relationships across connections never call for foreign keys. The single-database options are unchanged. See [database introspection](docs/database.md#several-connections).
+- `convert` turns a version 1 snapshot into a laranex-schema 1.0 document.
+- `mcp` reads laranex-schema documents (declared, database or combined) with the same tools and field names, adding provenance, drift, coverage, index parts and relationship cardinality. Responses for version 1 snapshots are unchanged; a recorded set of 113 responses guards them.
+
+### Changed
+
+- **Breaking:** builds no longer see the caller's full environment. Settings that need a variable must list it in `env_passthrough`, or get a placeholder from `[tool.laranex-schema-viewer.env]`. Import-time writes outside `allow_writes` now fail the build. Database connections, network access and subprocesses at import time fail too. Migration notes are in [build security](docs/security.md#upgrading).
+- The vendored viewer is laranex-schema-viewer-ui 0.2.0. With every connection shown, each connection is framed in its own region. With one connection shown, tables that its relationships reach on other connections appear as reference nodes. Tables with the same name on two connections are labelled with their connection, and deep links switch to the right connection. The viewer ships its own favicon, served from its manifest. The UI's validator now rejects a foreign key that crosses connections, which this package never writes.
+- `serve` now shows the shared Laranex Schema Viewer UI (laranex-schema-viewer-ui 0.2.0, prebuilt and vendored, so no Node.js at runtime) in place of the HTML/SVG viewer. It opens declared, database and combined laranex-schema documents. A version 1 snapshot is converted explicitly with the same conversion as `convert`. The Content-Security-Policy, host check and loopback default are unchanged, and only the files the viewer's manifest lists are served.
+- In a combined document, a declared connection with no database configured stays declared-only, with `unavailable` database coverage and an `inspection_unavailable` diagnostic. A database connection that the models don't declare stays database-only.
+
+### Removed
+
+- The HTML/SVG viewer (`static/index.html`, `app.js`, `graph.js`, `styles.css`) and its Node.js tests. `serve` uses the vendored shared UI instead.
+
 ## [0.3.1] - 2026-10-17
 
 ### Changed
@@ -52,7 +80,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - Distributable agent skills, installable with `npx skills add laranex/python-schema-viewer`.
 - Documentation site and security policy.
 
-[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/laranex/python-schema-viewer/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/laranex/python-schema-viewer/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/laranex/python-schema-viewer/compare/v0.1.0...v0.2.0

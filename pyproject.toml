@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "laranex-schema-viewer"
-version = "0.3.1"
+version = "0.4.0"
 description = "Schema snapshots, an ERD viewer, and read-only MCP tools for SQLAlchemy, SQLModel, Django, Tortoise ORM, and Peewee"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -45,7 +45,9 @@ django = ["Django>=4.2,<7"]
 tortoise = ["tortoise-orm>=1.0,<2"]
 peewee = ["peewee>=3.19,<5"]
 mcp = ["mcp>=2.3,<3"]
-dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "Django>=4.2,<7", "tortoise-orm>=1.0,<2", "peewee>=3.19,<5", "mcp>=2.3,<3", "ruff>=0.8,<0.18", "build>=1.2", "PyYAML>=6,<7"]
+postgresql = ["SQLAlchemy>=2.0,<3", "psycopg[binary]>=3.2,<4"]
+mysql = ["SQLAlchemy>=2.0,<3", "PyMySQL[rsa]>=1.1,<2"]
+dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "Django>=4.2,<7", "tortoise-orm>=1.0,<2", "peewee>=3.19,<5", "mcp>=2.3,<3", "psycopg[binary]>=3.2,<4", "PyMySQL[rsa]>=1.1,<2", "ruff>=0.8,<0.18", "build>=1.2", "PyYAML>=6,<7"]
 
 [project.scripts]
 laranex-schema-viewer = "laranex_schema_viewer.cli:main"

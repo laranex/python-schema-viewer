@@ -1,0 +1,264 @@
+{
+  "description": "A many-to-many relationship is two links from the pivot table, each joining a pivot foreign key",
+  "expected": {
+    "derivedLinks": [],
+    "links": [
+      {
+        "foreignKey": null,
+        "from": {
+          "columns": [
+            "role_id"
+          ],
+          "table": "t:role_user"
+        },
+        "id": "l7eec668fcc2d6510",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [
+          "r:roles"
+        ],
+        "state": "relationship",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:roles"
+        }
+      },
+      {
+        "foreignKey": "t:role_user:fk:role_user_user_fk",
+        "from": {
+          "columns": [
+            "user_id"
+          ],
+          "table": "t:role_user"
+        },
+        "id": "l88405fa4dd682af8",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [
+          "r:roles"
+        ],
+        "state": "both",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:users"
+        }
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "pgsql",
+        "id": "connection:c",
+        "name": "c",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:users",
+            "indexes": [],
+            "name": "users",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:roles",
+            "indexes": [],
+            "name": "roles",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "user_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "role_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "user_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:users",
+                "id": "t:role_user:fk:role_user_user_fk",
+                "initially": null,
+                "name": "role_user_user_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:role_user",
+            "indexes": [],
+            "name": "role_user",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "user_id",
+              "role_id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "cardinality": "many-to-many",
+        "collection": true,
+        "constraints": [],
+        "id": "r:roles",
+        "inverse": null,
+        "join": null,
+        "keys": null,
+        "model": "m",
+        "name": "r:roles",
+        "note": null,
+        "pivot": {
+          "columns": [],
+          "parentColumns": [
+            "id"
+          ],
+          "parentPivotColumns": [
+            "user_id"
+          ],
+          "relatedColumns": [
+            "id"
+          ],
+          "relatedPivotColumns": [
+            "role_id"
+          ],
+          "table": "t:role_user"
+        },
+        "polymorphic": null,
+        "readOnly": false,
+        "relatedModel": null,
+        "relatedTable": "t:roles",
+        "source": null,
+        "table": "t:users",
+        "through": null,
+        "type": "test"
+      }
+    ]
+  }
+}

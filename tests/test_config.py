@@ -7,8 +7,10 @@ from pathlib import Path
 
 from laranex_schema_viewer.config import (
     DEFAULT_SNAPSHOT,
+    DatabaseConfig,
     add_config,
     config_section,
+    database_option,
     detect_model_module,
     load_config,
     resolve_snapshot,
@@ -68,6 +70,42 @@ class ConfigTests(unittest.TestCase):
                 self.write_pyproject(f"[tool.laranex-schema-viewer]\n{body}\n")
                 with self.assertRaises(ValueError):
                     load_config(self.root)
+
+    def test_database_connections_are_read_and_validated(self):
+        self.write_pyproject(
+            "[tool.laranex-schema-viewer.databases.default]\nurl_env = 'APP_DATABASE_URL'\n"
+            "schemas = ['public', 'billing']\n"
+            "[tool.laranex-schema-viewer.databases.analytics]\nurl_env = 'ANALYTICS_DATABASE_URL'\n"
+            "namespace = 'models'\n")
+        databases = load_config(self.root).databases
+        self.assertEqual(databases["default"], DatabaseConfig("default", "APP_DATABASE_URL", ("public", "billing")))
+        self.assertEqual(databases["analytics"],
+                         DatabaseConfig("analytics", "ANALYTICS_DATABASE_URL", (), namespace="models"))
+        for body, message in [
+            ("[tool.laranex-schema-viewer.databases.default]\nurl = 'sqlite:///x'\n", "must not contain a database URL"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\ndatabase_url = 'y'\n",
+             "must not contain a database URL"),
+            ("[tool.laranex-schema-viewer.databases.default]\nschemas = ['public']\n", "needs url_env"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'postgresql://x'\n", "needs url_env"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\nschema = 'public'\n", "Unknown"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\nschemas = 'public'\n", "list of strings"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\nnamespace = ''\n", "non-empty"),
+            ("[tool.laranex-schema-viewer.databases.'bad name']\nurl_env = 'X'\n", "connection names"),
+            ("[tool.laranex-schema-viewer]\ndatabases = ['default']\n", "one table per connection"),
+            ("[tool.laranex-schema-viewer]\ndatabase_url_env = 'X'\n[tool.laranex-schema-viewer.databases.default]\n"
+             "url_env = 'Y'\n", "sets both"),
+        ]:
+            with self.subTest(body=body):
+                self.write_pyproject(body)
+                with self.assertRaisesRegex(ValueError, message):
+                    load_config(self.root)
+
+    def test_database_options(self):
+        self.assertEqual(database_option("analytics=ANALYTICS_URL"), ("analytics", "ANALYTICS_URL"))
+        for value in ("analytics", "=X", "a=", "a=postgresql://u:secret@h/db", "postgresql://u:secret@h/db?x=1"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "NAME=ENV_VAR") as raised:
+                database_option(value)
+            self.assertNotIn("secret", str(raised.exception))
 
     def test_detects_single_package_or_module_and_skips_environments(self):
         package(self.root, "src.infrastructure.models")
@@ -141,6 +179,48 @@ class ConfigTests(unittest.TestCase):
         self.assertIn("Unsupported ORM 'unknown'", result.stderr)
         result = self.run_cli("build", "--orm", "sqlalchemy")
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_isolation_settings_are_read_and_validated(self):
+        self.write_pyproject(
+            "[tool.laranex-schema-viewer]\nisolation = 'container'\ntimeout = 30\n"
+            "container_image = 'app-schema'\nenv_passthrough = ['APP_ENV']\nallow_writes = ['logs']\n"
+            "[tool.laranex-schema-viewer.env]\nSECRET_KEY = 'placeholder'\n"
+        )
+        config = load_config(self.root)
+        self.assertEqual((config.isolation, config.timeout, config.container_image), ("container", 30.0, "app-schema"))
+        self.assertEqual((config.env_passthrough, config.allow_writes), (["APP_ENV"], ["logs"]))
+        self.assertEqual(config.env, {"SECRET_KEY": "placeholder"})
+        for bad in ("isolation = 'none'", "timeout = 0", "timeout = true", "env = { A = 1 }",
+                    "allow_writes = 'logs'"):
+            with self.subTest(bad=bad):
+                self.write_pyproject(f"[tool.laranex-schema-viewer]\n{bad}\n")
+                with self.assertRaises(ValueError):
+                    load_config(self.root)
+
+    def test_build_runs_isolated_and_reports_blocked_operations(self):
+        package(self.root, "app.models", MODEL + "open('written.txt', 'w')\n")
+        result = self.run_cli("build", "--module", "app.models")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("blocked open", result.stderr)
+        self.assertFalse((self.root / "written.txt").exists())
+        self.assertFalse((self.root / "schema-viewer.json").exists())
+
+    def test_build_hides_credentials_from_application_code(self):
+        package(self.root, "app.models", MODEL + "import os\nassert 'DATABASE_URL' not in os.environ\n")
+        result = subprocess.run(
+            [sys.executable, "-m", "laranex_schema_viewer", "build", "--module", "app.models"], cwd=self.root,
+            env=dict(os.environ, PYTHONPATH=str(Path("src").resolve()), DATABASE_URL="postgresql://u:p@h/db"),
+            capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("environment variables withheld", result.stdout)
+        self.assertNotIn("postgresql://", result.stdout + result.stderr)
+
+    def test_container_isolation_never_falls_back(self):
+        package(self.root, "app.models", MODEL)
+        result = self.run_cli("build", "--isolation", "container")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("container_image", result.stderr)
+        self.assertFalse((self.root / "schema-viewer.json").exists())
 
     def test_serve_reports_the_configured_snapshot(self):
         self.write_pyproject("[tool.laranex-schema-viewer]\noutput = 'out/missing.json'\n")

@@ -6,27 +6,58 @@ Open a saved snapshot with:
 laranex-schema-viewer serve --snapshot schema-viewer.json
 ```
 
-Visit **http://127.0.0.1:8765**. No frontend build is needed to run the Python package's viewer.
+Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is vendored prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
 
-## Explore the graph
+The viewer reads laranex-schema documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). A version 1 snapshot is converted on each request, exactly as `convert` would.
 
-- Drag table cards to adjust the layout; pan the canvas and scroll to zoom.
-- Fit or arrange the graph to regain context.
-- Search table, column, and model names.
-- Select a table for columns, keys, indexes, constraints, and relationship details.
-- Focus a table's neighbors or toggle all columns for more detail.
-- Switch light/dark themes or download the JSON snapshot.
+## Explore the diagram
 
-## Two independent connection layers
+- Drag table cards (Shift-click several to move them together), pan, zoom, fit, and arrange the layout again.
+- Search tables, columns, models and relationships; browse tables, relationships or columns in the side panel.
+- Select a table for its columns, primary key, indexes (unique, composite, partial with predicate, expression, method, included columns), constraints, foreign keys in both directions, ORM relationships and models.
+- Focus a table's neighbors to a chosen depth; the selection is kept in the URL.
+- Switch light/dark themes (remembered), and download the JSON document or a PNG/SVG image of the diagram.
+- On a phone-width screen the side panel becomes a bottom sheet.
 
-**Foreign keys** are physical constraints, rendered as solid edges from referencing table to referenced table. They appear even without ORM relationship declarations.
+## Foreign keys and ORM relationships
 
-**ORM relationships** are declared model attributes, rendered as dashed edges. An association-table relationship can use two segments through the secondary table. Reciprocal declarations remain distinct.
+Foreign-key constraints and declared ORM relationships stay separate on the diagram, in the legend and in the details. A link is drawn as a foreign key, as an ORM relationship with no constraint behind it, or as both when a relationship matches a constraint. Relationships through other tables are drawn separately. The **Relationships** toolbar menu shows or hides each kind. Selecting a link explains what it is.
 
-Self references and composite foreign keys retain their endpoints and column pairs. Relationship cardinality describes mapped behavior; it does not establish an unconditional database uniqueness guarantee.
+Self references and composite foreign keys keep their column pairs. Relationship cardinality describes mapped behavior; it is not a database uniqueness guarantee.
+
+## Several connections
+
+A document built from several database connections (see [database introspection](./database.md#several-connections)) holds one connection per name, each with its own driver:
+
+- **All connections** (the default): each connection is laid out on its own inside a labelled frame showing its name, driver and table count, so a `users` table on two connections is drawn twice, never merged. Relationships between connections run between the frames.
+- **One connection**: pick it in the header's **Connection** menu (on a phone, in the ⋯ menu), or step through all connections and each connection with <kbd>[</kbd> and <kbd>]</kbd>. Tables on other connections that the shown tables' relationships reach stay on the diagram as dashed reference nodes marked *On connection NAME · driver*. They cannot be moved or folded; clicking one opens that table on its own connection.
+- Every table label names its connection, for example `analytics · users`: on cards, in Browse, search results, Details headings, edge details, the phone sheet and image exports.
+- A relationship between two connections is always drawn as an ORM relationship with no constraint (dashed), marked `cross-connection`. Foreign keys never cross connections.
+- Deep links: `#connection=<id>` opens one connection (an unknown id opens all of them), and `#table=<id>` opens that table, also on its own connection when `#connection=` names another one. Connection ids look like `connection:analytics`; table ids are opaque and qualified by connection.
+- Coverage is listed per connection, and drift and reconciliation diagnostics name their connection.
+
+Known limitations of the shared viewer (laranex-schema-viewer-ui 0.2.0):
+
+- Frames are placed by the automatic layout. Dragging a table does not move or resize its connection's frame, and frames themselves cannot be dragged. **Arrange again** lays out the tables and their frames afresh.
+- The intermediate (`via`) tables of a relationship through other tables are not drawn as reference nodes when they sit on another connection; only the relationship's two ends are.
+- Frames show the connection's name, driver and table count only; the per-connection hint counts Laravel Schema Viewer shows in its frames are not reproduced.
+
+## What each source shows
+
+The **Details** tab, with nothing selected, shows the document's source as a badge with a sentence about what it means, the legend, and a **Coverage** section per connection: whether the declared metadata and the database inspection are complete, and which features were only partly read or unavailable.
+
+- **declared**: ORM metadata only, no database was inspected. Foreign keys are declared ones.
+- **database**: database introspection only, with no models or ORM relationships.
+- **combined**: the database is authoritative where it was inspected, enriched with models and relationships from the ORM. Coverage lists both the database and the declared side.
+
+In a combined document the viewer also shows where the two sides disagree:
+
+- **Provenance badges**: tables, columns, indexes, foreign keys and constraints found on one side only are marked *declared only* or *database only*. Declared-only tables, columns and foreign-key lines are drawn in the declared color.
+- **Drift**: columns that differ between the two sides (for example in type, nullability or default) are tinted on the diagram and in the columns table, with a drift list giving the database and declared values. Indexes, foreign keys and tables carry their own drift lists.
+- **Diagnostics**: the tab count, per-table issue counts and the Diagnostics tab list every diagnostic. Confirmed **facts** are kept apart from **heuristics** (comparisons that rely on normalized type names or SQL text), and a diagnostic about a table links to it.
 
 ## Current boundaries
 
-The viewer is read-only. The MVP does not include schema editing, persisted layouts, live database reflection, or migration generation. Rebuild the snapshot when model definitions change.
+The viewer is read-only. It does not edit schemas, persist layouts, connect to a database or generate migrations. Rebuild the snapshot when models or the database change.
 
 Try the [interactive demo](./demo.md).

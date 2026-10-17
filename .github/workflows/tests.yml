@@ -19,7 +19,39 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python -m build
       - run: python scripts/check_wheel.py
+  databases:
+    # Introspection, read-only enforcement and reconciliation against disposable servers (synthetic schemas only).
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6
+        env: {POSTGRES_PASSWORD: lsv-admin, POSTGRES_DB: lsv}
+        ports: ['55432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-retries 20
+      mysql:
+        image: mysql:8.4.6
+        env: {MYSQL_ROOT_PASSWORD: lsv-admin, MYSQL_DATABASE: lsv}
+        ports: ['53306:3306']
+        options: --health-cmd "mysqladmin ping -plsv-admin" --health-interval 5s --health-retries 30
+      mariadb:
+        image: mariadb:11.4.8
+        env: {MARIADB_ROOT_PASSWORD: lsv-admin, MARIADB_DATABASE: lsv}
+        ports: ['53307:3306']
+        options: --health-cmd "healthcheck.sh --connect" --health-interval 5s --health-retries 30
+    env:
+      LSV_TEST_POSTGRES_URL: postgresql+psycopg://postgres:lsv-admin@127.0.0.1:55432/lsv
+      LSV_TEST_MYSQL_URL: mysql+pymysql://root:lsv-admin@127.0.0.1:53306/lsv
+      LSV_TEST_MARIADB_URL: mysql+pymysql://root:lsv-admin@127.0.0.1:53307/lsv
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - run: pip install -e '.[dev]'
+      - run: python -m unittest tests.test_introspection tests.test_reconcile tests.test_cli_database tests.test_multiconnection -v
   viewer:
+    # The vendored shared viewer in headless Chrome (preinstalled on ubuntu-latest) for declared, database and
+    # combined documents.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -30,11 +62,7 @@ jobs:
         with:
           node-version: '22'
       - run: pip install -e '.[dev]'
-      - run: npm install
-      - run: npm test
-      - run: |
-          python -m laranex_schema_viewer build --module tests.fixtures.sqlalchemy_models --output .validation/example.json
-          python -m laranex_schema_viewer serve --snapshot .validation/example.json > /tmp/viewer.log 2>&1 &
-          for i in $(seq 1 30); do curl --fail -s http://127.0.0.1:8765/ > /dev/null && break; sleep 1; done
-          EXPECTED_TABLES=6 npm run test:browser
-
+      - run: python -m unittest tests.test_browser -v
+        env:
+          LSV_BROWSER: '1'
+          CHROME_BIN: google-chrome

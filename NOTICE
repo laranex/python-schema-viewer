@@ -1,11 +1,11 @@
 Laranex Schema Viewer is licensed under the MIT License.
 
-The viewer layout in static/styles.css was originally adapted from Laranex
-Laravel Schema Viewer, ui/src/styles.css, inspected at commit 62b056a
-(https://github.com/laranex/laravel-schema-viewer). Its color tokens have
-since been replaced.
-Copyright (c) Laranex. Used under the MIT License reproduced in LICENSE.
+The viewer in src/laranex_schema_viewer/static/viewer/ is a prebuilt copy of
+Laranex Schema Viewer UI (https://github.com/laranex/schema-viewer-ui), MIT
+licensed; its LICENSE.txt and NOTICE.txt there list the fonts (SIL Open Font
+License 1.1), elkjs (Eclipse Public License 2.0) and other bundled packages.
+scripts/sync_viewer.py vendors it from a verified build.
 
-The Python implementation and HTML/SVG viewer are maintained independently.
+The Python implementation is maintained independently.
 No untracked Laravel MCP implementation files were copied.
 

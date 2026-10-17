@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import {readFile, readdir, stat} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-import {schema} from '../demo/schema.mjs';
 
 const dist = path.resolve(fileURLToPath(new URL('../.vitepress/dist/', import.meta.url)));
 const docs = fileURLToPath(new URL('../../docs/', import.meta.url));
@@ -36,5 +35,6 @@ assert.ok(intro.includes('/edit/main/docs/introduction.md'), 'Edit link must poi
 assert.ok(intro.includes(`${base}demo/index.html`), 'Embedded demo must retain the Pages base');
 const quickStart = await readFile(path.join(dist, 'quick-start.html'), 'utf8');
 assert.ok(quickStart.includes('language-python') && quickStart.includes('shiki'), 'Code highlighting missing');
+const schema = JSON.parse(await readFile(new URL('../demo/schema.json', import.meta.url), 'utf8'));
 assert.deepEqual(JSON.parse(await readFile(path.join(dist, 'demo/snapshot.json'), 'utf8')), schema);
 console.log(`Checked ${checked} production links/assets, documentation boundaries, and synthetic demo.`);

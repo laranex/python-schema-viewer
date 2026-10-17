@@ -1,0 +1,1885 @@
+{
+  "connections": [
+    {
+      "coverage": {
+        "database": null,
+        "declared": {
+          "complete": true,
+          "features": {
+            "checkConstraints": "complete",
+            "columnTypes": "complete",
+            "columns": "complete",
+            "comments": "complete",
+            "defaults": "complete",
+            "foreignKeys": "complete",
+            "includedColumns": "complete",
+            "indexExpressions": "complete",
+            "indexPredicates": "complete",
+            "indexes": "complete",
+            "models": "complete",
+            "primaryKeys": "complete",
+            "referentialActions": "complete",
+            "relationships": "complete",
+            "tables": "complete",
+            "uniqueConstraints": "complete"
+          },
+          "schemas": null
+        }
+      },
+      "defaultSchema": null,
+      "driver": null,
+      "id": "connection:workspace",
+      "name": "workspace",
+      "tables": [
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "actor_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "event",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "VARCHAR(80)",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "created_at",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": true,
+              "type": "DATETIME",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "actor_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:users",
+              "id": "fk:audit_events:actor_id",
+              "initially": null,
+              "name": "fk_audit_events_actor_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:audit_events",
+          "indexes": [],
+          "name": "audit_events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "body",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "TEXT",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "task_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "user_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "task_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:tasks",
+              "id": "fk:comments:task_id",
+              "initially": null,
+              "name": "fk_comments_task_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            {
+              "columns": [
+                "user_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:users",
+              "id": "fk:comments:user_id",
+              "initially": null,
+              "name": "fk_comments_user_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:comments",
+          "indexes": [],
+          "name": "comments",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "name",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "VARCHAR(120)",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "owner_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "team_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "owner_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:users",
+              "id": "fk:projects:owner_id",
+              "initially": null,
+              "name": "fk_projects_owner_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            {
+              "columns": [
+                "team_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:teams",
+              "id": "fk:projects:team_id",
+              "initially": null,
+              "name": "fk_projects_team_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:projects",
+          "indexes": [],
+          "name": "projects",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "name",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "VARCHAR(40)",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "demo:tags",
+          "indexes": [],
+          "name": "tags",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "task_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "tag_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "task_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:tasks",
+              "id": "fk:task_tags:task_id",
+              "initially": null,
+              "name": "fk_task_tags_task_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            {
+              "columns": [
+                "tag_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:tags",
+              "id": "fk:task_tags:tag_id",
+              "initially": null,
+              "name": "fk_task_tags_tag_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:task_tags",
+          "indexes": [],
+          "name": "task_tags",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "title",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "VARCHAR(200)",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "project_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "assignee_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "parent_id",
+              "note": null,
+              "nullable": true,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "metadata",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "JSONB",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "project_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:projects",
+              "id": "fk:tasks:project_id",
+              "initially": null,
+              "name": "fk_tasks_project_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            {
+              "columns": [
+                "assignee_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:users",
+              "id": "fk:tasks:assignee_id",
+              "initially": null,
+              "name": "fk_tasks_assignee_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            {
+              "columns": [
+                "parent_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:tasks",
+              "id": "fk:tasks:parent_id",
+              "initially": null,
+              "name": "fk_tasks_parent_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:tasks",
+          "indexes": [
+            {
+              "backs": null,
+              "columns": [
+                "project_id"
+              ],
+              "expression": false,
+              "id": "demo:tasks:index:ix_tasks_project",
+              "included": [],
+              "method": null,
+              "name": "ix_tasks_project",
+              "partial": false,
+              "parts": [
+                {
+                  "collation": null,
+                  "column": "project_id",
+                  "expression": null,
+                  "length": null,
+                  "nulls": null,
+                  "opclass": null,
+                  "order": null
+                }
+              ],
+              "predicate": null,
+              "primary": false,
+              "provenance": [
+                "declared"
+              ],
+              "unique": false
+            },
+            {
+              "backs": null,
+              "columns": [],
+              "expression": true,
+              "id": "demo:tasks:index:ix_tasks_lower_title",
+              "included": [],
+              "method": null,
+              "name": "ix_tasks_lower_title",
+              "partial": false,
+              "parts": [
+                {
+                  "collation": null,
+                  "column": null,
+                  "expression": "lower(title)",
+                  "length": null,
+                  "nulls": null,
+                  "opclass": null,
+                  "order": null
+                }
+              ],
+              "predicate": null,
+              "primary": false,
+              "provenance": [
+                "declared"
+              ],
+              "unique": false
+            }
+          ],
+          "name": "tasks",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "user_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "team_id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "user_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:users",
+              "id": "fk:team_members:user_id",
+              "initially": null,
+              "name": "fk_team_members_user_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            {
+              "columns": [
+                "team_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:teams",
+              "id": "fk:team_members:team_id",
+              "initially": null,
+              "name": "fk_team_members_team_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:team_members",
+          "indexes": [
+            {
+              "backs": null,
+              "columns": [
+                "team_id",
+                "user_id"
+              ],
+              "expression": false,
+              "id": "demo:team_members:index:uq_team_members_pair",
+              "included": [],
+              "method": null,
+              "name": "uq_team_members_pair",
+              "partial": false,
+              "parts": [
+                {
+                  "collation": null,
+                  "column": "team_id",
+                  "expression": null,
+                  "length": null,
+                  "nulls": null,
+                  "opclass": null,
+                  "order": null
+                },
+                {
+                  "collation": null,
+                  "column": "user_id",
+                  "expression": null,
+                  "length": null,
+                  "nulls": null,
+                  "opclass": null,
+                  "order": null
+                }
+              ],
+              "predicate": null,
+              "primary": false,
+              "provenance": [
+                "declared"
+              ],
+              "unique": true
+            }
+          ],
+          "name": "team_members",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "name",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "VARCHAR(100)",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "demo:teams",
+          "indexes": [],
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "VARCHAR(254)",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "manager_id",
+              "note": null,
+              "nullable": true,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "INTEGER",
+              "typeName": null
+            },
+            {
+              "autoIncrement": null,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "active",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "declared"
+              ],
+              "timezone": null,
+              "type": "BOOLEAN",
+              "typeName": null
+            }
+          ],
+          "comment": "Synthetic public documentation example",
+          "constraints": [],
+          "foreignKeys": [
+            {
+              "columns": [
+                "manager_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "demo:users",
+              "id": "fk:users:manager_id",
+              "initially": null,
+              "name": "fk_users_manager_id",
+              "onDelete": "RESTRICT",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            }
+          ],
+          "id": "demo:users",
+          "indexes": [
+            {
+              "backs": null,
+              "columns": [
+                "email"
+              ],
+              "dialectOptions": {
+                "postgresql": {
+                  "predicate": "active = true"
+                }
+              },
+              "expression": false,
+              "id": "demo:users:index:uq_users_active_email",
+              "included": [],
+              "method": null,
+              "name": "uq_users_active_email",
+              "partial": false,
+              "parts": [
+                {
+                  "collation": null,
+                  "column": "email",
+                  "expression": null,
+                  "length": null,
+                  "nulls": null,
+                  "opclass": null,
+                  "order": null
+                }
+              ],
+              "predicate": null,
+              "primary": false,
+              "provenance": [
+                "declared"
+              ],
+              "unique": true
+            }
+          ],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        }
+      ]
+    }
+  ],
+  "derivedLinks": [],
+  "diagnostics": [],
+  "format": "laranex-schema",
+  "generator": {
+    "name": "python-schema-viewer",
+    "orm": "sqlalchemy"
+  },
+  "links": [
+    {
+      "foreignKey": "fk:projects:team_id",
+      "from": {
+        "columns": [
+          "team_id"
+        ],
+        "table": "demo:projects"
+      },
+      "id": "l035ca9a5cf28a3c8",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [],
+      "state": "foreign_key",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:teams"
+      }
+    },
+    {
+      "foreignKey": "fk:projects:owner_id",
+      "from": {
+        "columns": [
+          "owner_id"
+        ],
+        "table": "demo:projects"
+      },
+      "id": "l09bd6275eb7dce93",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [],
+      "state": "foreign_key",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:users"
+      }
+    },
+    {
+      "foreignKey": "fk:team_members:team_id",
+      "from": {
+        "columns": [
+          "team_id"
+        ],
+        "table": "demo:team_members"
+      },
+      "id": "l194321ac86922a66",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:teams:members",
+        "orm:users:teams"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:teams"
+      }
+    },
+    {
+      "foreignKey": "fk:tasks:parent_id",
+      "from": {
+        "columns": [
+          "parent_id"
+        ],
+        "table": "demo:tasks"
+      },
+      "id": "l284c51348e922528",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [],
+      "state": "foreign_key",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:tasks"
+      }
+    },
+    {
+      "foreignKey": "fk:tasks:assignee_id",
+      "from": {
+        "columns": [
+          "assignee_id"
+        ],
+        "table": "demo:tasks"
+      },
+      "id": "l3afc2a2d70f06188",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:tasks:assignee"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:users"
+      }
+    },
+    {
+      "foreignKey": "fk:comments:task_id",
+      "from": {
+        "columns": [
+          "task_id"
+        ],
+        "table": "demo:comments"
+      },
+      "id": "l519e4c9368d7a7c5",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:comments:task",
+        "orm:tasks:comments"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:tasks"
+      }
+    },
+    {
+      "foreignKey": "fk:tasks:project_id",
+      "from": {
+        "columns": [
+          "project_id"
+        ],
+        "table": "demo:tasks"
+      },
+      "id": "l579911c83351a169",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:projects:tasks",
+        "orm:tasks:project"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:projects"
+      }
+    },
+    {
+      "foreignKey": "fk:task_tags:tag_id",
+      "from": {
+        "columns": [
+          "tag_id"
+        ],
+        "table": "demo:task_tags"
+      },
+      "id": "l60ec54e4df784737",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:tasks:tags"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:tags"
+      }
+    },
+    {
+      "foreignKey": "fk:audit_events:actor_id",
+      "from": {
+        "columns": [
+          "actor_id"
+        ],
+        "table": "demo:audit_events"
+      },
+      "id": "l625968b64c27fca3",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [],
+      "state": "foreign_key",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:users"
+      }
+    },
+    {
+      "foreignKey": "fk:team_members:user_id",
+      "from": {
+        "columns": [
+          "user_id"
+        ],
+        "table": "demo:team_members"
+      },
+      "id": "l75c7fe06741ab653",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:teams:members",
+        "orm:users:teams"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:users"
+      }
+    },
+    {
+      "foreignKey": "fk:comments:user_id",
+      "from": {
+        "columns": [
+          "user_id"
+        ],
+        "table": "demo:comments"
+      },
+      "id": "l7cdd014e1348c444",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [],
+      "state": "foreign_key",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:users"
+      }
+    },
+    {
+      "foreignKey": "fk:users:manager_id",
+      "from": {
+        "columns": [
+          "manager_id"
+        ],
+        "table": "demo:users"
+      },
+      "id": "l8366fa697393f772",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:users:manager"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:users"
+      }
+    },
+    {
+      "foreignKey": "fk:task_tags:task_id",
+      "from": {
+        "columns": [
+          "task_id"
+        ],
+        "table": "demo:task_tags"
+      },
+      "id": "laedc186f48f11ca7",
+      "note": null,
+      "polymorphic": false,
+      "relationships": [
+        "orm:tasks:tags"
+      ],
+      "state": "both",
+      "to": {
+        "columns": [
+          "id"
+        ],
+        "table": "demo:tasks"
+      }
+    }
+  ],
+  "models": [
+    {
+      "className": "demo.models.CommentsModel",
+      "id": "model:comments",
+      "primaryKey": [
+        "id"
+      ],
+      "source": null,
+      "tables": [
+        "demo:comments"
+      ]
+    },
+    {
+      "className": "demo.models.ProjectsModel",
+      "id": "model:projects",
+      "primaryKey": [
+        "id"
+      ],
+      "source": null,
+      "tables": [
+        "demo:projects"
+      ]
+    },
+    {
+      "className": "demo.models.TagsModel",
+      "id": "model:tags",
+      "primaryKey": [
+        "id"
+      ],
+      "source": null,
+      "tables": [
+        "demo:tags"
+      ]
+    },
+    {
+      "className": "demo.models.TasksModel",
+      "id": "model:tasks",
+      "primaryKey": [
+        "id"
+      ],
+      "source": null,
+      "tables": [
+        "demo:tasks"
+      ]
+    },
+    {
+      "className": "demo.models.TeamsModel",
+      "id": "model:teams",
+      "primaryKey": [
+        "id"
+      ],
+      "source": null,
+      "tables": [
+        "demo:teams"
+      ]
+    },
+    {
+      "className": "demo.models.UsersModel",
+      "id": "model:users",
+      "primaryKey": [
+        "id"
+      ],
+      "source": null,
+      "tables": [
+        "demo:users"
+      ]
+    }
+  ],
+  "note": null,
+  "relationships": [
+    {
+      "cardinality": "many-to-one",
+      "collection": false,
+      "constraints": [],
+      "id": "orm:comments:task",
+      "inverse": null,
+      "join": {
+        "primary": "demo:comments.task_id = demo:tasks.id",
+        "secondary": null
+      },
+      "keys": {
+        "from": {
+          "columns": [
+            "task_id"
+          ],
+          "table": "demo:comments"
+        },
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "demo:tasks"
+        }
+      },
+      "model": "model:comments",
+      "name": "task",
+      "note": null,
+      "pivot": null,
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:tasks",
+      "relatedTable": "demo:tasks",
+      "source": null,
+      "table": "demo:comments",
+      "through": null,
+      "type": "MANYTOONE"
+    },
+    {
+      "cardinality": "one-to-many",
+      "collection": true,
+      "constraints": [],
+      "id": "orm:projects:tasks",
+      "inverse": null,
+      "join": {
+        "primary": "demo:projects.id = demo:tasks.project_id",
+        "secondary": null
+      },
+      "keys": {
+        "from": {
+          "columns": [
+            "project_id"
+          ],
+          "table": "demo:tasks"
+        },
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "demo:projects"
+        }
+      },
+      "model": "model:projects",
+      "name": "tasks",
+      "note": null,
+      "pivot": null,
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:tasks",
+      "relatedTable": "demo:tasks",
+      "source": null,
+      "table": "demo:projects",
+      "through": null,
+      "type": "ONETOMANY"
+    },
+    {
+      "cardinality": "many-to-one",
+      "collection": false,
+      "constraints": [],
+      "id": "orm:tasks:assignee",
+      "inverse": null,
+      "join": {
+        "primary": "demo:tasks.assignee_id = demo:users.id",
+        "secondary": null
+      },
+      "keys": {
+        "from": {
+          "columns": [
+            "assignee_id"
+          ],
+          "table": "demo:tasks"
+        },
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "demo:users"
+        }
+      },
+      "model": "model:tasks",
+      "name": "assignee",
+      "note": null,
+      "pivot": null,
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:users",
+      "relatedTable": "demo:users",
+      "source": null,
+      "table": "demo:tasks",
+      "through": null,
+      "type": "MANYTOONE"
+    },
+    {
+      "cardinality": "one-to-many",
+      "collection": true,
+      "constraints": [],
+      "id": "orm:tasks:comments",
+      "inverse": null,
+      "join": {
+        "primary": "demo:tasks.id = demo:comments.task_id",
+        "secondary": null
+      },
+      "keys": {
+        "from": {
+          "columns": [
+            "task_id"
+          ],
+          "table": "demo:comments"
+        },
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "demo:tasks"
+        }
+      },
+      "model": "model:tasks",
+      "name": "comments",
+      "note": null,
+      "pivot": null,
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:comments",
+      "relatedTable": "demo:comments",
+      "source": null,
+      "table": "demo:tasks",
+      "through": null,
+      "type": "ONETOMANY"
+    },
+    {
+      "cardinality": "many-to-one",
+      "collection": false,
+      "constraints": [],
+      "id": "orm:tasks:project",
+      "inverse": null,
+      "join": {
+        "primary": "demo:tasks.project_id = demo:projects.id",
+        "secondary": null
+      },
+      "keys": {
+        "from": {
+          "columns": [
+            "project_id"
+          ],
+          "table": "demo:tasks"
+        },
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "demo:projects"
+        }
+      },
+      "model": "model:tasks",
+      "name": "project",
+      "note": null,
+      "pivot": null,
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:projects",
+      "relatedTable": "demo:projects",
+      "source": null,
+      "table": "demo:tasks",
+      "through": null,
+      "type": "MANYTOONE"
+    },
+    {
+      "cardinality": "many-to-many",
+      "collection": true,
+      "constraints": [],
+      "id": "orm:tasks:tags",
+      "inverse": null,
+      "join": {
+        "primary": "demo:tasks.id = demo:task_tags.task_id AND demo:tags.id = demo:task_tags.tag_id",
+        "secondary": "task_tags.tag_id = tags.id"
+      },
+      "keys": null,
+      "model": "model:tasks",
+      "name": "tags",
+      "note": null,
+      "pivot": {
+        "columns": [],
+        "parentColumns": [
+          "id"
+        ],
+        "parentPivotColumns": [
+          "task_id"
+        ],
+        "relatedColumns": [
+          "id"
+        ],
+        "relatedPivotColumns": [
+          "tag_id"
+        ],
+        "table": "demo:task_tags"
+      },
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:tags",
+      "relatedTable": "demo:tags",
+      "source": null,
+      "table": "demo:tasks",
+      "through": null,
+      "type": "MANYTOMANY"
+    },
+    {
+      "cardinality": "many-to-many",
+      "collection": true,
+      "constraints": [],
+      "id": "orm:teams:members",
+      "inverse": null,
+      "join": {
+        "primary": "demo:teams.id = demo:team_members.team_id AND demo:users.id = demo:team_members.user_id",
+        "secondary": "team_members.user_id = users.id"
+      },
+      "keys": null,
+      "model": "model:teams",
+      "name": "members",
+      "note": null,
+      "pivot": {
+        "columns": [],
+        "parentColumns": [
+          "id"
+        ],
+        "parentPivotColumns": [
+          "team_id"
+        ],
+        "relatedColumns": [
+          "id"
+        ],
+        "relatedPivotColumns": [
+          "user_id"
+        ],
+        "table": "demo:team_members"
+      },
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:users",
+      "relatedTable": "demo:users",
+      "source": null,
+      "table": "demo:teams",
+      "through": null,
+      "type": "MANYTOMANY"
+    },
+    {
+      "cardinality": "many-to-one",
+      "collection": false,
+      "constraints": [],
+      "id": "orm:users:manager",
+      "inverse": null,
+      "join": {
+        "primary": "demo:users.manager_id = demo:users.id",
+        "secondary": null
+      },
+      "keys": {
+        "from": {
+          "columns": [
+            "manager_id"
+          ],
+          "table": "demo:users"
+        },
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "demo:users"
+        }
+      },
+      "model": "model:users",
+      "name": "manager",
+      "note": null,
+      "pivot": null,
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:users",
+      "relatedTable": "demo:users",
+      "source": null,
+      "table": "demo:users",
+      "through": null,
+      "type": "MANYTOONE"
+    },
+    {
+      "cardinality": "many-to-many",
+      "collection": true,
+      "constraints": [],
+      "id": "orm:users:teams",
+      "inverse": null,
+      "join": {
+        "primary": "demo:users.id = demo:team_members.user_id AND demo:teams.id = demo:team_members.team_id",
+        "secondary": "team_members.team_id = teams.id"
+      },
+      "keys": null,
+      "model": "model:users",
+      "name": "teams",
+      "note": null,
+      "pivot": {
+        "columns": [],
+        "parentColumns": [
+          "id"
+        ],
+        "parentPivotColumns": [
+          "user_id"
+        ],
+        "relatedColumns": [
+          "id"
+        ],
+        "relatedPivotColumns": [
+          "team_id"
+        ],
+        "table": "demo:team_members"
+      },
+      "polymorphic": null,
+      "readOnly": false,
+      "relatedModel": "model:teams",
+      "relatedTable": "demo:teams",
+      "source": null,
+      "table": "demo:users",
+      "through": null,
+      "type": "MANYTOMANY"
+    }
+  ],
+  "source": "declared",
+  "version": "1.0"
+}

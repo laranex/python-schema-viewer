@@ -57,6 +57,21 @@ Each server pins a validated snapshot for its lifetime. Restart after rebuilding
 The implementation uses [the official Python MCP SDK](https://github.com/modelcontextprotocol/python-sdk), currently the 2.x `MCPServer` API. Tests initialize a genuine SDK client over subprocess stdio, discover all tools, call each, and verify read-only annotations and invalid inputs. Interactive Codex and Claude Code client sessions were not run in the implementation environment.
 
 
+## laranex-schema documents
+
+`--snapshot` also accepts laranex-schema 1.x documents: declared, database or combined, as `build --source` writes them. The tools, arguments and field names stay the same. A version 1 snapshot is answered from the snapshot itself, exactly as before. A laranex-schema document is projected onto the same fields, and adds the fields only it has:
+
+| Where | Added fields |
+| --- | --- |
+| `schema_overview` | `source`, `connections` (driver, default schema, and database and declared coverage), `counts.drift`, and `provenance` on each table; `scope` is `declared_metadata`, `database_metadata` or `combined_metadata` |
+| Tables, columns, indexes, foreign keys, constraints | `provenance` (`database`, `declared`, or both); `drift` (each differing field, with the database and declared values) where they disagree |
+| Columns | `type_name`, `collation`, `enum` |
+| Indexes | `id`, `parts` (order, nulls, length, collation, opclass), `primary`, `backs`, `partial`; `predicates`, `included_columns` and `methods` are keyed by dialect |
+| Relationships | `cardinality`, `polymorphic`, `through`, `constraints`, `note`; `join_pairs` are rebuilt from the relationship's keys or pivot |
+| Diagnostics | `category`, `severity`, `certainty`, `subject_type`, `columns` |
+
+The revision is the SHA-256 of the document's canonical JSON. Two fields can differ when the same schema is read as a version 1 snapshot rather than as its laranex-schema conversion. `expressions` lists every key part only when some part is an expression, because version 1 lists SQLAlchemy's columns as expressions too. Unresolved foreign key diagnostics name the foreign key, not its table.
+
 ## Example agent workflow
 
 Ask: “Find the tasks table, show its indexes, and explain foreign keys separately from ORM relationships.” Search first, use the returned opaque table ID, and inspect both relationship kinds independently.

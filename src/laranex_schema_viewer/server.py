@@ -1,26 +1,46 @@
-"""Small snapshot-only HTTP server, independent of web frameworks."""
+"""Small snapshot-only HTTP server, independent of web frameworks.
+
+It serves the vendored laranex-schema-viewer-ui build (static/viewer, files listed in its manifest only) and the
+configured document as /snapshot.json. The viewer reads laranex-schema documents only, so a version 1 snapshot is
+converted explicitly with unified.from_v1 on each request; laranex-schema documents are served as saved.
+"""
 
 from __future__ import annotations
 
+import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from .snapshot import read_snapshot, snapshot_bytes
+from .contract import canonical_json
+from .snapshot import load_document
+
+TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
+         ".css": "text/css; charset=utf-8", ".woff": "font/woff", ".woff2": "font/woff2",
+         ".svg": "image/svg+xml", ".ico": "image/x-icon", ".json": "application/json; charset=utf-8"}
+POLICY = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; "
+          "base-uri 'none'; frame-ancestors 'none'")
+
+
+def viewer_routes() -> dict[str, tuple[str, str]]:
+    """URL path -> (packaged file, content type), for exactly the files the viewer's manifest lists."""
+    viewer = files("laranex_schema_viewer").joinpath("static/viewer")
+    manifest = json.loads(viewer.joinpath("manifest.json").read_text())
+    routes = {}
+    for entry in manifest["files"]:
+        suffix = Path(entry["path"]).suffix
+        if suffix in TYPES and suffix != ".json":
+            routes["/" + entry["path"]] = (entry["path"], TYPES[suffix])
+    routes["/"] = routes["/index.html"]
+    return routes
 
 
 def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765):
     path = Path(snapshot).resolve()
-    read_snapshot(path)  # Fail before binding if the snapshot is missing or invalid.
-    assets = files("laranex_schema_viewer").joinpath("static")
-    routes = {
-        "/": ("index.html", "text/html; charset=utf-8"),
-        "/index.html": ("index.html", "text/html; charset=utf-8"),
-        "/app.js": ("app.js", "text/javascript; charset=utf-8"),
-        "/graph.js": ("graph.js", "text/javascript; charset=utf-8"),
-        "/styles.css": ("styles.css", "text/css; charset=utf-8"),
-    }
+    load_document(path).unified  # Fail before binding if the snapshot is missing, invalid or unconvertible.
+    viewer = files("laranex_schema_viewer").joinpath("static/viewer")
+    routes = viewer_routes()
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
@@ -37,14 +57,14 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
             route = urlsplit(self.path).path
             if route == "/snapshot.json":
                 try:
-                    content = snapshot_bytes(read_snapshot(path))
+                    content = canonical_json(load_document(path).unified).encode("utf-8")
                 except (ValueError, OSError):
                     self.send_error(503, "Snapshot unavailable or invalid")
                     return
-                mime = "application/json; charset=utf-8"
+                mime = TYPES[".json"]
             elif route in routes:
                 name, mime = routes[route]
-                content = assets.joinpath(name).read_bytes()
+                content = viewer.joinpath(name).read_bytes()
             else:
                 self.send_error(404)
                 return
@@ -53,12 +73,20 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
             self.send_header("Content-Length", str(len(content)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; "
-                             "style-src 'self' 'unsafe-inline'; object-src 'none'; "
-                             "base-uri 'none'; frame-ancestors 'none'")
+            self.send_header("Content-Security-Policy", POLICY)
             self.end_headers()
             if not head:
                 self.wfile.write(content)
 
-    return ThreadingHTTPServer((host, port), Handler)
-
+    server = ThreadingHTTPServer((host, port), Handler, bind_and_activate=False)
+    # The viewer requests its scripts, styles and fonts in parallel; socketserver's default backlog of 5 makes the
+    # operating system reset the connections that overflow it.
+    server.request_queue_size = 128
+    server.daemon_threads = True
+    try:
+        server.server_bind()
+        server.server_activate()
+    except BaseException:
+        server.server_close()
+        raise
+    return server

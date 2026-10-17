@@ -12,7 +12,7 @@ Expect an acknowledgement within seven days. Please allow time for a fix before 
 
 ## Security model
 
-- `build` imports the application modules you name and runs their mapper callbacks. Import suppression is not a sandbox. Build only from trusted code.
+- `build` imports the application modules you name and runs their mapper callbacks in a separate extraction worker. At the default `process` level, the worker gets an allowlisted environment without credentials, a timeout, and cleanup of its process group. Its network, process and file-write guards are best-effort, not a sandbox. `--isolation container` adds no network and a read-only project. See [docs/security.md](docs/security.md). Build only from code you trust at the `process` level.
 - `serve` and `mcp` read a saved snapshot only. They do not import application code, connect to a database, run SQL or migrations, or read data rows.
 - The viewer binds to `127.0.0.1` by default, serves only packaged assets and the selected snapshot, and checks the `Host` header. It has no authentication. Do not expose it on a shared network.
 - Snapshots can reveal table, column, and index names. Review them before sharing, and do not commit snapshots of private applications.

@@ -1,0 +1,234 @@
+{
+  "description": "A foreign key and both sides of a relationship on its columns are one link in state both",
+  "expected": {
+    "derivedLinks": [],
+    "links": [
+      {
+        "foreignKey": "t:users:fk:users_team_fk",
+        "from": {
+          "columns": [
+            "team_id"
+          ],
+          "table": "t:users"
+        },
+        "id": "l0cf2df50a758c882",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [
+          "r:team",
+          "r:users"
+        ],
+        "state": "both",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:teams"
+        }
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "pgsql",
+        "id": "connection:c",
+        "name": "c",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "team_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "team_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:teams",
+                "id": "t:users:fk:users_team_fk",
+                "initially": null,
+                "name": "users_team_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:users",
+            "indexes": [],
+            "name": "users",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:teams",
+            "indexes": [],
+            "name": "teams",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "cardinality": "one-to-many",
+        "collection": true,
+        "constraints": [],
+        "id": "r:users",
+        "inverse": null,
+        "join": null,
+        "keys": {
+          "from": {
+            "columns": [
+              "team_id"
+            ],
+            "table": "t:users"
+          },
+          "to": {
+            "columns": [
+              "id"
+            ],
+            "table": "t:teams"
+          }
+        },
+        "model": "m",
+        "name": "r:users",
+        "note": null,
+        "pivot": null,
+        "polymorphic": null,
+        "readOnly": false,
+        "relatedModel": null,
+        "relatedTable": "t:users",
+        "source": null,
+        "table": "t:teams",
+        "through": null,
+        "type": "test"
+      },
+      {
+        "cardinality": "many-to-one",
+        "collection": false,
+        "constraints": [],
+        "id": "r:team",
+        "inverse": null,
+        "join": null,
+        "keys": {
+          "from": {
+            "columns": [
+              "team_id"
+            ],
+            "table": "t:users"
+          },
+          "to": {
+            "columns": [
+              "id"
+            ],
+            "table": "t:teams"
+          }
+        },
+        "model": "m",
+        "name": "r:team",
+        "note": null,
+        "pivot": null,
+        "polymorphic": null,
+        "readOnly": false,
+        "relatedModel": null,
+        "relatedTable": "t:teams",
+        "source": null,
+        "table": "t:users",
+        "through": null,
+        "type": "test"
+      }
+    ]
+  }
+}

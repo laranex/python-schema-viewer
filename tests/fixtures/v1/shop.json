@@ -1,0 +1,230 @@
+{
+  "diagnostics": [
+    {
+      "kind": "unresolved_foreign_key",
+      "message": "orders.legacy_ref references legacy.code, which is not declared",
+      "subject": "[\"default\",\"sales\",\"orders\"]"
+    }
+  ],
+  "format": "laranex-schema-viewer",
+  "models": [
+    {
+      "class_name": "Order",
+      "id": "[\"model\",\"shop.models\",\"Order\",\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\"]",
+      "primary_key": ["id"],
+      "source": {"file": "shop/models.py", "line": 41},
+      "table_ids": ["[\"default\",\"sales\",\"orders\"]"]
+    },
+    {
+      "class_name": "OrderLine",
+      "id": "[\"model\",\"shop.models\",\"OrderLine\",\"[\\\"default\\\",\\\"sales\\\",\\\"order_lines\\\"]\"]",
+      "primary_key": ["order_id", "line_no"],
+      "source": {"file": "shop/models.py", "line": 63},
+      "table_ids": ["[\"default\",\"sales\",\"order_lines\"]"]
+    },
+    {
+      "class_name": "Customer",
+      "id": "[\"model\",\"shop.models\",\"Customer\",\"[\\\"default\\\",null,\\\"customers\\\"]\"]",
+      "primary_key": ["id"],
+      "source": {"file": "shop/models.py", "line": 12},
+      "table_ids": ["[\"default\",null,\"customers\"]"]
+    },
+    {
+      "class_name": "Tag",
+      "id": "[\"model\",\"shop.models\",\"Tag\",\"[\\\"default\\\",null,\\\"tags\\\"]\"]",
+      "primary_key": ["id"],
+      "source": null,
+      "table_ids": ["[\"default\",null,\"tags\"]"]
+    }
+  ],
+  "relationships": [
+    {
+      "back_populates": "orders",
+      "direction": "MANYTOONE",
+      "id": "[\"relationship\",\"[\\\"model\\\",\\\"shop.models\\\",\\\"Order\\\",\\\"[\\\\\\\"default\\\\\\\",\\\\\\\"sales\\\\\\\",\\\\\\\"orders\\\\\\\"]\\\"]\",\"customer\"]",
+      "join_pairs": [
+        {
+          "local": {"column": "customer_id", "table": "[\"default\",\"sales\",\"orders\"]"},
+          "remote": {"column": "id", "table": "[\"default\",null,\"customers\"]"}
+        }
+      ],
+      "model": "[\"model\",\"shop.models\",\"Order\",\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\"]",
+      "name": "customer",
+      "primary_join": "customers.id = sales.orders.customer_id",
+      "secondary": null,
+      "secondary_join": null,
+      "source_table": "[\"default\",\"sales\",\"orders\"]",
+      "target_model": "[\"model\",\"shop.models\",\"Customer\",\"[\\\"default\\\",null,\\\"customers\\\"]\"]",
+      "target_table": "[\"default\",null,\"customers\"]",
+      "uselist": false,
+      "viewonly": false
+    },
+    {
+      "back_populates": "customer",
+      "direction": "ONETOMANY",
+      "id": "[\"relationship\",\"[\\\"model\\\",\\\"shop.models\\\",\\\"Customer\\\",\\\"[\\\\\\\"default\\\\\\\",null,\\\\\\\"customers\\\\\\\"]\\\"]\",\"orders\"]",
+      "join_pairs": [
+        {
+          "local": {"column": "id", "table": "[\"default\",null,\"customers\"]"},
+          "remote": {"column": "customer_id", "table": "[\"default\",\"sales\",\"orders\"]"}
+        }
+      ],
+      "model": "[\"model\",\"shop.models\",\"Customer\",\"[\\\"default\\\",null,\\\"customers\\\"]\"]",
+      "name": "orders",
+      "primary_join": "customers.id = sales.orders.customer_id",
+      "secondary": null,
+      "secondary_join": null,
+      "source_table": "[\"default\",null,\"customers\"]",
+      "target_model": "[\"model\",\"shop.models\",\"Order\",\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\"]",
+      "target_table": "[\"default\",\"sales\",\"orders\"]",
+      "uselist": true,
+      "viewonly": false
+    },
+    {
+      "back_populates": null,
+      "direction": "ONETOMANY",
+      "id": "[\"relationship\",\"[\\\"model\\\",\\\"shop.models\\\",\\\"Order\\\",\\\"[\\\\\\\"default\\\\\\\",\\\\\\\"sales\\\\\\\",\\\\\\\"orders\\\\\\\"]\\\"]\",\"lines\"]",
+      "join_pairs": [
+        {
+          "local": {"column": "id", "table": "[\"default\",\"sales\",\"orders\"]"},
+          "remote": {"column": "order_id", "table": "[\"default\",\"sales\",\"order_lines\"]"}
+        }
+      ],
+      "model": "[\"model\",\"shop.models\",\"Order\",\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\"]",
+      "name": "lines",
+      "primary_join": "sales.orders.id = sales.order_lines.order_id",
+      "secondary": null,
+      "secondary_join": null,
+      "source_table": "[\"default\",\"sales\",\"orders\"]",
+      "target_model": "[\"model\",\"shop.models\",\"OrderLine\",\"[\\\"default\\\",\\\"sales\\\",\\\"order_lines\\\"]\"]",
+      "target_table": "[\"default\",\"sales\",\"order_lines\"]",
+      "uselist": true,
+      "viewonly": true
+    },
+    {
+      "back_populates": null,
+      "direction": "MANYTOMANY",
+      "id": "[\"relationship\",\"[\\\"model\\\",\\\"shop.models\\\",\\\"Customer\\\",\\\"[\\\\\\\"default\\\\\\\",null,\\\\\\\"customers\\\\\\\"]\\\"]\",\"tags\"]",
+      "join_pairs": [
+        {
+          "local": {"column": "id", "table": "[\"default\",null,\"customers\"]"},
+          "remote": {"column": "customer_id", "table": "[\"default\",null,\"customer_tags\"]"}
+        },
+        {
+          "local": {"column": "id", "table": "[\"default\",null,\"tags\"]"},
+          "remote": {"column": "tag_id", "table": "[\"default\",null,\"customer_tags\"]"}
+        }
+      ],
+      "model": "[\"model\",\"shop.models\",\"Customer\",\"[\\\"default\\\",null,\\\"customers\\\"]\"]",
+      "name": "tags",
+      "primary_join": "customers.id = customer_tags.customer_id",
+      "secondary": "[\"default\",null,\"customer_tags\"]",
+      "secondary_join": "tags.id = customer_tags.tag_id",
+      "source_table": "[\"default\",null,\"customers\"]",
+      "target_model": "[\"model\",\"shop.models\",\"Tag\",\"[\\\"default\\\",null,\\\"tags\\\"]\"]",
+      "target_table": "[\"default\",null,\"tags\"]",
+      "uselist": true,
+      "viewonly": false
+    }
+  ],
+  "scope": "declared_metadata",
+  "tables": [
+    {
+      "columns": [
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "customer_id", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "tag_id", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"}
+      ],
+      "comment": null,
+      "constraints": [],
+      "foreign_keys": [
+        {"columns": ["customer_id"], "deferrable": null, "id": "[\"foreign_key\",\"[\\\"default\\\",null,\\\"customer_tags\\\"]\",null,[\"customer_id\"],\"[\\\"default\\\",null,\\\"customers\\\"]\",[\"id\"]]", "initially": null, "name": null, "on_delete": "CASCADE", "on_update": null, "target_columns": ["id"], "target_table": "[\"default\",null,\"customers\"]"},
+        {"columns": ["tag_id"], "deferrable": null, "id": "[\"foreign_key\",\"[\\\"default\\\",null,\\\"customer_tags\\\"]\",null,[\"tag_id\"],\"[\\\"default\\\",null,\\\"tags\\\"]\",[\"id\"]]", "initially": null, "name": null, "on_delete": "CASCADE", "on_update": null, "target_columns": ["id"], "target_table": "[\"default\",null,\"tags\"]"}
+      ],
+      "id": "[\"default\",null,\"customer_tags\"]",
+      "indexes": [],
+      "name": "customer_tags",
+      "namespace": "default",
+      "primary_key": ["customer_id", "tag_id"],
+      "schema_name": null
+    },
+    {
+      "columns": [
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "id", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": "auto", "comment": "Login address", "default": null, "name": "email", "nullable": false, "primary_key": false, "server_default": null, "timezone": null, "type": "VARCHAR(255)"},
+        {"autoincrement": "auto", "comment": null, "default": {"kind": "scalar", "value": "True"}, "name": "active", "nullable": false, "primary_key": false, "server_default": {"kind": "sql", "value": "true"}, "timezone": null, "type": "BOOLEAN"},
+        {"autoincrement": "auto", "comment": null, "default": {"kind": "callable", "value": "datetime.now"}, "name": "created_at", "nullable": false, "primary_key": false, "server_default": null, "timezone": true, "type": "DATETIME"}
+      ],
+      "comment": "Buyers",
+      "constraints": [
+        {"columns": [], "expression": "length(email) > 3", "kind": "check", "name": "ck_customers_email_length"}
+      ],
+      "foreign_keys": [],
+      "id": "[\"default\",null,\"customers\"]",
+      "indexes": [
+        {"columns": ["email"], "expressions": ["email"], "included_columns": {}, "methods": {}, "name": "uq_customers_active_email", "predicates": {"postgresql": "active = true"}, "unique": true},
+        {"columns": [], "expressions": ["lower(email)"], "included_columns": {"postgresql": ["id"]}, "methods": {"postgresql": "btree"}, "name": "ix_customers_lower_email", "predicates": {}, "unique": false}
+      ],
+      "name": "customers",
+      "namespace": "default",
+      "primary_key": ["id"],
+      "schema_name": null
+    },
+    {
+      "columns": [
+        {"autoincrement": false, "comment": null, "default": null, "name": "order_id", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": false, "comment": null, "default": null, "name": "line_no", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "quantity", "nullable": false, "primary_key": false, "server_default": null, "timezone": null, "type": "INTEGER"}
+      ],
+      "comment": null,
+      "constraints": [],
+      "foreign_keys": [
+        {"columns": ["order_id"], "deferrable": true, "id": "[\"foreign_key\",\"[\\\"default\\\",\\\"sales\\\",\\\"order_lines\\\"]\",\"fk_order_lines_order\",[\"order_id\"],\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\",[\"id\"]]", "initially": "DEFERRED", "name": "fk_order_lines_order", "on_delete": "CASCADE", "on_update": null, "target_columns": ["id"], "target_table": "[\"default\",\"sales\",\"orders\"]"}
+      ],
+      "id": "[\"default\",\"sales\",\"order_lines\"]",
+      "indexes": [],
+      "name": "order_lines",
+      "namespace": "default",
+      "primary_key": ["order_id", "line_no"],
+      "schema_name": "sales"
+    },
+    {
+      "columns": [
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "id", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "customer_id", "nullable": false, "primary_key": false, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "legacy_ref", "nullable": true, "primary_key": false, "server_default": null, "timezone": null, "type": "VARCHAR(20)"}
+      ],
+      "comment": null,
+      "constraints": [],
+      "foreign_keys": [
+        {"columns": ["customer_id"], "deferrable": null, "id": "[\"foreign_key\",\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\",\"fk_orders_customer\",[\"customer_id\"],\"[\\\"default\\\",null,\\\"customers\\\"]\",[\"id\"]]", "initially": null, "name": "fk_orders_customer", "on_delete": "RESTRICT", "on_update": "CASCADE", "target_columns": ["id"], "target_table": "[\"default\",null,\"customers\"]"},
+        {"columns": ["legacy_ref"], "deferrable": null, "id": "[\"foreign_key\",\"[\\\"default\\\",\\\"sales\\\",\\\"orders\\\"]\",null,[\"legacy_ref\"],\"[\\\"default\\\",null,\\\"customers\\\"]\",[\"legacy_code\"]]", "initially": null, "name": null, "on_delete": null, "on_update": null, "target_columns": ["legacy_code"], "target_table": "[\"default\",null,\"customers\"]"}
+      ],
+      "id": "[\"default\",\"sales\",\"orders\"]",
+      "indexes": [
+        {"columns": ["customer_id"], "expressions": ["customer_id"], "included_columns": {}, "methods": {}, "name": "ix_orders_customer_id", "predicates": {}, "unique": false}
+      ],
+      "name": "orders",
+      "namespace": "default",
+      "primary_key": ["id"],
+      "schema_name": "sales"
+    },
+    {
+      "columns": [
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "id", "nullable": false, "primary_key": true, "server_default": null, "timezone": null, "type": "INTEGER"},
+        {"autoincrement": "auto", "comment": null, "default": null, "name": "label", "nullable": false, "primary_key": false, "server_default": null, "timezone": null, "type": "VARCHAR(40)"}
+      ],
+      "comment": null,
+      "constraints": [
+        {"columns": ["label"], "expression": null, "kind": "unique", "name": "uq_tags_label"}
+      ],
+      "foreign_keys": [],
+      "id": "[\"default\",null,\"tags\"]",
+      "indexes": [],
+      "name": "tags",
+      "namespace": "default",
+      "primary_key": ["id"],
+      "schema_name": null
+    }
+  ],
+  "version": 1
+}

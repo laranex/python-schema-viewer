@@ -7,8 +7,10 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .config import (DEFAULT_SNAPSHOT, add_config, config_section, detect_django_settings,
-                     detect_model_module, load_config, resolve_snapshot)
+from .config import (DEFAULT_SNAPSHOT, FORMATS, SOURCES, DatabaseConfig, ProjectConfig, add_config, config_section,
+                     database_option, detect_django_settings, detect_model_module, load_config, resolve_snapshot)
+
+DATABASE_URL_ENV = "LARANEX_SCHEMA_DATABASE_URL"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -28,6 +30,28 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--orm", help="auto, sqlalchemy, django, tortoise, or peewee; default: pyproject.toml config, else auto")
     build.add_argument("--settings", help="Django settings module; default: config, else manage.py")
     build.add_argument("--output", type=Path, help="Default: pyproject.toml config, else schema-viewer.json")
+    build.add_argument("--isolation", choices=("process", "container"),
+                       help="Where application code runs; default: pyproject.toml config, else process")
+    build.add_argument("--timeout", type=float, help="Seconds before extraction is stopped; default: config, else 120")
+    build.add_argument("--container-image", help="Image for --isolation container")
+    build.add_argument("--source", choices=SOURCES,
+                       help="declared (models), database (live catalogs), or combined; default: config, else declared")
+    build.add_argument("--format", choices=FORMATS,
+                       help="v1 (read by serve and mcp) or laranex-schema; default: v1 for declared sources")
+    build.add_argument("--database-url-env", metavar="NAME",
+                       help=f"Environment variable holding the database URL; default: config, else {DATABASE_URL_ENV}")
+    build.add_argument("--schema", action="append", default=[], help="Database schema to inspect; repeatable")
+    build.add_argument("--database-connection", metavar="NAME",
+                       help="Declared connection the database belongs to; default: config, else the only one")
+    build.add_argument("--database", action="append", default=[], metavar="NAME=ENV_VAR",
+                       help="Inspect connection NAME, whose URL is in ENV_VAR; repeatable. Replaces the single "
+                            "database options and [tool.laranex-schema-viewer.databases]")
+    build.add_argument("--allow-write-privileges", action="store_true",
+                       help="Inspect with a role that can change the database (sessions stay read-only)")
+    convert = commands.add_parser("convert", help="Convert a version 1 snapshot to a laranex-schema 1.0 document")
+    convert.add_argument("snapshot", type=Path)
+    convert.add_argument("--output", type=Path, required=True)
+    convert.add_argument("--orm", help="The ORM the snapshot was built from, recorded in the document")
     serve = commands.add_parser("serve", help="Serve the viewer from a saved snapshot only")
     serve.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     serve.add_argument("--host", default="127.0.0.1")
@@ -62,32 +86,13 @@ def main(argv: list[str] | None = None) -> int:
             path = add_config(args.project_root, section)
             print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
         elif args.command == "build":
-            from .build import build_document
-            from .snapshot import write_snapshot
+            run_build(args)
+        elif args.command == "convert":
+            from .snapshot import read_snapshot, write_unified
+            from .unified import from_v1
 
-            config = load_config(args.project_root)
-            orm = args.orm or config.orm or "auto"
-            settings = args.settings or config.settings
-            modules, targets, recursive = args.module, args.target, args.recursive
-            if not modules and not targets:
-                modules, targets = config.modules, config.targets
-                recursive = recursive or config.recursive
-            if orm in ("auto", "django") and not (settings or modules or targets):
-                settings = detect_django_settings(args.project_root)
-                if settings:
-                    print(f"Detected Django settings {settings}")
-            django = orm == "django" or (orm == "auto" and settings)
-            if not django and not modules and not targets:
-                modules, recursive = [detect_model_module(args.project_root)], True
-                print(f"Detected model module {modules[0]}; importing it recursively")
-            output = args.output or config.output or DEFAULT_SNAPSHOT
-            document = build_document(modules, project_root=args.project_root,
-                                      recursive=recursive, targets=targets, orm=orm,
-                                      settings=settings)
-            write_snapshot(document, output)
-            print(f"Saved {len(document.tables)} tables, {len(document.models)} models, "
-                  f"{len(document.relationships)} ORM relationships, "
-                  f"{len(document.diagnostics)} diagnostics to {output}")
+            write_unified(from_v1(read_snapshot(args.snapshot), orm=args.orm), args.output)
+            print(f"Saved {args.snapshot} as laranex-schema 1.0 to {args.output}")
         elif args.command == "serve":
             from .server import create_server
 
@@ -109,3 +114,150 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     return 0
 
+
+
+def run_build(args: argparse.Namespace) -> None:
+    """Extract declared metadata in the isolated worker, inspect the database in its own worker, or both."""
+    import os
+
+    from .document import SchemaDocument
+    from .isolation import ExtractRequest, IsolationConfig
+    from .isolation.runner import extract
+    from .snapshot import write_snapshot, write_unified
+
+    config = load_config(args.project_root)
+    source = args.source or config.source or "declared"
+    output_format = args.format or config.format or ("v1" if source == "declared" else "laranex-schema")
+    if source != "declared" and output_format == "v1":
+        raise ValueError(f"--source {source} writes laranex-schema documents; version 1 snapshots cannot hold "
+                         "database metadata")
+    output = args.output or config.output or DEFAULT_SNAPSHOT
+    timeout = args.timeout or config.timeout or IsolationConfig.timeout
+    databases = database_connections(args, config)
+    url_env = args.database_url_env or config.database_url_env or DATABASE_URL_ENV
+    for variable in [d.url_env for d in databases] or [url_env]:
+        if variable in config.env_passthrough or variable in config.env:
+            raise ValueError(f"{variable} holds a database URL and must not be passed to the extraction worker")
+    url, urls = None, {}
+    if source != "declared":
+        for database in databases:
+            urls[database.name] = os.environ.get(database.url_env)
+            if not urls[database.name]:
+                raise ValueError(f"Set {database.url_env} to a read-only database URL for connection {database.name} "
+                                 "(see docs/database.md); URLs are never read from arguments or configuration")
+        if not databases:
+            url = os.environ.get(url_env)
+            if not url:
+                raise ValueError(f"Set {url_env} to a read-only database URL (see docs/database.md); URLs are never "
+                                 "read from arguments or configuration")
+
+    v1 = None
+    orm = args.orm or config.orm or "auto"
+    if source != "database":
+        settings = args.settings or config.settings
+        modules, targets, recursive = args.module, args.target, args.recursive
+        if not modules and not targets:
+            modules, targets = config.modules, config.targets
+            recursive = recursive or config.recursive
+        if orm in ("auto", "django") and not (settings or modules or targets):
+            settings = detect_django_settings(args.project_root)
+            if settings:
+                print(f"Detected Django settings {settings}")
+        django = orm == "django" or (orm == "auto" and settings)
+        if not django and not modules and not targets:
+            modules, recursive = [detect_model_module(args.project_root)], True
+            print(f"Detected model module {modules[0]}; importing it recursively")
+        isolation = IsolationConfig(
+            level=args.isolation or config.isolation or "process", timeout=timeout,
+            env_passthrough=tuple(config.env_passthrough), env=tuple(sorted(config.env.items())),
+            allow_writes=tuple(config.allow_writes),
+            container_image=args.container_image or config.container_image,
+            container_runtime=config.container_runtime,
+        )
+        request = ExtractRequest(project_root=str(args.project_root), modules=tuple(modules),
+                                 targets=tuple(targets), recursive=recursive, orm=orm, settings=settings)
+        result = extract(request, isolation)
+        print(f"Extracted with {isolation.level} isolation; {result.withheld} environment variables withheld")
+        for blocked in result.blocked:
+            print(f"Warning: blocked {blocked['event']} during extraction ({blocked['detail']})", file=sys.stderr)
+        v1 = SchemaDocument.model_validate(result.document)
+        if output_format == "v1":
+            write_snapshot(v1, output)
+            print(f"Saved {len(v1.tables)} tables, {len(v1.models)} models, "
+                  f"{len(v1.relationships)} ORM relationships, {len(v1.diagnostics)} diagnostics to {output}")
+            return
+
+    from .unified import from_v1
+
+    declared = from_v1(v1, orm=None if orm == "auto" else orm) if v1 is not None else None
+    document = declared
+    if source != "declared" and databases:
+        from .introspection import DatabaseRequest
+        from .introspection.runner import introspect_all
+
+        database = introspect_all([DatabaseRequest(
+            url=urls[d.name], schemas=d.schemas, connection=d.name,
+            allow_write_privileges=args.allow_write_privileges, timeout=timeout,
+        ) for d in databases], project_roots=[str(Path(args.project_root).resolve())])
+        for connection in database["connections"]:
+            print(f"Inspected connection {connection['name']} read-only ({connection['driver']})")
+        if declared is None:
+            document = database
+        else:
+            from .reconcile import combine
+
+            document = combine(declared, database, namespaces={d.name: d.namespace for d in databases if d.namespace})
+    elif source != "declared":
+        from .introspection import DatabaseRequest
+        from .introspection.runner import introspect
+
+        names = [c["name"] for c in declared["connections"]] if declared else []
+        connection = args.database_connection or config.database_connection or (
+            names[0] if len(names) == 1 else "default")
+        database = introspect(DatabaseRequest(
+            url=url, schemas=tuple(args.schema or config.database_schemas), connection=connection,
+            allow_write_privileges=args.allow_write_privileges, timeout=timeout,
+        ), project_roots=[str(Path(args.project_root).resolve())])
+        print(f"Inspected the database read-only ({database['connections'][0]['driver']})")
+        if declared is None:
+            document = database
+        else:
+            from .reconcile import combine
+
+            document = combine(declared, database, connection=connection)
+    write_unified(document, output)
+    counts = {}
+    for diagnostic in document["diagnostics"]:
+        counts[diagnostic["category"]] = counts.get(diagnostic["category"], 0) + 1
+    summary = ", ".join(f"{n} {category}" for category, n in sorted(counts.items())) or "no"
+    tables = sum(len(c["tables"]) for c in document["connections"])
+    print(f"Saved laranex-schema 1.0 ({document['source']}): {tables} tables, {summary} diagnostics, to {output}")
+
+
+def database_connections(args: argparse.Namespace, config: ProjectConfig) -> list[DatabaseConfig]:
+    """The named connections to inspect, or [] for the single-database options. Never both."""
+    single = [option for option, value in (("--database-url-env", args.database_url_env), ("--schema", args.schema),
+                                           ("--database-connection", args.database_connection)) if value]
+    single_config = [key for key, value in (("database_url_env", config.database_url_env),
+                                            ("database_schemas", config.database_schemas),
+                                            ("database_connection", config.database_connection)) if value]
+    if args.database and single:
+        raise ValueError(f"--database cannot be combined with {', '.join(single)}; give each connection as "
+                         "NAME=ENV_VAR and its schemas in [tool.laranex-schema-viewer.databases.NAME]")
+    if args.database and single_config:
+        raise ValueError(f"--database cannot be combined with {', '.join(single_config)} in pyproject.toml; "
+                         "configure the connections under [tool.laranex-schema-viewer.databases.NAME]")
+    if config.databases and single:
+        raise ValueError(f"{', '.join(single)} cannot be combined with [tool.laranex-schema-viewer.databases]; "
+                         "select connections with --database NAME=ENV_VAR")
+    if not args.database:
+        return [config.databases[name] for name in sorted(config.databases)]
+    selected: dict[str, DatabaseConfig] = {}
+    for value in args.database:
+        name, url_env = database_option(value)
+        if name in selected:
+            raise ValueError(f"--database names connection {name} more than once")
+        configured = config.databases.get(name)
+        selected[name] = DatabaseConfig(name=name, url_env=url_env, schemas=configured.schemas if configured else (),
+                                        namespace=configured.namespace if configured else None)
+    return [selected[name] for name in sorted(selected)]
