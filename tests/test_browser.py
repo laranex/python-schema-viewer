@@ -1,4 +1,5 @@
-"""The served shared viewer in a real browser, for declared, database, combined and multi-connection documents.
+"""The served shared viewer in a real browser, for declared, database, combined and multi-connection documents, and the
+comparison, migration and inferred-association views (a built comparison, and the shared fixtures for the others).
 
 Opt in with LSV_BROWSER=1; needs Node.js 22+ and Chrome or Chromium (CHROME_BIN, else found on PATH or in the usual
 macOS location). scripts/browser-smoke.mjs drives the browser over the DevTools Protocol and fails on uncaught
@@ -110,6 +111,37 @@ class ServedViewer(unittest.TestCase):
                                 "provenance": {"nickname": "declared only", "legacy_flag": "database only"}})
         self.assertGreater(report["edges"], 0)
         self.assertEqual(sorted(report["certainty"]), ["fact", "heuristic"])
+
+    def test_comparison_document(self):
+        # Two SQLite connections compared at build time: SQLite's partial check-constraint coverage makes the stored
+        # comparison incomplete, which the Compare tab must say.
+        urls = {}
+        for name, ddl in (("primary", "CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(320) NOT NULL);"
+                                      "CREATE INDEX users_email ON users (email);"),
+                          ("replica", "CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT);"
+                                      "CREATE TABLE extra (id INTEGER PRIMARY KEY);")):
+            connection = sqlite3.connect(self.root / f"{name}.db")
+            connection.executescript(ddl)
+            connection.close()
+            urls[f"{name.upper()}_URL"] = f"sqlite:///{self.root / name}.db"
+        snapshot = self.build("comparison.json", "--source", "database", "--database", "primary=PRIMARY_URL",
+                              "--database", "replica=REPLICA_URL", "--compare", "primary=replica",
+                              "--compare", "replica=primary", env=urls)
+        report = self.check(snapshot, source="database", tables=3, connections=2, compare=True)
+        self.assertEqual(report["compare"]["comparisons"], 2)
+        self.assertEqual(report["compare"]["summary"], ["1", "1", "1", "3"])
+        self.assertFalse(report["compare"]["complete"])
+
+    def test_shared_intelligence_fixtures(self):
+        valid = ROOT / "tests/fixtures/contract/fixtures/valid"
+        for name, expect in (("comparison-tenant-schemas.json", {"compare": True}),
+                             ("comparison-schema-named-tables.json", {"compare": True}),
+                             ("migrations-alembic.json", {"migrations": 10}),
+                             ("inferred-associations.json", {"inferred": True})):
+            with self.subTest(name):
+                source = json.loads((valid / name).read_text())["source"]
+                report = self.check(valid / name, source=source, **expect)
+                self.assertTrue(set(expect) <= set(report), report)
 
     def test_multiconnection_document(self):
         # Two SQLite connections from tests/fixtures/multiconnection_models.py: users on both, a relationship between

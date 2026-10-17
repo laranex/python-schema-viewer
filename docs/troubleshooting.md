@@ -36,7 +36,7 @@ Use absolute executable and document paths. Install the `mcp` extra into the exe
 
 ## What the MVP does not do
 
-- Compare schemas between databases or tenant schemas, report migration status, or infer associations from foreign keys. The document has places for them, but this version leaves them empty.
+- Report migration status or infer associations from foreign keys. The document has places for them, but this version leaves them empty. (Comparisons of tenant schemas and connections, and the `check` drift gate, are supported.)
 - Query application data or infer undeclared ORM relationships.
 - Guarantee that metadata from failed imports is complete.
 - Persist viewer layouts or generate schema migrations.

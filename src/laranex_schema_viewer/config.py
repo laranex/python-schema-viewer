@@ -26,6 +26,11 @@ ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 # well inside the 32 MiB snapshot limit.
 DEFAULT_COMPARISON_LIMIT = 500
 WILDCARD = "*"
+# check: the lowest severity that fails, and whether likely findings fail too.
+CHECK_SEVERITIES = ("error", "warning", "info")
+CHECK_CERTAINTIES = ("certain", "likely")
+DEFAULT_CHECK_SEVERITY = "warning"
+DEFAULT_CHECK_CERTAINTY = "certain"
 COMPARISON_FORMAT = ("A comparison is BASELINE=TARGET, each scope a connection name, optionally with :SCHEMA "
                      "(the target's schema may be *)")
 
@@ -72,6 +77,15 @@ class ComparisonConfig:
 
 
 @dataclass(frozen=True)
+class CheckConfig:
+    """[tool.laranex-schema-viewer.check]: the thresholds a finding must meet to fail ``check``; None for the
+    default."""
+
+    severity: str | None = None
+    certainty: str | None = None
+
+
+@dataclass(frozen=True)
 class ProjectConfig:
     modules: list[str] = field(default_factory=list)
     targets: list[str] = field(default_factory=list)
@@ -92,6 +106,7 @@ class ProjectConfig:
     database_connection: str | None = None
     databases: dict[str, DatabaseConfig] = field(default_factory=dict)
     comparisons: tuple[ComparisonConfig, ...] = ()
+    check: CheckConfig = CheckConfig()
 
 
 SOURCES = ("declared", "database", "combined")
@@ -114,7 +129,7 @@ def load_config(project_root: Path) -> ProjectConfig:
     if "format" in section:
         raise ValueError(f"[tool.{SECTION}] format was removed: build always writes laranex-schema 2.0; delete the "
                          "format key")
-    known = {"modules", "targets", "recursive", "output", "orm", "settings", "comparisons", *ISOLATION_KEYS,
+    known = {"modules", "targets", "recursive", "output", "orm", "settings", "comparisons", "check", *ISOLATION_KEYS,
              *DATABASE_KEYS}
     unknown = set(section) - known
     if unknown:
@@ -158,7 +173,22 @@ def load_config(project_root: Path) -> ProjectConfig:
         source=section.get("source"), database_url_env=section.get("database_url_env"),
         database_schemas=section.get("database_schemas", []), database_connection=section.get("database_connection"),
         databases=databases, comparisons=comparison_section(section.get("comparisons", [])),
+        check=check_section(section.get("check", {})),
     )
+
+
+def check_section(value: object) -> CheckConfig:
+    """[tool.laranex-schema-viewer.check]: severity and certainty thresholds."""
+    where = f"[tool.{SECTION}.check]"
+    if not isinstance(value, dict):
+        raise ValueError(f"{where} must be a table")
+    unknown = set(value) - {"severity", "certainty"}
+    if unknown:
+        raise ValueError(f"Unknown {where} keys: {', '.join(sorted(unknown))}")
+    for key, allowed in (("severity", CHECK_SEVERITIES), ("certainty", CHECK_CERTAINTIES)):
+        if key in value and value[key] not in allowed:
+            raise ValueError(f"{where} {key} must be one of {', '.join(allowed)}")
+    return CheckConfig(severity=value.get("severity"), certainty=value.get("certainty"))
 
 
 def database_section(value: object) -> dict[str, DatabaseConfig]:

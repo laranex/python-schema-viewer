@@ -49,4 +49,4 @@ Missing primary keys, unindexed foreign keys, type mismatches, duplicate-looking
 
 ## Reporting
 
-List recorded diagnostics, then hypotheses, then proposed fixes, citing the document or revision. Fix only within the authorized scope and never weaken validation. Do not start the application, run SQL or migrations, or import recursively to diagnose. There is no check or hints command; `compare` reports differences between stored scopes but gates nothing.
+List recorded diagnostics, then hypotheses, then proposed fixes, citing the document or revision. Fix only within the authorized scope and never weaken validation. Do not start the application, run SQL or migrations, or import recursively to diagnose. There is no hints command. `compare` reports differences between stored scopes; `check` gates a saved document for CI (exit 0, 1 drift, 2 incomplete or invalid) and reads only the document.

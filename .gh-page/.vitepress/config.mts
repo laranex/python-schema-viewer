@@ -62,6 +62,7 @@ export default defineConfig({
         { text: 'MCP for agents', link: '/mcp' },
         { text: 'Database introspection', link: '/database' },
         { text: 'Schema comparison', link: '/comparison' },
+        { text: 'Schema drift gate (CI)', link: '/check' },
         { text: 'Build security', link: '/security' },
         { text: 'Agent skills', link: '/agent-skills' },
         { text: 'Troubleshooting', link: '/troubleshooting' },

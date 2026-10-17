@@ -8,7 +8,7 @@ laranex-schema-viewer serve --snapshot schema-viewer.json
 
 Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is vendored prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
 
-The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The vendored build is laranex-schema-viewer-ui 0.3.0-dev.0, which reads laranex-schema 2.x. A file of another format or version stops `serve` with an error asking for a rebuild.
+The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The vendored build is laranex-schema-viewer-ui 0.3.0-dev.0 (commit 0902ccb), which reads laranex-schema 2.x. A file of another format or version stops `serve` with an error asking for a rebuild.
 
 ## Explore the diagram
 
@@ -55,6 +55,14 @@ In a combined document the viewer also shows where the two sides disagree:
 - **Provenance badges**: tables, columns, indexes, foreign keys and constraints found on one side only are marked *declared only* or *database only*. Declared-only tables, columns and foreign-key lines are drawn in the declared color.
 - **Drift**: columns that differ between the two sides (for example in type, nullability or default) are tinted on the diagram and in the columns table, with a drift list giving the database and declared values. Indexes, foreign keys and tables carry their own drift lists.
 - **Diagnostics**: the tab count, per-table issue counts and the Diagnostics tab list every diagnostic. Confirmed **facts** are kept apart from **heuristics** (comparisons that rely on normalized type names or SQL text), and a diagnostic about a table links to it.
+
+## Comparisons, migrations and inferred associations
+
+- **Compare**: when the document stores [schema comparisons](./comparison.md), the Compare tab shows one baseline → target pair at a time: the summary, every listed difference with its baseline and target values side by side, filters by object, change, severity and certainty, and a prominent note when the comparison is incomplete. **Show in baseline/target** opens the difference's table, and the diagram can mark the differences on table cards. The view is kept in the URL: `#view=compare&comparison=<id>&difference=<id>`.
+- **Migrations**: each stored migration track's revision status, kept apart from schema drift.
+- **Inferred associations**: foreign-key edges an inferred association uses are annotated as inferred; nothing is drawn that the document does not link.
+
+This package stores comparisons; it writes migration tracks and inferred associations empty, so those two views show only documents from other producers.
 
 ## Current boundaries
 

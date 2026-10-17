@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laranex.github.io/schema-viewer-ui/laranex-schema-gate/1.0.json",
+  "title": "laranex-schema-gate 1.x report",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "laranex-schema-gate"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^1\\.(0|[1-9][0-9]*)$"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "exitCode": {
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    },
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "certainty": {
+          "enum": [
+            "certain",
+            "likely"
+          ]
+        }
+      },
+      "required": [
+        "severity",
+        "certainty"
+      ],
+      "additionalProperties": false
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "qualifying": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "error": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warning": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "info": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "findings",
+        "qualifying",
+        "error",
+        "warning",
+        "info"
+      ],
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "enum": [
+              "diagnostic",
+              "comparison",
+              "migration"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning",
+              "info"
+            ]
+          },
+          "certainty": {
+            "enum": [
+              "certain",
+              "likely"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "id",
+          "kind",
+          "severity",
+          "certainty",
+          "label",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "kind",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "version",
+    "passed",
+    "exitCode",
+    "thresholds",
+    "counts",
+    "findings",
+    "errors"
+  ],
+  "additionalProperties": false
+}

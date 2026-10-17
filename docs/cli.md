@@ -27,6 +27,7 @@ output = "schema-viewer.json"
 | `settings` | Django settings module, like `--settings` |
 | `source` | `declared`, `database` or `combined`, like `--source` |
 | `[[comparisons]]` | Scope pairs `build` and `compare` compare, with `baseline`, `target`, `limit` and `overrides`; see [schema comparison](./comparison.md#configure-comparisons) |
+| `[check]` | `severity` (default `warning`) and `certainty` (default `certain`) thresholds for `check`; see [schema drift gate](./check.md#thresholds) |
 
 ## Build
 
@@ -93,6 +94,24 @@ Compares scopes of a saved document without a database or application imports, a
 | `--json` | Off |
 | `--write` | Off |
 
+## Check
+
+```bash
+laranex-schema-viewer check --output gate-report.json
+```
+
+The CI schema drift gate: checks a saved document's comparisons, migration tracks and diagnostics against severity and certainty thresholds, without a database or application imports, and never writes the document. Prints a summary (`--json`: the `laranex-schema-gate` 1.0 report). Exit code 0 passed, 1 a finding meets the thresholds, 2 the check is incomplete or invalid (incomplete comparison, unknown migration status, inspection error, invalid document, arguments or configuration); 2 wins over 1. See [schema drift gate](./check.md).
+
+| Option | Default |
+| --- | --- |
+| `BASELINE=TARGET` | None: the stored comparisons; named scopes are compared first, in memory; repeatable |
+| `--snapshot PATH` | Config `output`, else `schema-viewer.json` |
+| `--severity LEVEL` | Config `[check] severity`, else `warning` |
+| `--certainty LEVEL` | Config `[check] certainty`, else `certain` |
+| `--limit N` | `500`, for comparisons named on the command line |
+| `--json` | Off |
+| `--output FILE` | None |
+
 ## MCP
 
 ```bash
@@ -109,4 +128,5 @@ laranex-schema-viewer --help
 laranex-schema-viewer init --help
 laranex-schema-viewer build --help
 laranex-schema-viewer compare --help
+laranex-schema-viewer check --help
 ```

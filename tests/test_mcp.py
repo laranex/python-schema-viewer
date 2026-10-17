@@ -37,7 +37,7 @@ class Conformance(unittest.TestCase):
     def test_every_valid_fixture_has_current_recordings(self):
         expected = recorder.recordings()
         self.assertEqual(sorted(p.name for p in RECORDINGS.glob("*.json")), sorted(expected))
-        self.assertEqual(len(expected), 15)
+        self.assertEqual(len(expected), 16)
         for name, text in expected.items():
             with self.subTest(name):
                 self.assertEqual((RECORDINGS / name).read_text(encoding="utf-8"), text,

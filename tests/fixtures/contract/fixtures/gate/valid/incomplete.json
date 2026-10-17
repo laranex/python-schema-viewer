@@ -1,0 +1,70 @@
+{
+  "counts": {
+    "error": 4,
+    "findings": 5,
+    "info": 1,
+    "qualifying": 4,
+    "warning": 0
+  },
+  "errors": [
+    {
+      "kind": "comparison_incomplete",
+      "message": "Comparison cb00c43b2ff67d1ed is incomplete: 20 differences omitted, and check constraints were not read."
+    }
+  ],
+  "exitCode": 2,
+  "findings": [
+    {
+      "certainty": "certain",
+      "id": "x01b0c5848b789435",
+      "kind": "table_missing",
+      "label": "tenant_b.refunds",
+      "message": "Only in the baseline",
+      "severity": "error",
+      "source": "comparison"
+    },
+    {
+      "certainty": "certain",
+      "id": "x5f218dcadd681f4a",
+      "kind": "table_changed",
+      "label": "tenant_b.users",
+      "message": "comment differ",
+      "severity": "info",
+      "source": "comparison"
+    },
+    {
+      "certainty": "certain",
+      "id": "x6be27d3071edea12",
+      "kind": "table_extra",
+      "label": "tenant_a.products",
+      "message": "Only in the target",
+      "severity": "error",
+      "source": "comparison"
+    },
+    {
+      "certainty": "certain",
+      "id": "xe8707e18552bc0b9",
+      "kind": "table_extra",
+      "label": "tenant_a.invoices",
+      "message": "Only in the target",
+      "severity": "error",
+      "source": "comparison"
+    },
+    {
+      "certainty": "certain",
+      "id": "xecf388bd6301fe50",
+      "kind": "table_missing",
+      "label": "tenant_b.coupons",
+      "message": "Only in the baseline",
+      "severity": "error",
+      "source": "comparison"
+    }
+  ],
+  "format": "laranex-schema-gate",
+  "passed": false,
+  "thresholds": {
+    "certainty": "likely",
+    "severity": "error"
+  },
+  "version": "1.0"
+}
