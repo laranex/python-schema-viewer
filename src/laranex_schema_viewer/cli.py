@@ -28,6 +28,10 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--orm", help="auto, sqlalchemy, django, tortoise, or peewee; default: pyproject.toml config, else auto")
     build.add_argument("--settings", help="Django settings module; default: config, else manage.py")
     build.add_argument("--output", type=Path, help="Default: pyproject.toml config, else schema-viewer.json")
+    build.add_argument("--isolation", choices=("process", "container"),
+                       help="Where application code runs; default: pyproject.toml config, else process")
+    build.add_argument("--timeout", type=float, help="Seconds before extraction is stopped; default: config, else 120")
+    build.add_argument("--container-image", help="Image for --isolation container")
     serve = commands.add_parser("serve", help="Serve the viewer from a saved snapshot only")
     serve.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     serve.add_argument("--host", default="127.0.0.1")
@@ -62,7 +66,9 @@ def main(argv: list[str] | None = None) -> int:
             path = add_config(args.project_root, section)
             print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
         elif args.command == "build":
-            from .build import build_document
+            from .document import SchemaDocument
+            from .isolation import ExtractRequest, IsolationConfig
+            from .isolation.runner import extract
             from .snapshot import write_snapshot
 
             config = load_config(args.project_root)
@@ -81,9 +87,21 @@ def main(argv: list[str] | None = None) -> int:
                 modules, recursive = [detect_model_module(args.project_root)], True
                 print(f"Detected model module {modules[0]}; importing it recursively")
             output = args.output or config.output or DEFAULT_SNAPSHOT
-            document = build_document(modules, project_root=args.project_root,
-                                      recursive=recursive, targets=targets, orm=orm,
-                                      settings=settings)
+            isolation = IsolationConfig(
+                level=args.isolation or config.isolation or "process",
+                timeout=args.timeout or config.timeout or IsolationConfig.timeout,
+                env_passthrough=tuple(config.env_passthrough), env=tuple(sorted(config.env.items())),
+                allow_writes=tuple(config.allow_writes),
+                container_image=args.container_image or config.container_image,
+                container_runtime=config.container_runtime,
+            )
+            request = ExtractRequest(project_root=str(args.project_root), modules=tuple(modules),
+                                     targets=tuple(targets), recursive=recursive, orm=orm, settings=settings)
+            result = extract(request, isolation)
+            print(f"Extracted with {isolation.level} isolation; {result.withheld} environment variables withheld")
+            for blocked in result.blocked:
+                print(f"Warning: blocked {blocked['event']} during extraction ({blocked['detail']})", file=sys.stderr)
+            document = SchemaDocument.model_validate(result.document)
             write_snapshot(document, output)
             print(f"Saved {len(document.tables)} tables, {len(document.models)} models, "
                   f"{len(document.relationships)} ORM relationships, "

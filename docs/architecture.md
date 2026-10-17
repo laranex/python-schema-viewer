@@ -24,7 +24,7 @@ The HTTP server is a local development server bound to `127.0.0.1` by default. I
 
 MCP runs over stdio using the official SDK 2.x, with read-only tool annotations. Its query service owns one validated saved snapshot. Tool callers cannot select filesystem paths, refresh models, rebuild, run SQL, or mutate the document. A restart loads a newly built snapshot. Stdio stdout is reserved for protocol messages; the SDK uses stderr for logging.
 
-Import isolation restores `sys.path` and suppresses `.pyc` writes during loading, but cannot undo arbitrary application import effects. It is not a sandbox. CLI builds should run in fresh processes. Mapper configuration may execute user callbacks and deferred join expressions. No default callable, model constructor, session, migration, or engine is invoked by the extractor itself.
+`build` imports application code in a separate extraction worker (`isolation/`): a subprocess with an allowlisted environment, a timeout and process-group cleanup, or a container with no network and a read-only project. Inside the worker, audit hooks and ORM connect patches refuse network, process, file-write and database operations. These guards are best-effort, not a boundary. [Build security](./security.md) separates the guarantees from the safeguards. Within the worker, import isolation restores `sys.path` and suppresses `.pyc` writes. Mapper configuration may execute user callbacks and deferred join expressions. No default callable, model constructor, session, migration, or engine is invoked by the extractor itself.
 
 ## MVP limitations
 

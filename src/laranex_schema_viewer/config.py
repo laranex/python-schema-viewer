@@ -30,6 +30,17 @@ class ProjectConfig:
     output: Path | None = None
     orm: str | None = None
     settings: str | None = None
+    isolation: str | None = None
+    timeout: float | None = None
+    env_passthrough: list[str] = field(default_factory=list)
+    env: dict[str, str] = field(default_factory=dict)
+    allow_writes: list[str] = field(default_factory=list)
+    container_image: str | None = None
+    container_runtime: str | None = None
+
+
+ISOLATION_KEYS = {"isolation", "timeout", "env_passthrough", "env", "allow_writes", "container_image",
+                  "container_runtime"}
 
 
 def load_config(project_root: Path) -> ProjectConfig:
@@ -39,10 +50,10 @@ def load_config(project_root: Path) -> ProjectConfig:
         return ProjectConfig()
     with path.open("rb") as file:
         section = tomllib.load(file).get("tool", {}).get(SECTION, {})
-    unknown = set(section) - {"modules", "targets", "recursive", "output", "orm", "settings"}
+    unknown = set(section) - {"modules", "targets", "recursive", "output", "orm", "settings", *ISOLATION_KEYS}
     if unknown:
         raise ValueError(f"Unknown [tool.{SECTION}] keys in {path}: {', '.join(sorted(unknown))}")
-    for key in ("modules", "targets"):
+    for key in ("modules", "targets", "env_passthrough", "allow_writes"):
         value = section.get(key, [])
         if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
             raise ValueError(f"[tool.{SECTION}] {key} must be a list of strings")
@@ -51,14 +62,25 @@ def load_config(project_root: Path) -> ProjectConfig:
     output = section.get("output")
     if output is not None and not isinstance(output, str):
         raise ValueError(f"[tool.{SECTION}] output must be a string path")
-    for key in ("orm", "settings"):
+    for key in ("orm", "settings", "isolation", "container_image", "container_runtime"):
         if not isinstance(section.get(key, ""), str):
             raise ValueError(f"[tool.{SECTION}] {key} must be a string")
+    if section.get("isolation", "process") not in ("process", "container"):
+        raise ValueError(f"[tool.{SECTION}] isolation must be process or container")
+    timeout = section.get("timeout")
+    if timeout is not None and (isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0):
+        raise ValueError(f"[tool.{SECTION}] timeout must be a positive number of seconds")
+    env = section.get("env", {})
+    if not isinstance(env, dict) or not all(isinstance(v, str) for v in env.values()):
+        raise ValueError(f"[tool.{SECTION}.env] values must be strings")
     return ProjectConfig(
         modules=section.get("modules", []), targets=section.get("targets", []),
         recursive=section.get("recursive", False),
         output=project_root / output if output is not None else None, orm=section.get("orm"),
-        settings=section.get("settings"),
+        settings=section.get("settings"), isolation=section.get("isolation"),
+        timeout=float(timeout) if timeout is not None else None,
+        env_passthrough=section.get("env_passthrough", []), env=env, allow_writes=section.get("allow_writes", []),
+        container_image=section.get("container_image"), container_runtime=section.get("container_runtime"),
     )
 
 

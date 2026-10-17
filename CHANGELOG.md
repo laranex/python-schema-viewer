@@ -8,6 +8,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - The laranex-schema 1.0 contract shared with laranex-schema-viewer-ui (`laranex_schema_viewer.contract`): Pydantic models, strict (producer) and lenient (reader) validation with the shared reference rules, canonical serialization and revisions, and the shared graph builder for links and derived links. The contract's valid, invalid and graph conformance fixtures run in the test suite.
 - Unified serialization (`laranex_schema_viewer.unified.from_v1`): every adapter's declared metadata, and any version 1 snapshot, as a laranex-schema 1.0 document. Database and ORM defaults stay apart, index key parts keep their order with dialect options, keys are oriented like foreign keys, secondary tables become pivots, and inverse relationships are resolved from back_populates.
+- `build` runs application code in an isolated extraction worker. `--isolation process` (the default) uses a subprocess with an allowlisted environment, so database URLs, passwords and tokens are withheld; it also gets a private `HOME` and `TMPDIR`, a timeout (`--timeout`, default 120 seconds), and cleanup of its whole process group. `--isolation container` runs Docker or Podman with no network, a read-only project and root filesystem, dropped capabilities and a version-checked image. A level that cannot be established fails the build instead of falling back.
+- Best-effort guards in the worker: audit hooks refuse network access, subprocesses and writes outside allowed directories; file-backed `sqlite3` is refused; SQLAlchemy, Peewee and Tortoise connect calls raise. Blocked operations are printed as warnings. New configuration keys: `isolation`, `timeout`, `env_passthrough`, `env`, `allow_writes`, `container_image` and `container_runtime`. See [build security](docs/security.md).
+
+### Changed
+
+- Builds no longer see the caller's full environment. Settings that need a variable must list it in `env_passthrough`, or get a placeholder from `[tool.laranex-schema-viewer.env]`. Import-time writes outside `allow_writes` now fail the build.
 
 ## [0.3.1] - 2026-10-17
 

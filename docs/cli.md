@@ -41,6 +41,11 @@ laranex-schema-viewer build
 | `--settings MODULE` | Config `settings`, else `manage.py` | Django settings module; selects Django |
 | `--recursive` | Config `recursive`, else off | Discover selected package submodules |
 | `--output PATH` | Config `output`, else `schema-viewer.json` | Write the snapshot |
+| `--isolation LEVEL` | Config `isolation`, else `process` | Where application code runs: `process` or `container` |
+| `--timeout SECONDS` | Config `timeout`, else `120` | Stop extraction after this long |
+| `--container-image IMAGE` | Config `container_image` | Image for `--isolation container` |
+
+Application code is imported in a separate extraction worker with a filtered environment: database URLs, passwords and tokens are not passed to it. `env_passthrough`, `[tool.laranex-schema-viewer.env]`, `allow_writes` and `container_runtime` configure it. Operations the worker blocks are printed as warnings. See [build security](./security.md) for what each level guarantees.
 
 When neither options nor configuration select a module, `build` looks up to four directories deep for exactly one `models` package or `models.py` file, skipping hidden, virtual-environment, test, documentation, and build directories. It imports a detected package recursively and prints which module it chose. If it finds none or several, it stops and asks for `--module` or configuration.
 

@@ -142,6 +142,48 @@ class ConfigTests(unittest.TestCase):
         result = self.run_cli("build", "--orm", "sqlalchemy")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_isolation_settings_are_read_and_validated(self):
+        self.write_pyproject(
+            "[tool.laranex-schema-viewer]\nisolation = 'container'\ntimeout = 30\n"
+            "container_image = 'app-schema'\nenv_passthrough = ['APP_ENV']\nallow_writes = ['logs']\n"
+            "[tool.laranex-schema-viewer.env]\nSECRET_KEY = 'placeholder'\n"
+        )
+        config = load_config(self.root)
+        self.assertEqual((config.isolation, config.timeout, config.container_image), ("container", 30.0, "app-schema"))
+        self.assertEqual((config.env_passthrough, config.allow_writes), (["APP_ENV"], ["logs"]))
+        self.assertEqual(config.env, {"SECRET_KEY": "placeholder"})
+        for bad in ("isolation = 'none'", "timeout = 0", "timeout = true", "env = { A = 1 }",
+                    "allow_writes = 'logs'"):
+            with self.subTest(bad=bad):
+                self.write_pyproject(f"[tool.laranex-schema-viewer]\n{bad}\n")
+                with self.assertRaises(ValueError):
+                    load_config(self.root)
+
+    def test_build_runs_isolated_and_reports_blocked_operations(self):
+        package(self.root, "app.models", MODEL + "open('written.txt', 'w')\n")
+        result = self.run_cli("build", "--module", "app.models")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("blocked open", result.stderr)
+        self.assertFalse((self.root / "written.txt").exists())
+        self.assertFalse((self.root / "schema-viewer.json").exists())
+
+    def test_build_hides_credentials_from_application_code(self):
+        package(self.root, "app.models", MODEL + "import os\nassert 'DATABASE_URL' not in os.environ\n")
+        result = subprocess.run(
+            [sys.executable, "-m", "laranex_schema_viewer", "build", "--module", "app.models"], cwd=self.root,
+            env=dict(os.environ, PYTHONPATH=str(Path("src").resolve()), DATABASE_URL="postgresql://u:p@h/db"),
+            capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("environment variables withheld", result.stdout)
+        self.assertNotIn("postgresql://", result.stdout + result.stderr)
+
+    def test_container_isolation_never_falls_back(self):
+        package(self.root, "app.models", MODEL)
+        result = self.run_cli("build", "--isolation", "container")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("container_image", result.stderr)
+        self.assertFalse((self.root / "schema-viewer.json").exists())
+
     def test_serve_reports_the_configured_snapshot(self):
         self.write_pyproject("[tool.laranex-schema-viewer]\noutput = 'out/missing.json'\n")
         result = self.run_cli("serve", "--port", "0")
