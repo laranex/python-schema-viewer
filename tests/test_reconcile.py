@@ -13,7 +13,7 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from laranex_schema_viewer.contract import validate_document
+from laranex_schema_viewer.contract import document_to_json, validate_document
 
 ROOT = Path(__file__).resolve().parents[1]
 DATABASES = ROOT / "tests" / "databases"
@@ -24,7 +24,6 @@ if HAS_SQLALCHEMY:
     from laranex_schema_viewer.introspection import DatabaseRequest
     from laranex_schema_viewer.introspection.runner import introspect
     from laranex_schema_viewer.reconcile import combine, normalize_type
-    from laranex_schema_viewer.unified import from_v1
 
 EXPECTED = {
     ("column_drift", "users.email", "likely"),
@@ -40,7 +39,12 @@ EXPECTED = {
 
 
 def declared():
-    return from_v1(build_document(["tests.fixtures.drift_models"], project_root=ROOT), orm="sqlalchemy")
+    return build_document(["tests.fixtures.drift_models"], project_root=ROOT)
+
+
+def combined(declared_document, database_document, **kwargs):
+    """The combined document as the laranex-schema 2.0 JSON a build writes."""
+    return document_to_json(combine(declared_document, database_document, **kwargs))
 
 
 def label(diagnostic):
@@ -107,13 +111,14 @@ class SQLiteReconciliation(Reconciliation, unittest.TestCase):
         connection = sqlite3.connect(path)
         connection.executescript((DATABASES / "drift-sqlite.sql").read_text())
         connection.close()
-        cls.declared = declared()
-        cls.doc = combine(cls.declared, introspect(DatabaseRequest(url=f"sqlite:///{path}")))
+        cls.declared_document = declared()
+        cls.declared = document_to_json(cls.declared_document)
+        cls.doc = combined(cls.declared_document, introspect(DatabaseRequest(url=f"sqlite:///{path}")))
 
     def test_requires_a_declared_connection_of_that_name(self):
         database = introspect(DatabaseRequest(url=f"sqlite:///{self.path()}"))
         with self.assertRaisesRegex(ValueError, "no connection named 'replica'"):
-            combine(self.declared, database, connection="replica")
+            combine(self.declared_document, database, connection="replica")
 
     def path(self):
         path = Path(tempfile.mkdtemp(prefix="lsv-drift-")) / "other.db"
@@ -140,8 +145,10 @@ class ServerReconciliation(Reconciliation):
         try:
             cls.create()
             url = cls.admin_url.set(database=cls.database, username=cls.role, password=cls.password)
-            cls.declared = declared()
-            cls.doc = combine(cls.declared, introspect(DatabaseRequest(url=url.render_as_string(hide_password=False))))
+            cls.declared_document = declared()
+            cls.declared = document_to_json(cls.declared_document)
+            cls.doc = combined(cls.declared_document,
+                               introspect(DatabaseRequest(url=url.render_as_string(hide_password=False))))
         except Exception:
             cls.drop()
             raise

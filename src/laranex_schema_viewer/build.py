@@ -10,7 +10,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Iterator
 
-from .document import SchemaDocument
+from .model import Document
 
 # ORM name -> top-level package that application imports must already have loaded.
 ADAPTERS = {"sqlalchemy": "sqlalchemy", "tortoise": "tortoise", "peewee": "peewee"}
@@ -63,7 +63,7 @@ def detect_orm(loaded: dict[str, ModuleType]) -> str:
 def build_document(
     modules: list[str], *, project_root: Path, recursive: bool = False,
     targets: list[str] | None = None, orm: str = "auto", settings: str | None = None,
-) -> SchemaDocument:
+) -> Document:
     """Load named modules and extract them with the selected or detected ORM adapter.
 
     Run this in a fresh process: Python caches imports and ORMs keep registries.

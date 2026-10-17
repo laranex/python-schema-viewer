@@ -1,0 +1,2759 @@
+{
+  "calls": [
+    {
+      "arguments": {
+        "limit": 100
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "complete",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "billing",
+                  "public"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:primary",
+            "name": "primary",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 13,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 3,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 13,
+          "inferredAssociations": 0,
+          "links": 1,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 2
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:primary",
+            "counts": {
+              "columns": 4,
+              "constraints": 2,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 2
+            },
+            "id": "pg:billing.invoices",
+            "name": "invoices",
+            "provenance": [
+              "database"
+            ],
+            "schema": "billing"
+          },
+          {
+            "connection": "connection:primary",
+            "counts": {
+              "columns": 9,
+              "constraints": 1,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 11
+            },
+            "id": "pg:public.accounts",
+            "name": "accounts",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "source": "database",
+        "total": 2,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "complete",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "billing",
+                  "public"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:primary",
+            "name": "primary",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 13,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 3,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 13,
+          "inferredAssociations": 0,
+          "links": 1,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 2
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:primary",
+            "counts": {
+              "columns": 4,
+              "constraints": 2,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 2
+            },
+            "id": "pg:billing.invoices",
+            "name": "invoices",
+            "provenance": [
+              "database"
+            ],
+            "schema": "billing"
+          },
+          {
+            "connection": "connection:primary",
+            "counts": {
+              "columns": 9,
+              "constraints": 1,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 11
+            },
+            "id": "pg:public.accounts",
+            "name": "accounts",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "source": "database",
+        "total": 2,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "complete",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "billing",
+                  "public"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:primary",
+            "name": "primary",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 13,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 3,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 13,
+          "inferredAssociations": 0,
+          "links": 1,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 2
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:primary",
+            "counts": {
+              "columns": 4,
+              "constraints": 2,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 2
+            },
+            "id": "pg:billing.invoices",
+            "name": "invoices",
+            "provenance": [
+              "database"
+            ],
+            "schema": "billing"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 1,
+        "note": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "source": "database",
+        "total": 2,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900"
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "complete",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "billing",
+                  "public"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:primary",
+            "name": "primary",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 13,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 3,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 13,
+          "inferredAssociations": 0,
+          "links": 1,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 2
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:primary",
+            "counts": {
+              "columns": 9,
+              "constraints": 1,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 11
+            },
+            "id": "pg:public.accounts",
+            "name": "accounts",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": null,
+        "note": null,
+        "offset": 1,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "source": "database",
+        "total": 2,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "id"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "pg:billing.invoices"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "account_id",
+            "table": "pg:billing.invoices"
+          },
+          {
+            "id": "pg:billing.invoices:index:invoices_account_id_number_key",
+            "kind": "index",
+            "name": "invoices_account_id_number_key",
+            "table": "pg:billing.invoices"
+          },
+          {
+            "id": "pg:billing.invoices:fk:invoices_account_id_fkey",
+            "kind": "foreignKey",
+            "name": "invoices_account_id_fkey",
+            "table": "pg:billing.invoices"
+          },
+          {
+            "id": "pg:billing.invoices:constraint:invoices_account_id_number_key",
+            "kind": "constraint",
+            "name": "invoices_account_id_number_key",
+            "table": "pg:billing.invoices"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_lower_email_idx",
+            "kind": "index",
+            "name": "accounts_lower_email_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_live_email_idx",
+            "kind": "index",
+            "name": "accounts_live_email_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_created_at_idx",
+            "kind": "index",
+            "name": "accounts_created_at_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_status_created_idx",
+            "kind": "index",
+            "name": "accounts_status_created_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_email_pattern_idx",
+            "kind": "index",
+            "name": "accounts_email_pattern_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_tags_idx",
+            "kind": "index",
+            "name": "accounts_tags_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_data_idx",
+            "kind": "index",
+            "name": "accounts_data_idx",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_search_idx",
+            "kind": "index",
+            "name": "accounts_search_idx",
+            "table": "pg:public.accounts"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "id",
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "total": 14
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "USER"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "USER",
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "_at"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "created_at",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "deleted_at",
+            "table": "pg:public.accounts"
+          },
+          {
+            "id": "pg:public.accounts:index:accounts_created_at_idx",
+            "kind": "index",
+            "name": "accounts_created_at_idx",
+            "table": "pg:public.accounts"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "_at",
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "total": 3
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "zzz-no-match"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "zzz-no-match",
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "sequence",
+              "value": "nextval('billing.invoices_id_seq'::regclass)"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "account_id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "number",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "integer",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "total",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "numeric(12,2)",
+            "typeName": "numeric"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "pg:billing.invoices:index:invoices_pkey",
+            "included": [],
+            "method": "btree",
+            "name": "invoices_pkey",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": {
+              "constraint": "pg:billing.invoices:constraint:invoices_account_id_number_key",
+              "kind": "unique_constraint"
+            },
+            "expression": false,
+            "id": "pg:billing.invoices:index:invoices_account_id_number_key",
+            "included": [],
+            "method": "btree",
+            "name": "invoices_account_id_number_key",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "account_id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              },
+              {
+                "collation": null,
+                "column": "number",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "columns": [
+              "account_id"
+            ],
+            "deferrable": false,
+            "foreignColumns": [
+              "id"
+            ],
+            "foreignTable": "pg:public.accounts",
+            "id": "pg:billing.invoices:fk:invoices_account_id_fkey",
+            "initially": "IMMEDIATE",
+            "name": "invoices_account_id_fkey",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "provenance": [
+              "database"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "columns": [
+              "account_id",
+              "number"
+            ],
+            "expression": null,
+            "id": "pg:billing.invoices:constraint:invoices_account_id_number_key",
+            "kind": "unique",
+            "name": "invoices_account_id_number_key",
+            "provenance": [
+              "database"
+            ]
+          },
+          {
+            "columns": [
+              "total"
+            ],
+            "expression": "(total >= (0)::numeric)",
+            "id": "pg:billing.invoices:constraint:invoices_total_check",
+            "kind": "check",
+            "name": "invoices_total_check",
+            "provenance": [
+              "database"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "foreignKey": "pg:billing.invoices:fk:invoices_account_id_fkey",
+            "from": {
+              "columns": [
+                "account_id"
+              ],
+              "table": "pg:billing.invoices"
+            },
+            "id": "l4c33a32ded64c858",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [],
+            "state": "foreign_key",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "pg:public.accounts"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": "pg:billing.invoices",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "account_id"
+              ],
+              "deferrable": false,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "pg:public.accounts",
+              "id": "pg:billing.invoices:fk:invoices_account_id_fkey",
+              "initially": "IMMEDIATE",
+              "name": "invoices_account_id_fkey",
+              "onDelete": "CASCADE",
+              "onUpdate": "NO ACTION",
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "pg:billing.invoices"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": "pg:billing.invoices",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "identity",
+              "value": "GENERATED BY DEFAULT AS IDENTITY"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "email",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "text",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "external_ref",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "uuid",
+            "typeName": "uuid"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "'trial'::account_status"
+            },
+            "enum": {
+              "name": "account_status",
+              "values": [
+                "trial",
+                "active",
+                "closed"
+              ]
+            },
+            "generated": null,
+            "name": "status",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "account_status",
+            "typeName": "enum"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "tags",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "text[]",
+            "typeName": "text[]"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "'{}'::jsonb"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "data",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "jsonb",
+            "typeName": "jsonb"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "expression",
+              "value": "now()"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "created_at",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": true,
+            "type": "timestamp with time zone",
+            "typeName": "timestamptz"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "deleted_at",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": true,
+            "type": "timestamp with time zone",
+            "typeName": "timestamptz"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": {
+              "expression": "to_tsvector('simple', email)",
+              "kind": "stored"
+            },
+            "name": "search",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "tsvector",
+            "typeName": "tsvector"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "columns",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 9
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_pkey",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_pkey",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": {
+              "constraint": "pg:public.accounts:constraint:accounts_email_key",
+              "kind": "unique_constraint"
+            },
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_email_key",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_email_key",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "email",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "dialectOptions": {
+              "postgresql": {
+                "options": {
+                  "nullsNotDistinct": true
+                }
+              }
+            },
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_external_ref_key",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_external_ref_key",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "external_ref",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": true,
+            "id": "pg:public.accounts:index:accounts_lower_email_idx",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_lower_email_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": null,
+                "expression": "lower(email)",
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_live_email_idx",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_live_email_idx",
+            "partial": true,
+            "parts": [
+              {
+                "collation": null,
+                "column": "email",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": "(deleted_at IS NULL)",
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_created_at_idx",
+            "included": [
+              "status"
+            ],
+            "method": "btree",
+            "name": "accounts_created_at_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "created_at",
+                "expression": null,
+                "length": null,
+                "nulls": "last",
+                "opclass": null,
+                "order": "desc"
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": true,
+            "id": "pg:public.accounts:index:accounts_status_created_idx",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_status_created_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "status",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              },
+              {
+                "collation": null,
+                "column": null,
+                "expression": "date_trunc('day', created_at)",
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_email_pattern_idx",
+            "included": [],
+            "method": "btree",
+            "name": "accounts_email_pattern_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": "C",
+                "column": "email",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": "text_pattern_ops",
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_tags_idx",
+            "included": [],
+            "method": "gin",
+            "name": "accounts_tags_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "tags",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_data_idx",
+            "included": [],
+            "method": "gin",
+            "name": "accounts_data_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "data",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": "jsonb_path_ops",
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "pg:public.accounts:index:accounts_search_idx",
+            "included": [],
+            "method": "gin",
+            "name": "accounts_search_idx",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "search",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "indexes",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 11
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "foreign_keys",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "columns": [
+              "email"
+            ],
+            "expression": null,
+            "id": "pg:public.accounts:constraint:accounts_email_key",
+            "kind": "unique",
+            "name": "accounts_email_key",
+            "provenance": [
+              "database"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "constraints",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "models",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "relationships",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "foreignKey": "pg:billing.invoices:fk:invoices_account_id_fkey",
+            "from": {
+              "columns": [
+                "account_id"
+              ],
+              "table": "pg:billing.invoices"
+            },
+            "id": "l4c33a32ded64c858",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [],
+            "state": "foreign_key",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "pg:public.accounts"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "links",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "derived_links",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 1,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 11,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "diagnostics",
+        "table": {
+          "comment": "Customer accounts",
+          "id": "pg:public.accounts",
+          "name": "accounts",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": "pg:public.accounts",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "pg:public.accounts"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "account_id"
+              ],
+              "deferrable": false,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "pg:public.accounts",
+              "id": "pg:billing.invoices:fk:invoices_account_id_fkey",
+              "initially": "IMMEDIATE",
+              "name": "invoices_account_id_fkey",
+              "onDelete": "CASCADE",
+              "onUpdate": "NO ACTION",
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "pg:billing.invoices"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": "pg:public.accounts",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "sequence",
+              "value": "nextval('billing.invoices_id_seq'::regclass)"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "account_id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "number",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "integer",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "total",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "numeric(12,2)",
+            "typeName": "numeric"
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "columns",
+        "table": "pg:billing.invoices"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "account_id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 2,
+        "offset": 1,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "pg:billing.invoices",
+          "name": "invoices",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "billing"
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "account_id"
+              ],
+              "deferrable": false,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "pg:public.accounts",
+              "id": "pg:billing.invoices:fk:invoices_account_id_fkey",
+              "initially": "IMMEDIATE",
+              "name": "invoices_account_id_fkey",
+              "onDelete": "CASCADE",
+              "onUpdate": "NO ACTION",
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "pg:billing.invoices"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": null,
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 0
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 101
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "offset": -1
+      },
+      "error": "offset must be a nonnegative integer",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "revision": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "error": "Document revision differs; restart pagination without revision",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "query_text": ""
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "query_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "table": "../../.env"
+      },
+      "error": "Unknown table ID; use schema_overview or schema_search",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "section": "rows",
+        "table": "pg:billing.invoices"
+      },
+      "error": "Unknown table section: rows",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "model": "missing"
+      },
+      "error": "Unknown model ID; use schema_search",
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "table": "missing"
+      },
+      "error": "Unknown table ID",
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "sql"
+      },
+      "error": "kind must be orm or foreign_key",
+      "tool": "schema_get_relationships"
+    }
+  ],
+  "document": "tests/fixtures/contract/fixtures/valid/database-postgresql-indexes.json",
+  "revision": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900"
+}

@@ -1,0 +1,1731 @@
+{
+  "calls": [
+    {
+      "arguments": {
+        "limit": 100
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "shop"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "shop",
+            "driver": "mysql",
+            "id": "connection:shop",
+            "name": "shop",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 9,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 0,
+          "indexes": 8,
+          "inferredAssociations": 0,
+          "links": 0,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 1
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:shop",
+            "counts": {
+              "columns": 9,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 8
+            },
+            "id": "mysql:shop.products",
+            "name": "products",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "source": "database",
+        "total": 1,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "shop"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "shop",
+            "driver": "mysql",
+            "id": "connection:shop",
+            "name": "shop",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 9,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 0,
+          "indexes": 8,
+          "inferredAssociations": 0,
+          "links": 0,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 1
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:shop",
+            "counts": {
+              "columns": 9,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 8
+            },
+            "id": "mysql:shop.products",
+            "name": "products",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "source": "database",
+        "total": 1,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "complete",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "shop"
+                ]
+              },
+              "declared": null
+            },
+            "defaultSchema": "shop",
+            "driver": "mysql",
+            "id": "connection:shop",
+            "name": "shop",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 9,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 0,
+          "indexes": 8,
+          "inferredAssociations": 0,
+          "links": 0,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 1
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:shop",
+            "counts": {
+              "columns": 9,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 8
+            },
+            "id": "mysql:shop.products",
+            "name": "products",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 1,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "source": "database",
+        "total": 1,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "id"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "mysql:shop.products"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "id",
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "total": 1
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "USER"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "USER",
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "_at"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "created_at",
+            "table": "mysql:shop.products"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "_at",
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "total": 1
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "zzz-no-match"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "zzz-no-match",
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "int unsigned",
+            "typeName": "int"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "sku",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(32)",
+            "typeName": "varchar"
+          },
+          {
+            "autoIncrement": false,
+            "collation": "utf8mb4_0900_ai_ci",
+            "comment": "Display name",
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(255)",
+            "typeName": "varchar"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "description",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "text",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "location",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "point",
+            "typeName": "point"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "'draft'"
+            },
+            "enum": {
+              "name": null,
+              "values": [
+                "draft",
+                "live"
+              ]
+            },
+            "generated": null,
+            "name": "status",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "enum('draft','live')",
+            "typeName": "enum"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "0.00"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "price",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "decimal(10,2)",
+            "typeName": "decimal"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "expression",
+              "value": "CURRENT_TIMESTAMP"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "created_at",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "datetime",
+            "typeName": "datetime"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "attributes",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "json",
+            "typeName": "json"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 9
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "mysql:shop.products:index:PRIMARY",
+            "included": [],
+            "method": "btree",
+            "name": "PRIMARY",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "mysql:shop.products:index:products_sku_unique",
+            "included": [],
+            "method": "btree",
+            "name": "products_sku_unique",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "sku",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "mysql:shop.products:index:products_name_prefix",
+            "included": [],
+            "method": "btree",
+            "name": "products_name_prefix",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "name",
+                "expression": null,
+                "length": 10,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "mysql:shop.products:index:products_status_created",
+            "included": [],
+            "method": "btree",
+            "name": "products_status_created",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "status",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              },
+              {
+                "collation": null,
+                "column": "created_at",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": "desc"
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": true,
+            "id": "mysql:shop.products:index:products_color",
+            "included": [],
+            "method": "btree",
+            "name": "products_color",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": null,
+                "expression": "cast(json_unquote(json_extract(`attributes`,_utf8mb4'$.color')) as char(16))",
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "mysql:shop.products:index:products_description_fulltext",
+            "included": [],
+            "method": "fulltext",
+            "name": "products_description_fulltext",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "description",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "mysql:shop.products:index:products_location_spatial",
+            "included": [],
+            "method": "spatial",
+            "name": "products_location_spatial",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "location",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "dialectOptions": {
+              "mysql": {
+                "options": {
+                  "visible": false
+                }
+              }
+            },
+            "expression": false,
+            "id": "mysql:shop.products:index:products_price",
+            "included": [],
+            "method": "btree",
+            "name": "products_price",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "price",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 8
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "table": "mysql:shop.products",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "items": [],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "table": "mysql:shop.products",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "int unsigned",
+            "typeName": "int"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "sku",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(32)",
+            "typeName": "varchar"
+          },
+          {
+            "autoIncrement": false,
+            "collation": "utf8mb4_0900_ai_ci",
+            "comment": "Display name",
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(255)",
+            "typeName": "varchar"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "description",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "text",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "location",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "point",
+            "typeName": "point"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "'draft'"
+            },
+            "enum": {
+              "name": null,
+              "values": [
+                "draft",
+                "live"
+              ]
+            },
+            "generated": null,
+            "name": "status",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "enum('draft','live')",
+            "typeName": "enum"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "0.00"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "price",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "decimal(10,2)",
+            "typeName": "decimal"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "expression",
+              "value": "CURRENT_TIMESTAMP"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "created_at",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "datetime",
+            "typeName": "datetime"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "attributes",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "json",
+            "typeName": "json"
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 9
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "columns",
+        "table": "mysql:shop.products"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:shop",
+          "name": "shop"
+        },
+        "counts": {
+          "columns": 9,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 8,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "sku",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(32)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 2,
+        "offset": 1,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "mysql:shop.products",
+          "name": "products",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 9
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100
+      },
+      "result": {
+        "items": [],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 0
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 101
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "offset": -1
+      },
+      "error": "offset must be a nonnegative integer",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "revision": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "error": "Document revision differs; restart pagination without revision",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "query_text": ""
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "query_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "table": "../../.env"
+      },
+      "error": "Unknown table ID; use schema_overview or schema_search",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "section": "rows",
+        "table": "mysql:shop.products"
+      },
+      "error": "Unknown table section: rows",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "model": "missing"
+      },
+      "error": "Unknown model ID; use schema_search",
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "table": "missing"
+      },
+      "error": "Unknown table ID",
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "sql"
+      },
+      "error": "kind must be orm or foreign_key",
+      "tool": "schema_get_relationships"
+    }
+  ],
+  "document": "tests/fixtures/contract/fixtures/valid/database-mysql-indexes.json",
+  "revision": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b"
+}

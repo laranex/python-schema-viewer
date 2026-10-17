@@ -1,0 +1,55 @@
+{
+  "description": "A recorded revision that is only a missing parent is an unknown revision",
+  "expected": {
+    "history": {
+      "heads": [
+        "c"
+      ],
+      "missing": [
+        "z"
+      ],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "z"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "c",
+          "parents": [
+            "b"
+          ]
+        }
+      ]
+    },
+    "pending": null,
+    "status": "unknown",
+    "unknownRevisions": [
+      "z"
+    ]
+  },
+  "input": {
+    "current": [
+      "z"
+    ],
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "c",
+        "parents": [
+          "b"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "z"
+        ]
+      }
+    ]
+  }
+}

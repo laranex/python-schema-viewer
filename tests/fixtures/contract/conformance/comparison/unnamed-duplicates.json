@@ -1,0 +1,268 @@
+{
+  "description": "Identities that still coincide (unnamed duplicate indexes) get \"#2\", \"#3\", … in the order of their entity ids",
+  "expected": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "complete": true,
+    "differences": [
+      {
+        "baseline": {
+          "id": "a:t:index:1",
+          "label": "t.(x)",
+          "table": "a:t"
+        },
+        "certainty": "certain",
+        "change": "missing",
+        "fields": [],
+        "id": "x30766db1c76007a5",
+        "key": [
+          "t",
+          "parts",
+          "(x)"
+        ],
+        "objectType": "index",
+        "severity": "warning",
+        "target": null
+      },
+      {
+        "baseline": {
+          "id": "a:t:index:2",
+          "label": "t.(x)",
+          "table": "a:t"
+        },
+        "certainty": "certain",
+        "change": "missing",
+        "fields": [],
+        "id": "xa4bf0c0904e4adac",
+        "key": [
+          "t",
+          "parts",
+          "(x)",
+          "#2"
+        ],
+        "objectType": "index",
+        "severity": "warning",
+        "target": null
+      }
+    ],
+    "id": "ccd30999b0df19108",
+    "omitted": 0,
+    "summary": {
+      "changed": 0,
+      "extra": 0,
+      "missing": 2
+    },
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  },
+  "input": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:a",
+          "name": "a",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "x",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "a:t",
+              "indexes": [
+                {
+                  "backs": null,
+                  "expression": false,
+                  "id": "a:t:index:1",
+                  "included": [],
+                  "method": null,
+                  "name": null,
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "x",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": false
+                },
+                {
+                  "backs": null,
+                  "expression": false,
+                  "id": "a:t:index:2",
+                  "included": [],
+                  "method": null,
+                  "name": null,
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "x",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": false
+                }
+              ],
+              "name": "t",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:b",
+          "name": "b",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "x",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "b:t",
+              "indexes": [],
+              "name": "t",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        }
+      ],
+      "source": "database"
+    },
+    "limit": null,
+    "overrides": [],
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  }
+}

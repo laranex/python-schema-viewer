@@ -26,7 +26,7 @@ class Task(Base):
     owner: Mapped[User] = relationship(back_populates="tasks")
 ```
 
-## Build a snapshot
+## Build a document
 
 Run in that scratch directory, using the environment where you installed the package:
 
@@ -34,7 +34,7 @@ Run in that scratch directory, using the environment where you installed the pac
 laranex-schema-viewer build
 ```
 
-With no options, `build` finds the single `models.py` or `models` package in the current directory and writes `schema-viewer.json`. The output reports actual table, model, ORM relationship, and diagnostic counts. This example declares two tables, two models, one physical FK, and two ORM relationships.
+With no options, `build` finds the single `models.py` or `models` package in the current directory and writes `schema-viewer.json`, a laranex-schema 2.0 document. The output reports actual table, model, ORM relationship, and diagnostic counts. This example declares two tables, two models, one physical FK, and two ORM relationships.
 
 ## Open the viewer
 

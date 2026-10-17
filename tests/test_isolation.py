@@ -14,6 +14,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from laranex_schema_viewer.contract import document_bytes
 from laranex_schema_viewer.isolation import ExtractRequest, IsolationConfig, IsolationError
 from laranex_schema_viewer.isolation.env import worker_environment
 from laranex_schema_viewer.isolation.runner import extract
@@ -36,7 +37,7 @@ def events(result):
 
 
 def comment(result, table):
-    return next(t["comment"] for t in result.document["tables"] if t["name"] == table)
+    return next(t.comment for t in result.document.tables() if t.name == table)
 
 
 class AdversarialModules(unittest.TestCase):
@@ -48,9 +49,9 @@ class AdversarialModules(unittest.TestCase):
         self.sqlite = self.dir / "app.sqlite3"
 
     def assert_extracted(self, result, prefix):
-        names = {t["name"] for t in result.document["tables"]}
+        names = {t.name for t in result.document.tables()}
         self.assertEqual(names, {f"{prefix}_teams", f"{prefix}_members"})
-        self.assertEqual(len(result.document["relationships"]), 1)
+        self.assertEqual(len(result.document.relationships), 1)
 
     def test_import_time_file_write_is_blocked(self):
         result = isolated("import_write", env=[("LSV_ADVERSARIAL_WRITE", str(self.file))])
@@ -120,7 +121,7 @@ class AdversarialModules(unittest.TestCase):
         self.assertEqual(found["env"], dict.fromkeys(secrets))
         self.assertNotEqual(found["home"], str(Path.home()))
         self.assertFalse(found["pgpass"])
-        self.assertNotIn("hunter2", json.dumps(result.document))
+        self.assertNotIn("hunter2", document_bytes(result.document).decode())
 
     def test_credential_names_cannot_be_passed_through(self):
         for name in ("DATABASE_URL", "DB_PASSWORD", "API_TOKEN", "SENTRY_DSN", "AWS_SECRET_ACCESS_KEY"):
@@ -207,8 +208,8 @@ class OutputParity(unittest.TestCase):
                     self.skipTest(f"{orm} is not installed")
                 result = extract(ExtractRequest(project_root=str(ROOT), **request), IsolationConfig())
                 self.assertEqual(result.blocked, [])
-                self.assertTrue(result.document["tables"])
-                self.assertEqual(json.dumps(result.document, sort_keys=True), in_process(request))
+                self.assertTrue(result.document.tables())
+                self.assertEqual(document_bytes(result.document).decode(), in_process(request))
 
 
 def in_process(request):
@@ -217,9 +218,10 @@ def in_process(request):
             "r = json.loads(sys.argv[1]); "
             "d = build_document(r.get('modules', []), project_root=Path.cwd(), targets=r.get('targets', []), "
             "orm=r.get('orm', 'auto'), settings=r.get('settings')); "
-            "print(json.dumps(d.model_dump(mode='json'), sort_keys=True))")
+            "from laranex_schema_viewer.contract import document_bytes; "
+            "sys.stdout.write(document_bytes(d).decode())")
     return subprocess.run([sys.executable, "-B", "-c", code, json.dumps(request)], cwd=ROOT, capture_output=True,
-                          text=True, check=True).stdout.strip()
+                          text=True, check=True).stdout
 
 
 class FailingClosed(unittest.TestCase):
@@ -254,7 +256,8 @@ class ContainerIsolation(unittest.TestCase):
 
     def test_matches_process_isolation(self):
         request = ExtractRequest(project_root=str(ROOT), modules=("tests.fixtures.sqlalchemy_models",))
-        self.assertEqual(extract(request, self.config()).document, extract(request, IsolationConfig()).document)
+        self.assertEqual(document_bytes(extract(request, self.config()).document),
+                         document_bytes(extract(request, IsolationConfig()).document))
 
     def test_has_no_network_even_past_the_guards(self):
         result = self.run_module("raw_bypass", env=(("LSV_ADVERSARIAL_TCP", "1.1.1.1:53"),
@@ -276,7 +279,7 @@ class ContainerIsolation(unittest.TestCase):
             result = self.run_module("secrets_probe")
         found = json.loads(comment(result, "secret_teams"))
         self.assertIsNone(found["env"]["DATABASE_URL"])
-        self.assertNotIn("hunter2", json.dumps(result.document))
+        self.assertNotIn("hunter2", document_bytes(result.document).decode())
 
     def test_timeouts_remove_the_container(self):
         with self.assertRaisesRegex(IsolationError, "within 10 seconds"):

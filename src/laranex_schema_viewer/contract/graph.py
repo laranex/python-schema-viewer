@@ -1,86 +1,112 @@
-"""The framework-neutral graph builder (docs/contract.md, "Graph"), a port of laranex-schema-viewer-ui's graph.ts.
-
-The shared conformance cases (tests/fixtures/contract/conformance/graph) keep the two implementations identical.
+"""The framework-neutral graph builder (docs/contract.md, "Graph"), a port of laranex-schema-viewer-ui's graph.ts on
+the schema model, and ``finalize``: the canonical arrays, ids and links every producer's document gets before it is
+written. The shared conformance cases (tests/fixtures/contract/conformance/graph) keep the two implementations equal.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass, field, replace
 
-from .serialize import hash_id
-
-
-def link_id(from_table: str, to_table: str, pairs: list[list[str]]) -> str:
-    return hash_id("l", ["link", from_table, to_table, pairs])
+from .. import model as m
+from .ids import derived_link_id, link_id
 
 
-def derived_link_id(relationship: str) -> str:
-    return hash_id("d", ["derived", relationship])
+def in_scope(table: m.Table, connection: m.Connection, schema: str | None) -> bool:
+    """Whether a table is in a scope: its schema, or unqualified while the connection's default is that schema."""
+    if schema is None:
+        return table.schema is None or table.schema == connection.default_schema
+    return table.schema == schema or (table.schema is None and connection.default_schema == schema)
 
 
-def _pairs(source: dict[str, Any], target: dict[str, Any]) -> list[list[str]]:
-    return sorted([[c, target["columns"][i]] for i, c in enumerate(source["columns"])])
+@dataclass
+class _Link:
+    id: str
+    source: m.Endpoint
+    target: m.Endpoint
+    foreign_key: str | None = None
+    relationships: list[str] = field(default_factory=list)
+    polymorphic: bool = False
+    notes: list[tuple[str, str]] = field(default_factory=list)
 
 
-def build_graph(document: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
-    """Links and derived links from a document's JSON data: connections and relationships."""
-    columns = {t["id"]: {c["name"] for c in t["columns"]}
-               for connection in document["connections"] for t in connection["tables"]}
+def build_graph(connections: Sequence[m.Connection], relationships: Iterable[m.Relationship]
+                ) -> tuple[tuple[m.Link, ...], tuple[m.DerivedLink, ...]]:
+    """Links (foreign keys within a connection and relationship keys) and derived links (through relationships)."""
+    columns = {t.id: {c.name for c in t.columns} for c in connections for t in c.tables}
+    connection_of = {t.id: c.id for c in connections for t in c.tables}
 
-    def resolved(endpoint: dict[str, Any]) -> bool:
-        return bool(endpoint["columns"]) and all(c in columns.get(endpoint["table"], ()) for c in endpoint["columns"])
+    def resolved(e: m.Endpoint) -> bool:
+        return bool(e.columns) and all(c in columns.get(e.table, ()) for c in e.columns)
 
-    links: dict[str, dict[str, Any]] = {}
-    notes: dict[str, list[tuple[str, str]]] = {}
+    links: dict[str, _Link] = {}
 
-    def add(source: dict[str, Any], target: dict[str, Any], foreign_key: str | None = None,
-            relationship: dict[str, Any] | None = None) -> None:
-        if not resolved(source) or not resolved(target) or len(source["columns"]) != len(target["columns"]):
+    def add(source: m.Endpoint, target: m.Endpoint, foreign_key: str | None = None,
+            relationship: m.Relationship | None = None) -> None:
+        if not resolved(source) or not resolved(target) or len(source.columns) != len(target.columns):
             return
-        lid = link_id(source["table"], target["table"], _pairs(source, target))
-        link = links.get(lid)
-        if link is None:
-            link = links[lid] = {"id": lid, "from": source, "to": target, "foreignKey": None, "relationships": [],
-                                 "state": "relationship", "polymorphic": False, "note": None}
-            notes[lid] = []
-        if foreign_key is not None and (link["foreignKey"] is None or foreign_key < link["foreignKey"]):
-            # Duplicate constraints on the same columns: the smallest id stands for them.
-            link.update(foreignKey=foreign_key, **{"from": source, "to": target})
-        if relationship is not None and relationship["id"] not in link["relationships"]:
-            link["relationships"].append(relationship["id"])
-            link["polymorphic"] = link["polymorphic"] or relationship.get("polymorphic") is not None
-            if relationship.get("note"):
-                notes[lid].append((relationship["id"], relationship["note"]))
+        pairs = sorted([c, target.columns[i]] for i, c in enumerate(source.columns))
+        lid = link_id(source.table, target.table, pairs)
+        link = links.setdefault(lid, _Link(lid, source, target))
+        if foreign_key is not None and (link.foreign_key is None or foreign_key < link.foreign_key):
+            # Duplicate constraints on the same columns: the smallest id stands for them; the endpoints follow it.
+            link.foreign_key, link.source, link.target = foreign_key, source, target
+        if relationship is not None and relationship.id not in link.relationships:
+            link.relationships.append(relationship.id)
+            link.polymorphic = link.polymorphic or relationship.polymorphic is not None
+            if relationship.note:
+                link.notes.append((relationship.id, relationship.note))
 
-    for connection in document["connections"]:
-        for table in connection["tables"]:
-            for fk in sorted(table["foreignKeys"], key=lambda f: f["id"]):
-                add({"table": table["id"], "columns": fk["columns"]},
-                    {"table": fk["foreignTable"], "columns": fk["foreignColumns"]}, foreign_key=fk["id"])
+    # Foreign keys first, so a link's endpoints follow the constraint's column order.
+    for connection in connections:
+        for table in connection.tables:
+            for fk in sorted(table.foreign_keys, key=lambda f: f.id):
+                if connection_of.get(fk.foreign_table) != connection.id:
+                    continue
+                add(m.Endpoint(table=table.id, columns=fk.columns),
+                    m.Endpoint(table=fk.foreign_table, columns=fk.foreign_columns), foreign_key=fk.id)
 
-    tables = set(columns)
     derived = []
-    for r in document["relationships"]:
-        if r.get("through"):
-            if r["relatedTable"] is not None and {r["table"], r["relatedTable"], *r["through"]} <= tables:
-                derived.append({"id": derived_link_id(r["id"]), "from": r["table"], "to": r["relatedTable"],
-                                "via": r["through"], "relationship": r["id"]})
-        elif r.get("pivot"):
-            p = r["pivot"]
-            add({"table": p["table"], "columns": p["parentPivotColumns"]},
-                {"table": r["table"], "columns": p["parentColumns"]}, relationship=r)
-            if r["relatedTable"] is not None:
-                add({"table": p["table"], "columns": p["relatedPivotColumns"]},
-                    {"table": r["relatedTable"], "columns": p["relatedColumns"]}, relationship=r)
-        elif r.get("keys"):
-            add(r["keys"]["from"], r["keys"]["to"], relationship=r)
+    for r in relationships:
+        if r.through:
+            if r.related_table is not None and {r.table, r.related_table, *r.through} <= columns.keys():
+                derived.append(m.DerivedLink(id=derived_link_id(r.id), source=r.table, target=r.related_table,
+                                             via=r.through, relationship=r.id))
+        elif r.pivot:
+            p = r.pivot
+            add(m.Endpoint(table=p.table, columns=p.parent_pivot_columns),
+                m.Endpoint(table=r.table, columns=p.parent_columns), relationship=r)
+            if r.related_table is not None:
+                add(m.Endpoint(table=p.table, columns=p.related_pivot_columns),
+                    m.Endpoint(table=r.related_table, columns=p.related_columns), relationship=r)
+        elif r.keys:
+            add(r.keys.source, r.keys.target, relationship=r)
 
     result = []
     for lid in sorted(links):
         link = links[lid]
-        link["relationships"].sort()
-        link["state"] = (("both" if link["relationships"] else "foreign_key") if link["foreignKey"] is not None
-                         else "relationship")
-        link["note"] = min(notes[lid])[1] if notes[lid] else None
-        result.append(link)
-    return {"links": result, "derivedLinks": sorted(derived, key=lambda d: d["id"])}
+        state = ("both" if link.relationships else "foreign_key") if link.foreign_key is not None else "relationship"
+        result.append(m.Link(id=lid, source=link.source, target=link.target, foreign_key=link.foreign_key,
+                             relationships=tuple(sorted(link.relationships)), state=state,
+                             polymorphic=link.polymorphic, note=min(link.notes)[1] if link.notes else None))
+    return tuple(result), tuple(sorted(derived, key=lambda d: d.id))
+
+
+def diagnostic_order(d: m.Diagnostic) -> tuple[str, str, str, str, str]:
+    return d.category, d.kind, d.subject.type, d.subject.id or "", d.message
+
+
+def finalize(document: m.Document) -> m.Document:
+    """The document in canonical form: tables, models and relationships sorted by id, connections by name, diagnostics
+    by (category, kind, subject type, subject id, message) with equal ones (one id) listed once, and the links the
+    shared graph rules build."""
+    connections = tuple(sorted((replace(c, tables=tuple(sorted(c.tables, key=lambda t: t.id)))
+                                for c in document.connections), key=lambda c: c.name))
+    diagnostics: dict[str, m.Diagnostic] = {}
+    for d in sorted(document.diagnostics, key=diagnostic_order):
+        diagnostics.setdefault(d.id, d)
+    relationships = tuple(sorted(document.relationships, key=lambda r: r.id))
+    links, derived = build_graph(connections, relationships)
+    return replace(document, connections=connections, models=tuple(sorted(document.models, key=lambda x: x.id)),
+                   relationships=relationships, links=links, derived_links=derived,
+                   diagnostics=tuple(diagnostics.values()))

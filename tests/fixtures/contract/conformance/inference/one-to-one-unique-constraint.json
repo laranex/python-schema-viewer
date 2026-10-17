@@ -1,0 +1,241 @@
+{
+  "description": "Foreign-key columns that are exactly a unique constraint make a one-to-one",
+  "expected": {
+    "inferredAssociations": [
+      {
+        "ambiguities": [],
+        "cardinality": "one-to-one",
+        "confidence": "high",
+        "evidence": [
+          {
+            "confirmed": true,
+            "id": "t:posts:fk:posts_user_fk",
+            "kind": "foreign_key"
+          },
+          {
+            "confirmed": true,
+            "id": "m:Post",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "m:User",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "t:posts:constraint:posts_user_key",
+            "kind": "unique_constraint"
+          }
+        ],
+        "foreignKeys": [
+          "t:posts:fk:posts_user_fk"
+        ],
+        "id": "i6d51b1742432644e",
+        "kind": "foreign_key",
+        "links": [
+          "l3912aaabb7b52688"
+        ],
+        "model": "m:Post",
+        "relatedModel": "m:User",
+        "relatedTable": "t:users",
+        "table": "t:posts",
+        "via": null
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "postgresql",
+        "id": "connection:c",
+        "name": "c",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "user_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [
+              {
+                "columns": [
+                  "user_id"
+                ],
+                "expression": null,
+                "id": "t:posts:constraint:posts_user_key",
+                "kind": "unique",
+                "name": "posts_user_key",
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "user_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:users",
+                "id": "t:posts:fk:posts_user_fk",
+                "initially": null,
+                "name": "posts_user_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:posts",
+            "indexes": [],
+            "name": "posts",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:users",
+            "indexes": [],
+            "name": "users",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "foreignKey": "t:posts:fk:posts_user_fk",
+        "from": {
+          "columns": [
+            "user_id"
+          ],
+          "table": "t:posts"
+        },
+        "id": "l3912aaabb7b52688",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [],
+        "state": "foreign_key",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:users"
+        }
+      }
+    ],
+    "models": [
+      {
+        "className": "Post",
+        "id": "m:Post",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:posts"
+        ]
+      },
+      {
+        "className": "User",
+        "id": "m:User",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:users"
+        ]
+      }
+    ],
+    "relationships": [],
+    "source": "combined"
+  }
+}

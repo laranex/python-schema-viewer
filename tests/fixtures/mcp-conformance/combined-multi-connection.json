@@ -1,0 +1,6282 @@
+{
+  "calls": [
+    {
+      "arguments": {
+        "limit": 100
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "public"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:app",
+            "name": "app",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "unavailable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "partial",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "analytics"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "analytics",
+            "driver": "mysql",
+            "id": "connection:analytics",
+            "name": "analytics",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:cache",
+            "name": "cache",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 14,
+          "comparisons": 0,
+          "connections": 3,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 3,
+          "drift": 1,
+          "foreignKeys": 2,
+          "indexes": 6,
+          "inferredAssociations": 0,
+          "links": 4,
+          "migrations": 0,
+          "models": 5,
+          "relationships": 5,
+          "tables": 5
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 1,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 1,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 3,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 3,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "laravel-schema-viewer",
+          "orm": "eloquent"
+        },
+        "items": [
+          {
+            "connection": "connection:app",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "app:public.teams",
+            "name": "teams",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          },
+          {
+            "connection": "connection:app",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 1,
+              "drift": 1,
+              "foreignKeys": 1,
+              "indexes": 1
+            },
+            "id": "app:public.users",
+            "name": "users",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          },
+          {
+            "connection": "connection:analytics",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 2
+            },
+            "id": "analytics:events",
+            "name": "events",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "connection": "connection:analytics",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "analytics:users",
+            "name": "users",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "connection": "connection:cache",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "cache:sessions",
+            "name": "sessions",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "note": "Synthetic application with three database connections.",
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "source": "combined",
+        "total": 5,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "public"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:app",
+            "name": "app",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "unavailable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "partial",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "analytics"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "analytics",
+            "driver": "mysql",
+            "id": "connection:analytics",
+            "name": "analytics",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:cache",
+            "name": "cache",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 14,
+          "comparisons": 0,
+          "connections": 3,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 3,
+          "drift": 1,
+          "foreignKeys": 2,
+          "indexes": 6,
+          "inferredAssociations": 0,
+          "links": 4,
+          "migrations": 0,
+          "models": 5,
+          "relationships": 5,
+          "tables": 5
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 1,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 1,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 3,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 3,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "laravel-schema-viewer",
+          "orm": "eloquent"
+        },
+        "items": [
+          {
+            "connection": "connection:app",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "app:public.teams",
+            "name": "teams",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          },
+          {
+            "connection": "connection:app",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 1,
+              "drift": 1,
+              "foreignKeys": 1,
+              "indexes": 1
+            },
+            "id": "app:public.users",
+            "name": "users",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          },
+          {
+            "connection": "connection:analytics",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 2
+            },
+            "id": "analytics:events",
+            "name": "events",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "connection": "connection:analytics",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "analytics:users",
+            "name": "users",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "connection": "connection:cache",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "cache:sessions",
+            "name": "sessions",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "note": "Synthetic application with three database connections.",
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "source": "combined",
+        "total": 5,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "public"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:app",
+            "name": "app",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "unavailable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "partial",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "analytics"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "analytics",
+            "driver": "mysql",
+            "id": "connection:analytics",
+            "name": "analytics",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:cache",
+            "name": "cache",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 14,
+          "comparisons": 0,
+          "connections": 3,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 3,
+          "drift": 1,
+          "foreignKeys": 2,
+          "indexes": 6,
+          "inferredAssociations": 0,
+          "links": 4,
+          "migrations": 0,
+          "models": 5,
+          "relationships": 5,
+          "tables": 5
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 1,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 1,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 3,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 3,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "laravel-schema-viewer",
+          "orm": "eloquent"
+        },
+        "items": [
+          {
+            "connection": "connection:app",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 1
+            },
+            "id": "app:public.teams",
+            "name": "teams",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 1,
+        "note": "Synthetic application with three database connections.",
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "source": "combined",
+        "total": 5,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098"
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "public"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:app",
+            "name": "app",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "unavailable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "complete",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "partial",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": [
+                  "analytics"
+                ]
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "analytics",
+            "driver": "mysql",
+            "id": "connection:analytics",
+            "name": "analytics",
+            "tables": 2
+          },
+          {
+            "coverage": {
+              "database": {
+                "complete": true,
+                "features": {
+                  "checkConstraints": "not_applicable",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "not_applicable",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": {
+                "complete": true,
+                "features": {
+                  "models": "complete",
+                  "relationships": "complete",
+                  "tables": "not_applicable"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:cache",
+            "name": "cache",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 14,
+          "comparisons": 0,
+          "connections": 3,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 3,
+          "drift": 1,
+          "foreignKeys": 2,
+          "indexes": 6,
+          "inferredAssociations": 0,
+          "links": 4,
+          "migrations": 0,
+          "models": 5,
+          "relationships": 5,
+          "tables": 5
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 1,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 1,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 3,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 3,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "laravel-schema-viewer",
+          "orm": "eloquent"
+        },
+        "items": [
+          {
+            "connection": "connection:app",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 1,
+              "drift": 1,
+              "foreignKeys": 1,
+              "indexes": 1
+            },
+            "id": "app:public.users",
+            "name": "users",
+            "provenance": [
+              "database"
+            ],
+            "schema": "public"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 2,
+        "note": "Synthetic application with three database connections.",
+        "offset": 1,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "source": "combined",
+        "total": 5,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "id"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "app:public.teams"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "app:public.users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "team_id",
+            "table": "app:public.users"
+          },
+          {
+            "id": "app:public.users:fk:users_team_id_foreign",
+            "kind": "foreignKey",
+            "name": "users_team_id_foreign",
+            "table": "app:public.users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "analytics:events"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "user_id",
+            "table": "analytics:events"
+          },
+          {
+            "id": "analytics:events:index:events_user_id_index",
+            "kind": "index",
+            "name": "events_user_id_index",
+            "table": "analytics:events"
+          },
+          {
+            "id": "analytics:events:fk:events_user_id_foreign",
+            "kind": "foreignKey",
+            "name": "events_user_id_foreign",
+            "table": "analytics:events"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "analytics:users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "app_user_id",
+            "table": "analytics:users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "cache:sessions"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "user_id",
+            "table": "cache:sessions"
+          },
+          {
+            "id": "cache:sessions:index:sessions_user_id_index",
+            "kind": "index",
+            "name": "sessions_user_id_index",
+            "table": "cache:sessions"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "id",
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 13
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "USER"
+      },
+      "result": {
+        "items": [
+          {
+            "id": "app:public.users",
+            "kind": "table",
+            "name": "users",
+            "table": "app:public.users"
+          },
+          {
+            "id": "app:public.users:index:users_pkey",
+            "kind": "index",
+            "name": "users_pkey",
+            "table": "app:public.users"
+          },
+          {
+            "id": "app:public.users:fk:users_team_id_foreign",
+            "kind": "foreignKey",
+            "name": "users_team_id_foreign",
+            "table": "app:public.users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "user_id",
+            "table": "analytics:events"
+          },
+          {
+            "id": "analytics:events:index:events_user_id_index",
+            "kind": "index",
+            "name": "events_user_id_index",
+            "table": "analytics:events"
+          },
+          {
+            "id": "analytics:events:fk:events_user_id_foreign",
+            "kind": "foreignKey",
+            "name": "events_user_id_foreign",
+            "table": "analytics:events"
+          },
+          {
+            "id": "analytics:users",
+            "kind": "table",
+            "name": "users",
+            "table": "analytics:users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "app_user_id",
+            "table": "analytics:users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "user_id",
+            "table": "cache:sessions"
+          },
+          {
+            "id": "cache:sessions:index:sessions_user_id_index",
+            "kind": "index",
+            "name": "sessions_user_id_index",
+            "table": "cache:sessions"
+          },
+          {
+            "id": "App\\Models\\User",
+            "kind": "model",
+            "name": "App\\Models\\User",
+            "table": null
+          },
+          {
+            "id": "App\\Models\\Session::user",
+            "kind": "relationship",
+            "name": "user",
+            "table": "cache:sessions"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "USER",
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 12
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "_at"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "_at",
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "zzz-no-match"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "zzz-no-match",
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "character varying(255)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "app:public.teams:index:teams_pkey",
+            "included": [],
+            "method": null,
+            "name": "teams_pkey",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "className": "App\\Models\\Team",
+            "id": "App\\Models\\Team",
+            "primaryKey": [
+              "id"
+            ],
+            "source": {
+              "file": "app/Models/Team.php",
+              "line": 9
+            },
+            "tables": [
+              "app:public.teams"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "foreignKey": "app:public.users:fk:users_team_id_foreign",
+            "from": {
+              "columns": [
+                "team_id"
+              ],
+              "table": "app:public.users"
+            },
+            "id": "l539634d66413746d",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\User::team"
+            ],
+            "state": "both",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "app:public.teams"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "app:public.teams"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "app:public.teams",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "app:public.teams"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "team_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "app:public.teams",
+              "id": "app:public.users:fk:users_team_id_foreign",
+              "initially": null,
+              "name": "users_team_id_foreign",
+              "onDelete": "SET NULL",
+              "onUpdate": null,
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "app:public.users"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "app:public.teams",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "team_id",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "drift": [
+              {
+                "database": "character varying(320)",
+                "declared": "string",
+                "field": "type"
+              }
+            ],
+            "enum": null,
+            "generated": null,
+            "name": "email",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database",
+              "declared"
+            ],
+            "timezone": null,
+            "type": "character varying(320)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 3
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "app:public.users:index:users_pkey",
+            "included": [],
+            "method": null,
+            "name": "users_pkey",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "columns": [
+              "team_id"
+            ],
+            "deferrable": null,
+            "foreignColumns": [
+              "id"
+            ],
+            "foreignTable": "app:public.teams",
+            "id": "app:public.users:fk:users_team_id_foreign",
+            "initially": null,
+            "name": "users_team_id_foreign",
+            "onDelete": "SET NULL",
+            "onUpdate": null,
+            "provenance": [
+              "database"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "className": "App\\Models\\User",
+            "id": "App\\Models\\User",
+            "primaryKey": [
+              "id"
+            ],
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 9
+            },
+            "tables": [
+              "app:public.users"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "foreignKey": null,
+            "from": {
+              "columns": [
+                "user_id"
+              ],
+              "table": "cache:sessions"
+            },
+            "id": "l5361d6bff215db36",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\Session::user",
+              "App\\Models\\User::sessions"
+            ],
+            "state": "relationship",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "app:public.users"
+            }
+          },
+          {
+            "foreignKey": "app:public.users:fk:users_team_id_foreign",
+            "from": {
+              "columns": [
+                "team_id"
+              ],
+              "table": "app:public.users"
+            },
+            "id": "l539634d66413746d",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\User::team"
+            ],
+            "state": "both",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "app:public.teams"
+            }
+          },
+          {
+            "foreignKey": null,
+            "from": {
+              "columns": [
+                "app_user_id"
+              ],
+              "table": "analytics:users"
+            },
+            "id": "l8e81310a9790c076",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\Analytics\\Visitor::account"
+            ],
+            "state": "relationship",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "app:public.users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 3
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "app:public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 1,
+          "foreign_keys": 1,
+          "indexes": 1,
+          "links": 3,
+          "models": 1,
+          "relationships": 4
+        },
+        "items": [
+          {
+            "category": "drift",
+            "certainty": "certain",
+            "id": "nb7e59e58d6e3ba10",
+            "kind": "column_drift",
+            "message": "The database stores public.users.email as character varying(320); the model casts it as string.",
+            "severity": "info",
+            "subject": {
+              "columns": [
+                "email"
+              ],
+              "id": "app:public.users",
+              "label": "app · public.users.email",
+              "type": "column"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "app:public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "app:public.users"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "app:public.users",
+        "total": 4
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "app:public.users"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "team_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "app:public.teams",
+              "id": "app:public.users:fk:users_team_id_foreign",
+              "initially": null,
+              "name": "users_team_id_foreign",
+              "onDelete": "SET NULL",
+              "onUpdate": null,
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "app:public.users"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "app:public.users",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "user_id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(80)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 3
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "analytics:events:index:PRIMARY",
+            "included": [],
+            "method": "btree",
+            "name": "PRIMARY",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "analytics:events:index:events_user_id_index",
+            "included": [],
+            "method": "btree",
+            "name": "events_user_id_index",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "user_id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "columns": [
+              "user_id"
+            ],
+            "deferrable": null,
+            "foreignColumns": [
+              "id"
+            ],
+            "foreignTable": "analytics:users",
+            "id": "analytics:events:fk:events_user_id_foreign",
+            "initially": null,
+            "name": "events_user_id_foreign",
+            "onDelete": "CASCADE",
+            "onUpdate": null,
+            "provenance": [
+              "database"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "className": "App\\Models\\Analytics\\Event",
+            "extensions": {
+              "eloquent": {
+                "connection": "analytics"
+              }
+            },
+            "id": "App\\Models\\Analytics\\Event",
+            "primaryKey": [
+              "id"
+            ],
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 9
+            },
+            "tables": [
+              "analytics:events"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "foreignKey": "analytics:events:fk:events_user_id_foreign",
+            "from": {
+              "columns": [
+                "user_id"
+              ],
+              "table": "analytics:events"
+            },
+            "id": "l2cdd6081ab6c4fe7",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\Analytics\\Event::visitor"
+            ],
+            "state": "both",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "analytics:users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "analytics:events"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 2,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "analytics:events",
+          "name": "events",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "analytics:events"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "analytics:events",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "analytics:events"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "user_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "analytics:users",
+              "id": "analytics:events:fk:events_user_id_foreign",
+              "initially": null,
+              "name": "events_user_id_foreign",
+              "onDelete": "CASCADE",
+              "onUpdate": null,
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "analytics:events"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "analytics:events",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "app_user_id",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "segment",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar(40)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 3
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": null,
+              "kind": "primary_key"
+            },
+            "expression": false,
+            "id": "analytics:users:index:PRIMARY",
+            "included": [],
+            "method": "btree",
+            "name": "PRIMARY",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "indexes",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "foreign_keys",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "constraints",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "className": "App\\Models\\Analytics\\Visitor",
+            "extensions": {
+              "eloquent": {
+                "connection": "analytics"
+              }
+            },
+            "id": "App\\Models\\Analytics\\Visitor",
+            "primaryKey": [
+              "id"
+            ],
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 9
+            },
+            "tables": [
+              "analytics:users"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "models",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "relationships",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "foreignKey": "analytics:events:fk:events_user_id_foreign",
+            "from": {
+              "columns": [
+                "user_id"
+              ],
+              "table": "analytics:events"
+            },
+            "id": "l2cdd6081ab6c4fe7",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\Analytics\\Event::visitor"
+            ],
+            "state": "both",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "analytics:users"
+            }
+          },
+          {
+            "foreignKey": null,
+            "from": {
+              "columns": [
+                "app_user_id"
+              ],
+              "table": "analytics:users"
+            },
+            "id": "l8e81310a9790c076",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\Analytics\\Visitor::account"
+            ],
+            "state": "relationship",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "app:public.users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "links",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "derived_links",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "analytics:users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "analytics",
+          "driver": "mysql",
+          "id": "connection:analytics",
+          "name": "analytics"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "diagnostics",
+        "table": {
+          "comment": "Visitors, signed in or not",
+          "id": "analytics:users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "analytics:users"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "analytics:users",
+        "total": 2
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "analytics:users"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "user_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "analytics:users",
+              "id": "analytics:events:fk:events_user_id_foreign",
+              "initially": null,
+              "name": "events_user_id_foreign",
+              "onDelete": "CASCADE",
+              "onUpdate": null,
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "analytics:events"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "analytics:users",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "varchar",
+            "typeName": "varchar"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "user_id",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "payload",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "text",
+            "typeName": "text"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 3
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "backs": null,
+            "expression": false,
+            "id": "cache:sessions:index:sessions_user_id_index",
+            "included": [],
+            "method": null,
+            "name": "sessions_user_id_index",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "user_id",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "className": "App\\Models\\Session",
+            "extensions": {
+              "eloquent": {
+                "connection": "cache",
+                "keyType": "string"
+              }
+            },
+            "id": "App\\Models\\Session",
+            "primaryKey": [
+              "id"
+            ],
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 9
+            },
+            "tables": [
+              "cache:sessions"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "foreignKey": null,
+            "from": {
+              "columns": [
+                "user_id"
+              ],
+              "table": "cache:sessions"
+            },
+            "id": "l5361d6bff215db36",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "polymorphic": false,
+            "relationships": [
+              "App\\Models\\Session::user",
+              "App\\Models\\User::sessions"
+            ],
+            "state": "relationship",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "app:public.users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "cache:sessions"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:cache",
+          "name": "cache"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "cache:sessions",
+          "name": "sessions",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "cache:sessions"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "cache:sessions",
+        "total": 2
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "cache:sessions"
+      },
+      "result": {
+        "items": [],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": "cache:sessions",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "bigint",
+            "typeName": "bigint"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "character varying(255)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": "app:public.teams"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 1,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "character varying(255)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": null,
+        "offset": 1,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "app:public.teams",
+          "name": "teams",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "public"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "App\\Models\\Analytics\\Event"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "model": {
+          "className": "App\\Models\\Analytics\\Event",
+          "extensions": {
+            "eloquent": {
+              "connection": "analytics"
+            }
+          },
+          "id": "App\\Models\\Analytics\\Event",
+          "primaryKey": [
+            "id"
+          ],
+          "source": {
+            "file": "app/Models/Analytics/Event.php",
+            "line": 9
+          },
+          "tables": [
+            "analytics:events"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 1
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "App\\Models\\Analytics\\Visitor"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "model": {
+          "className": "App\\Models\\Analytics\\Visitor",
+          "extensions": {
+            "eloquent": {
+              "connection": "analytics"
+            }
+          },
+          "id": "App\\Models\\Analytics\\Visitor",
+          "primaryKey": [
+            "id"
+          ],
+          "source": {
+            "file": "app/Models/Analytics/Visitor.php",
+            "line": 9
+          },
+          "tables": [
+            "analytics:users"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 1
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "App\\Models\\Session"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "model": {
+          "className": "App\\Models\\Session",
+          "extensions": {
+            "eloquent": {
+              "connection": "cache",
+              "keyType": "string"
+            }
+          },
+          "id": "App\\Models\\Session",
+          "primaryKey": [
+            "id"
+          ],
+          "source": {
+            "file": "app/Models/Session.php",
+            "line": 9
+          },
+          "tables": [
+            "cache:sessions"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 1
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "App\\Models\\Team"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "model": {
+          "className": "App\\Models\\Team",
+          "id": "App\\Models\\Team",
+          "primaryKey": [
+            "id"
+          ],
+          "source": {
+            "file": "app/Models/Team.php",
+            "line": 9
+          },
+          "tables": [
+            "app:public.teams"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 0
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "App\\Models\\User"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "limit": 100,
+        "model": {
+          "className": "App\\Models\\User",
+          "id": "App\\Models\\User",
+          "primaryKey": [
+            "id"
+          ],
+          "source": {
+            "file": "app/Models/User.php",
+            "line": 9
+          },
+          "tables": [
+            "app:public.users"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "total": 2
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": null,
+        "total": 5
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "team_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "app:public.teams",
+              "id": "app:public.users:fk:users_team_id_foreign",
+              "initially": null,
+              "name": "users_team_id_foreign",
+              "onDelete": "SET NULL",
+              "onUpdate": null,
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "app:public.users"
+          },
+          {
+            "foreignKey": {
+              "columns": [
+                "user_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "analytics:users",
+              "id": "analytics:events:fk:events_user_id_foreign",
+              "initially": null,
+              "name": "events_user_id_foreign",
+              "onDelete": "CASCADE",
+              "onUpdate": null,
+              "provenance": [
+                "database"
+              ]
+            },
+            "table": "analytics:events"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": null,
+        "total": 2
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Event::visitor",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "analytics:events"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "analytics:users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Event",
+            "name": "visitor",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Analytics\\Visitor",
+            "relatedTable": "analytics:users",
+            "source": {
+              "file": "app/Models/Analytics/Event.php",
+              "line": 18
+            },
+            "table": "analytics:events",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Analytics\\Visitor::account",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "app_user_id"
+                ],
+                "table": "analytics:users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Analytics\\Visitor",
+            "name": "account",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Analytics/Visitor.php",
+              "line": 18
+            },
+            "table": "analytics:users",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\Session::user",
+            "inverse": "App\\Models\\User::sessions",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\Session",
+            "name": "user",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\User",
+            "relatedTable": "app:public.users",
+            "source": {
+              "file": "app/Models/Session.php",
+              "line": 18
+            },
+            "table": "cache:sessions",
+            "through": null,
+            "type": "BelongsTo"
+          },
+          {
+            "cardinality": "one-to-many",
+            "collection": true,
+            "constraints": [],
+            "id": "App\\Models\\User::sessions",
+            "inverse": "App\\Models\\Session::user",
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "user_id"
+                ],
+                "table": "cache:sessions"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.users"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "sessions",
+            "note": "Lives in the cache connection; no foreign key is possible.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Session",
+            "relatedTable": "cache:sessions",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "HasMany"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "App\\Models\\User::team",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "team_id"
+                ],
+                "table": "app:public.users"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "app:public.teams"
+              }
+            },
+            "model": "App\\Models\\User",
+            "name": "team",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "App\\Models\\Team",
+            "relatedTable": "app:public.teams",
+            "source": {
+              "file": "app/Models/User.php",
+              "line": 18
+            },
+            "table": "app:public.users",
+            "through": null,
+            "type": "BelongsTo"
+          }
+        ],
+        "kind": "orm",
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
+        "table": null,
+        "total": 5
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 0
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 101
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "offset": -1
+      },
+      "error": "offset must be a nonnegative integer",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "revision": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "error": "Document revision differs; restart pagination without revision",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "query_text": ""
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "query_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "table": "../../.env"
+      },
+      "error": "Unknown table ID; use schema_overview or schema_search",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "section": "rows",
+        "table": "app:public.teams"
+      },
+      "error": "Unknown table section: rows",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "model": "missing"
+      },
+      "error": "Unknown model ID; use schema_search",
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "table": "missing"
+      },
+      "error": "Unknown table ID",
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "sql"
+      },
+      "error": "kind must be orm or foreign_key",
+      "tool": "schema_get_relationships"
+    }
+  ],
+  "document": "tests/fixtures/contract/fixtures/valid/combined-multi-connection.json",
+  "revision": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098"
+}

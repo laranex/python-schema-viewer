@@ -1,0 +1,588 @@
+{
+  "description": "Indexes match by name, then by key parts and uniqueness; indexes backing the primary key or a unique constraint entity are compared as those",
+  "expected": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "complete": true,
+    "differences": [
+      {
+        "baseline": {
+          "id": "a:users:index:idx_email",
+          "label": "users.idx_email",
+          "table": "a:users"
+        },
+        "certainty": "certain",
+        "change": "changed",
+        "fields": [
+          {
+            "baseline": false,
+            "field": "unique",
+            "target": true
+          }
+        ],
+        "id": "x9b34873740399a3f",
+        "key": [
+          "users",
+          "name",
+          "idx_email"
+        ],
+        "objectType": "index",
+        "severity": "warning",
+        "target": {
+          "id": "b:users:index:idx_email",
+          "label": "users.idx_email",
+          "table": "b:users"
+        }
+      },
+      {
+        "baseline": {
+          "id": "a:users:index:idx_old_name",
+          "label": "users.idx_old_name",
+          "table": "a:users"
+        },
+        "certainty": "certain",
+        "change": "changed",
+        "fields": [
+          {
+            "baseline": "idx_old_name",
+            "field": "name",
+            "target": "idx_new_name"
+          }
+        ],
+        "id": "xbf86a17bd3af605e",
+        "key": [
+          "users",
+          "parts",
+          "(name desc)"
+        ],
+        "objectType": "index",
+        "severity": "warning",
+        "target": {
+          "id": "b:users:index:idx_new_name",
+          "label": "users.idx_new_name",
+          "table": "b:users"
+        }
+      }
+    ],
+    "id": "ccd30999b0df19108",
+    "omitted": 0,
+    "summary": {
+      "changed": 2,
+      "extra": 0,
+      "missing": 0
+    },
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  },
+  "input": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:a",
+          "name": "a",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "email",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "name",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "code",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                }
+              ],
+              "comment": null,
+              "constraints": [
+                {
+                  "columns": [
+                    "code"
+                  ],
+                  "expression": null,
+                  "id": "a:users:constraint:users_code_key",
+                  "kind": "unique",
+                  "name": "users_code_key",
+                  "provenance": [
+                    "database"
+                  ]
+                }
+              ],
+              "foreignKeys": [],
+              "id": "a:users",
+              "indexes": [
+                {
+                  "backs": {
+                    "constraint": null,
+                    "kind": "primary_key"
+                  },
+                  "expression": false,
+                  "id": "a:users:index:users_pkey",
+                  "included": [],
+                  "method": null,
+                  "name": "users_pkey",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "id",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": true
+                },
+                {
+                  "backs": null,
+                  "expression": false,
+                  "id": "a:users:index:idx_email",
+                  "included": [],
+                  "method": null,
+                  "name": "idx_email",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "email",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": false
+                },
+                {
+                  "backs": null,
+                  "expression": false,
+                  "id": "a:users:index:idx_old_name",
+                  "included": [],
+                  "method": null,
+                  "name": "idx_old_name",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "name",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": "desc"
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": false
+                },
+                {
+                  "backs": {
+                    "constraint": "a:users:constraint:users_code_key",
+                    "kind": "unique_constraint"
+                  },
+                  "expression": false,
+                  "id": "a:users:index:users_code_key",
+                  "included": [],
+                  "method": null,
+                  "name": "users_code_key",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "code",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": true
+                }
+              ],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:b",
+          "name": "b",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "email",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "name",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "code",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                }
+              ],
+              "comment": null,
+              "constraints": [
+                {
+                  "columns": [
+                    "code"
+                  ],
+                  "expression": null,
+                  "id": "b:users:constraint:users_code_key",
+                  "kind": "unique",
+                  "name": "users_code_key",
+                  "provenance": [
+                    "database"
+                  ]
+                }
+              ],
+              "foreignKeys": [],
+              "id": "b:users",
+              "indexes": [
+                {
+                  "backs": {
+                    "constraint": null,
+                    "kind": "primary_key"
+                  },
+                  "expression": false,
+                  "id": "b:users:index:users_pk",
+                  "included": [],
+                  "method": null,
+                  "name": "users_pk",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "id",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": true
+                },
+                {
+                  "backs": null,
+                  "expression": false,
+                  "id": "b:users:index:idx_email",
+                  "included": [],
+                  "method": null,
+                  "name": "idx_email",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "email",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": true
+                },
+                {
+                  "backs": null,
+                  "expression": false,
+                  "id": "b:users:index:idx_new_name",
+                  "included": [],
+                  "method": null,
+                  "name": "idx_new_name",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "name",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": "desc"
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": false
+                },
+                {
+                  "backs": {
+                    "constraint": "b:users:constraint:users_code_key",
+                    "kind": "unique_constraint"
+                  },
+                  "expression": false,
+                  "id": "b:users:index:users_code_unique",
+                  "included": [],
+                  "method": null,
+                  "name": "users_code_unique",
+                  "partial": false,
+                  "parts": [
+                    {
+                      "collation": null,
+                      "column": "code",
+                      "expression": null,
+                      "length": null,
+                      "nulls": null,
+                      "opclass": null,
+                      "order": null
+                    }
+                  ],
+                  "predicate": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "unique": true
+                }
+              ],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        }
+      ],
+      "source": "database"
+    },
+    "limit": null,
+    "overrides": [],
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  }
+}

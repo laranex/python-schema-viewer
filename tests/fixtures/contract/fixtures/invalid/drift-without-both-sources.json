@@ -1,6 +1,7 @@
 {
   "description": "Drift on an entity only one source observed",
   "document": {
+    "comparisons": [],
     "connections": [
       {
         "coverage": {
@@ -95,9 +96,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "table:default.audit_log:index:audit_log_pkey",
                 "included": [],
@@ -116,7 +114,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -169,9 +166,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "table:default.teams:index:teams_pkey",
                 "included": [],
@@ -190,7 +184,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database",
                   "declared"
@@ -352,9 +345,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "table:default.users:index:users_pkey",
                 "included": [],
@@ -373,7 +363,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database",
                   "declared"
@@ -382,9 +371,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "email"
-                ],
                 "drift": [
                   {
                     "database": true,
@@ -410,7 +396,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database",
                   "declared"
@@ -441,6 +426,7 @@
       {
         "category": "drift",
         "certainty": "certain",
+        "id": "n07424bda71d6b664",
         "kind": "column_drift",
         "message": "The database stores users.email as character varying(320); the model declares VARCHAR(255).",
         "severity": "warning",
@@ -456,6 +442,7 @@
       {
         "category": "drift",
         "certainty": "certain",
+        "id": "n787b2952868203b8",
         "kind": "index_drift",
         "message": "ix_users_email is unique in the database but not in the model.",
         "severity": "warning",
@@ -469,6 +456,7 @@
       {
         "category": "inspection",
         "certainty": "certain",
+        "id": "naee6e6ea7de2a175",
         "kind": "inspection_unavailable",
         "message": "Check constraints could not be read: the inspection role lacks access to pg_constraint.",
         "severity": "warning",
@@ -482,6 +470,7 @@
       {
         "category": "reconciliation",
         "certainty": "certain",
+        "id": "n6244b8df59373566",
         "kind": "database_only",
         "message": "The database has users.legacy_flag; the model does not declare it.",
         "severity": "info",
@@ -497,6 +486,7 @@
       {
         "category": "reconciliation",
         "certainty": "certain",
+        "id": "n1d698f5c1fbced4b",
         "kind": "declared_only",
         "message": "The model declares users.nickname; the database has no such column.",
         "severity": "warning",
@@ -512,6 +502,7 @@
       {
         "category": "reconciliation",
         "certainty": "certain",
+        "id": "na3aee2ceb3d73ead",
         "kind": "declared_only",
         "message": "The model declares a foreign key on users.team_id; the database does not enforce one.",
         "severity": "warning",
@@ -525,6 +516,7 @@
       {
         "category": "reconciliation",
         "certainty": "certain",
+        "id": "n6b813261bad3eabc",
         "kind": "model_without_table",
         "message": "app.models.Ghost declares table ghosts, which the database does not have.",
         "severity": "warning",
@@ -538,6 +530,7 @@
       {
         "category": "reconciliation",
         "certainty": "certain",
+        "id": "n14e09d0021763e13",
         "kind": "table_without_model",
         "message": "No model maps public.audit_log.",
         "severity": "info",
@@ -554,6 +547,7 @@
       "name": "python-schema-viewer",
       "orm": "sqlalchemy"
     },
+    "inferredAssociations": [],
     "links": [
       {
         "foreignKey": "table:default.users:fk:fk_users_team",
@@ -578,6 +572,7 @@
         }
       }
     ],
+    "migrations": [],
     "models": [
       {
         "className": "app.models.Ghost",
@@ -647,7 +642,7 @@
       }
     ],
     "source": "combined",
-    "version": "1.0"
+    "version": "2.0"
   },
   "errors": [
     "Drift needs both database and declared provenance"

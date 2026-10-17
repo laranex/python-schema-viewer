@@ -1,0 +1,59 @@
+{
+  "description": "An unreadable version table: unknown",
+  "expected": {
+    "history": {
+      "heads": [
+        "c"
+      ],
+      "missing": [],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "a",
+          "parents": []
+        },
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "a"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "c",
+          "parents": [
+            "b"
+          ]
+        }
+      ]
+    },
+    "pending": null,
+    "status": "unknown",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": null,
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "a",
+        "parents": []
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "a"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "c",
+        "parents": [
+          "b"
+        ]
+      }
+    ]
+  }
+}

@@ -6,8 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from laranex_schema_viewer import model as m
 from laranex_schema_viewer.build import build_document
-from laranex_schema_viewer.snapshot import snapshot_bytes
+from laranex_schema_viewer.contract import document_bytes, document_to_json, validate_document
 
 HAS_PEEWEE = importlib.util.find_spec("peewee") is not None
 MODELS = "tests.fixtures.peewee_models"
@@ -18,8 +19,8 @@ class PeeweeExtractionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.doc = build_document([MODELS], project_root=Path.cwd())
-        cls.tables = {t.name: t for t in cls.doc.tables}
-        names = {m.id: m.class_name.rsplit(".", 1)[1] for m in cls.doc.models}
+        cls.tables = {t.name: t for t in cls.doc.tables()}
+        names = {x.id: x.class_name.rsplit(".", 1)[1] for x in cls.doc.models}
         cls.relations = {(names[r.model], r.name): r for r in cls.doc.relationships}
         cls.diagnostics = {d.kind: d for d in cls.doc.diagnostics}
 
@@ -28,53 +29,57 @@ class PeeweeExtractionTests(unittest.TestCase):
 
         self.assertTrue(database.is_closed())
         explicit = build_document([MODELS], project_root=Path.cwd(), orm="peewee")
-        self.assertEqual(snapshot_bytes(explicit), snapshot_bytes(self.doc))
+        self.assertEqual(document_bytes(explicit), document_bytes(self.doc))
+        self.assertEqual(validate_document(document_to_json(self.doc), strict=True)[1], [])
+        self.assertEqual(self.doc.generator.orm, "peewee")
 
     def test_tables_columns_and_defaults(self):
         self.assertNotIn("basemodel", self.tables)
-        self.assertIn("BaseModel", self.diagnostics["skipped_base_model"].subject)
+        skipped = self.diagnostics["skipped_base_model"].subject
+        self.assertEqual((skipped.type, skipped.label), ("document", "tests.fixtures.peewee_models.BaseModel"))
         columns = {c.name: c for c in self.tables["authors"].columns}
         self.assertEqual(columns["name"].type, "VARCHAR(100)")
-        self.assertTrue(columns["id"].autoincrement)
-        self.assertEqual(columns["joined"].default.model_dump(), {"kind": "callable", "value": "datetime.now"})
-        self.assertEqual(columns["score"].server_default.value, "0")
+        self.assertTrue(columns["id"].auto_increment)
+        self.assertEqual(columns["joined"].orm_default, m.OrmDefault(kind="callable", value="datetime.now"))
+        self.assertEqual(columns["score"].default, m.DefaultValue(kind="literal", value="0"))
         self.assertEqual({c.name: c.type for c in self.tables["unbound"].columns}["code"], "VARCHAR(10)")
-        self.assertEqual(self.tables["book"].schema_name, "library")
+        self.assertEqual(self.tables["book"].schema, "library")
 
     def test_composite_primary_key(self):
-        self.assertEqual(self.tables["orderline"].primary_key, ["order", "number"])
+        self.assertEqual(self.tables["orderline"].primary_key, ("order", "number"))
 
     def test_foreign_keys_and_relationships(self):
         keys = {f.columns[0]: f for f in self.tables["book"].foreign_keys}
         self.assertEqual((keys["author_id"].on_delete, keys["author_id"].on_update), ("CASCADE", "NO ACTION"))
         editor = keys["editor_id"]
         self.assertEqual((editor.name, editor.deferrable, editor.initially), ("book_editor_fk", True, "DEFERRED"))
-        self.assertEqual(self.relations[("Book", "editor")].back_populates, None)
+        self.assertEqual(self.relations[("Book", "editor")].inverse, None)
         books = self.relations[("Author", "books")]
-        self.assertEqual((books.direction, books.uselist, books.back_populates), ("ONETOMANY", True, "author"))
-        self.assertFalse(self.relations[("Author", "profile")].uselist)
+        self.assertEqual((books.type, books.collection, books.inverse),
+                         ("ONETOMANY", True, self.relations[("Book", "author")].id))
+        self.assertFalse(self.relations[("Author", "profile")].collection)
 
     def test_many_to_many_join_table(self):
         through = self.tables["book_tag_through"]
         self.assertEqual(len(through.foreign_keys), 2)
-        self.assertNotIn("BookTagThrough", [m.class_name.rsplit(".", 1)[1] for m in self.doc.models])
-        tags = self.relations[("Book", "tags")]
-        self.assertEqual((tags.secondary, tags.back_populates), (through.id, "books"))
-        self.assertEqual(tags.secondary_join, "tag.id = book_tag_through.tag_id")
-        self.assertEqual(self.relations[("Tag", "books")].back_populates, "tags")
+        self.assertNotIn("BookTagThrough", [x.class_name.rsplit(".", 1)[1] for x in self.doc.models])
+        tags, books = self.relations[("Book", "tags")], self.relations[("Tag", "books")]
+        self.assertEqual((tags.pivot.table, tags.inverse, books.inverse), (through.id, books.id, tags.id))
+        self.assertEqual(tags.join.secondary, "tag.id = book_tag_through.tag_id")
 
     def test_indexes_and_constraints(self):
         authors = self.tables["authors"]
         indexes = {i.name: i for i in authors.indexes}
         self.assertTrue(indexes["author_email"].unique)
-        self.assertEqual(indexes["author_lower_name"].expressions, ['lower("name")'])
-        self.assertEqual(indexes["author_top_email"].predicates, {"sqlite": '("score" > 10)'})
-        self.assertEqual({i.name: i for i in self.tables["book"].indexes}["book_title_desc"].expressions,
-                         ["book.title DESC"])
+        self.assertEqual(indexes["author_lower_name"].parts, (m.IndexPart(expression='lower("name")'),))
+        self.assertEqual(indexes["author_name_email"].columns, ("name", "email"))
+        self.assertEqual(indexes["author_top_email"].dialect_options, {"sqlite": m.IndexOptions(predicate='("score" > 10)')})
+        self.assertEqual({i.name: i for i in self.tables["book"].indexes}["book_title_desc"].parts,
+                         (m.IndexPart(column="title", order="desc"),))
         constraints = {(c.kind, c.name): c for c in authors.constraints}
         self.assertEqual(constraints[("check", "name_present")].expression, "length(name) > 0")
-        self.assertEqual(constraints[("check", None)].columns, ["score"])
-        self.assertEqual(constraints[("unique", None)].columns, ["email", "name"])
+        self.assertEqual(constraints[("check", None)].columns, ("score",))
+        self.assertEqual(constraints[("unique", None)].columns, ("email", "name"))
         self.assertIn("author_score_raw", self.diagnostics["unsupported_index"].message)
 
     def test_targets_are_rejected(self):

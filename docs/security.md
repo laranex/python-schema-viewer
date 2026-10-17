@@ -2,7 +2,7 @@
 
 `build` has to import your models, and importing a module runs its code. Python Schema Viewer runs that code in a separate **extraction worker** and limits what reaches it. This page lists what is guaranteed and what is only best-effort. Keep the two apart when deciding where to run a build.
 
-`serve` and `mcp` read a saved snapshot only. They never import application code or connect to a database, at any isolation level. [Database introspection](./database.md) runs in a second worker with different powers, described [below](#database-introspection).
+`serve` and `mcp` read a saved document only. They never import application code or connect to a database, at any isolation level. [Database introspection](./database.md) runs in a second worker with different powers, described [below](#database-introspection).
 
 ## Threat model
 
@@ -38,7 +38,7 @@ These are enforced by the operating system or the container runtime. Application
 
 - **Credentials in the environment are withheld.** The worker starts with an allowlist (`PATH`, locale, `TZ`, `TERM`, Python's own variables, the active virtual environment, `DJANGO_SETTINGS_MODULE`, and the Windows system variables). Every other variable is left out unless you name it in `env_passthrough`. Names that look like credentials (`*PASSWORD*`, `*SECRET*`, `*TOKEN*`, `*_KEY`, `DATABASE_URL`, `*_DSN`, `*_URL`, `*_URI`) are refused there. Put placeholders for settings that need them in `[tool.laranex-schema-viewer.env]`. The build prints how many variables it withheld, never their names or values.
 - **Database URLs never reach application code.** The extraction worker has no database configuration of its own. The URL for introspection is read by the parent from its environment variable, which the extraction worker's allowlist excludes. Naming that variable in `env_passthrough` or `env` stops the build.
-- **The worker's results are checked.** The worker returns the document through a file of at most 32 MiB, and the parent validates it against the snapshot schema before writing anything. Output on stdout cannot be mistaken for a result. A failed or invalid build leaves the previous snapshot in place.
+- **The worker's results are checked.** The worker returns a laranex-schema 2.0 document through a file of at most 32 MiB, and the parent validates it strictly before using it or writing anything. Output on stdout cannot be mistaken for a result. A failed or invalid build leaves the previous document in place.
 - **Time is bounded.** A worker that does not finish within `timeout` seconds (default 120) is stopped.
 
 **`process`**
@@ -94,10 +94,9 @@ Isolated extraction is the default in 0.4. It changes what existing builds see:
 - **Files.** Imports that write files outside the worker's temporary directories now fail with `PermissionError`. Log directories can be listed in `allow_writes`.
 - **Databases and network.** Imports that connect to a database, call a service or start a process at import time now fail with `PermissionError`, where they previously had side effects. The fix belongs in the application: do the work lazily, not at import.
 - **Time.** Builds that take longer than 120 seconds need `timeout`.
-- **Output.** Snapshots are unchanged for every supported ORM; the test suite compares isolated and in-process output byte for byte.
+- **Output.** Isolation does not change what is extracted, for any supported ORM; the test suite compares isolated and in-process output byte for byte.
 - **No in-process mode.** If a project cannot build in the `process` worker, fix the import-time side effect, or build at the `container` level with an image that has what the models need. The build never falls back to importing models in-process.
-- **Viewer.** `serve` shows the shared Laranex Schema Viewer UI instead of the previous HTML/SVG page. It opens version 1 snapshots and laranex-schema documents. Bookmarked URLs of the old page's assets (`/app.js`, `/graph.js`, `/styles.css`) now return 404.
-- **Python API.** `read_snapshot` still reads version 1 snapshots only. Use `snapshot.load_document` to read either format.
+- **Viewer.** `serve` shows the shared Laranex Schema Viewer UI instead of the previous HTML/SVG page. Bookmarked URLs of the old page's assets (`/graph.js`, `/styles.css`) now return 404.
 - **Database drivers.** Live introspection needs `pip install 'laranex-schema-viewer[postgresql]'` or `[mysql]`; SQLite needs no extra.
 
 ## Remaining risks

@@ -1,0 +1,1692 @@
+{
+  "comparisons": [],
+  "connections": [
+    {
+      "coverage": {
+        "database": {
+          "complete": true,
+          "features": {
+            "checkConstraints": "complete",
+            "columnTypes": "complete",
+            "columns": "complete",
+            "comments": "complete",
+            "defaults": "complete",
+            "foreignKeys": "complete",
+            "includedColumns": "complete",
+            "indexExpressions": "complete",
+            "indexPredicates": "complete",
+            "indexes": "complete",
+            "models": "not_applicable",
+            "primaryKeys": "complete",
+            "referentialActions": "complete",
+            "relationships": "not_applicable",
+            "tables": "complete",
+            "uniqueConstraints": "complete"
+          },
+          "schemas": [
+            "tenant_behind",
+            "tenant_branches",
+            "tenant_current",
+            "tenant_diverged",
+            "tenant_locked",
+            "tenant_new",
+            "tenant_partial",
+            "tenant_partial_new",
+            "tenant_scriptless",
+            "tenant_unknown"
+          ]
+        },
+        "declared": null
+      },
+      "defaultSchema": "public",
+      "driver": "postgresql",
+      "id": "connection:app",
+      "name": "app",
+      "tables": [
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_behind.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_behind"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_behind.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_behind"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_branches.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_branches"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_branches.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_branches"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_current.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_current"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "event",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_current.audit_log",
+          "indexes": [],
+          "name": "audit_log",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_current"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "row",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_current.legacy_import",
+          "indexes": [],
+          "name": "legacy_import",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_current"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_current.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_current"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_diverged.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_diverged"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_diverged.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_diverged"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_locked.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_locked"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_locked.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_locked"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_new.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_new"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_partial.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_partial"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_partial.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_partial"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_partial_new.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_partial_new"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_scriptless.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_scriptless"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_scriptless.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_scriptless"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "version_num",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "character varying(32)",
+              "typeName": "varchar"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_unknown.alembic_version",
+          "indexes": [],
+          "name": "alembic_version",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "version_num"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_unknown"
+        },
+        {
+          "columns": [
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "id",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "bigint",
+              "typeName": "bigint"
+            },
+            {
+              "autoIncrement": false,
+              "collation": null,
+              "comment": null,
+              "default": null,
+              "enum": null,
+              "generated": null,
+              "name": "email",
+              "note": null,
+              "nullable": false,
+              "ormDefault": null,
+              "provenance": [
+                "database"
+              ],
+              "timezone": null,
+              "type": "text",
+              "typeName": "text"
+            }
+          ],
+          "comment": null,
+          "constraints": [],
+          "foreignKeys": [],
+          "id": "app:tenant_unknown.users",
+          "indexes": [],
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": "tenant_unknown"
+        }
+      ]
+    }
+  ],
+  "derivedLinks": [],
+  "diagnostics": [
+    {
+      "category": "extraction",
+      "certainty": "certain",
+      "id": "n2d4559dfa778cb9f",
+      "kind": "migration_history_unavailable",
+      "message": "The migration scripts could not be read: script_location does not exist.",
+      "severity": "error",
+      "subject": {
+        "columns": null,
+        "id": "meba115e80ea19974",
+        "label": "alembic · tenant_scriptless",
+        "type": "migration"
+      }
+    },
+    {
+      "category": "inspection",
+      "certainty": "certain",
+      "id": "nbe701ff750d61493",
+      "kind": "migration_version_table_unreadable",
+      "message": "tenant_locked.alembic_version could not be read: permission denied.",
+      "severity": "error",
+      "subject": {
+        "columns": null,
+        "id": "m22c8aac043277bfe",
+        "label": "alembic · tenant_locked",
+        "type": "migration"
+      }
+    },
+    {
+      "category": "lint",
+      "certainty": "certain",
+      "id": "nde4570aa896e1067",
+      "kind": "migration_multiple_heads",
+      "message": "The migration history has two heads, 6f7a8b9c0d1e (billing) and 7a8b9c0d1e2f (search); merge them.",
+      "severity": "warning",
+      "subject": {
+        "columns": null,
+        "id": "m880c9bc7d46d1226",
+        "label": "alembic · tenant_branches",
+        "type": "migration"
+      }
+    },
+    {
+      "category": "reconciliation",
+      "certainty": "certain",
+      "id": "nfa8192d7a6b0f97a",
+      "kind": "migration_unknown_revision",
+      "message": "The database is at 9f0e1d2c3b4a, which no migration script defines.",
+      "severity": "error",
+      "subject": {
+        "columns": null,
+        "id": "m3875569fb98ed6a0",
+        "label": "alembic · tenant_unknown",
+        "type": "migration"
+      }
+    }
+  ],
+  "format": "laranex-schema",
+  "generator": {
+    "name": "python-schema-viewer",
+    "orm": null
+  },
+  "inferredAssociations": [],
+  "links": [],
+  "migrations": [
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [
+        "2b3c4d5e6f7a"
+      ],
+      "history": {
+        "heads": [
+          "3c4d5e6f7a8b"
+        ],
+        "missing": [
+          "1a2b3c4d5e6f"
+        ],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          }
+        ]
+      },
+      "id": "m0a5a5a0c80de4687",
+      "pending": [
+        "3c4d5e6f7a8b"
+      ],
+      "provider": "alembic",
+      "schema": "tenant_partial",
+      "status": "behind",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_partial.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [
+        "3c4d5e6f7a8b",
+        "5e6f7a8b9c0d"
+      ],
+      "history": {
+        "heads": [
+          "5e6f7a8b9c0d"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [
+              "reporting"
+            ],
+            "id": "4d5e6f7a8b9c",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "5e6f7a8b9c0d",
+            "parents": [
+              "3c4d5e6f7a8b",
+              "4d5e6f7a8b9c"
+            ]
+          }
+        ]
+      },
+      "id": "m1c3d293118725dcd",
+      "pending": null,
+      "provider": "alembic",
+      "schema": "tenant_diverged",
+      "status": "diverged",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_diverged.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": null,
+      "history": {
+        "heads": [
+          "5e6f7a8b9c0d"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [
+              "reporting"
+            ],
+            "id": "4d5e6f7a8b9c",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "5e6f7a8b9c0d",
+            "parents": [
+              "3c4d5e6f7a8b",
+              "4d5e6f7a8b9c"
+            ]
+          }
+        ]
+      },
+      "id": "m22c8aac043277bfe",
+      "pending": null,
+      "provider": "alembic",
+      "schema": "tenant_locked",
+      "status": "unknown",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_locked.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [
+        "9f0e1d2c3b4a"
+      ],
+      "history": {
+        "heads": [
+          "5e6f7a8b9c0d"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [
+              "reporting"
+            ],
+            "id": "4d5e6f7a8b9c",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "5e6f7a8b9c0d",
+            "parents": [
+              "3c4d5e6f7a8b",
+              "4d5e6f7a8b9c"
+            ]
+          }
+        ]
+      },
+      "id": "m3875569fb98ed6a0",
+      "pending": null,
+      "provider": "alembic",
+      "schema": "tenant_unknown",
+      "status": "unknown",
+      "unknownRevisions": [
+        "9f0e1d2c3b4a"
+      ],
+      "versionTable": "app:tenant_unknown.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [
+        {
+          "autogenerate": "excluded",
+          "certainty": "certain",
+          "declared": false,
+          "evidence": [
+            {
+              "detail": "alembic_version",
+              "kind": "version_table"
+            }
+          ],
+          "migrationManaged": "no",
+          "name": "alembic_version",
+          "table": "app:tenant_current.alembic_version"
+        },
+        {
+          "autogenerate": "unknown",
+          "certainty": "likely",
+          "declared": false,
+          "evidence": [
+            {
+              "detail": "2b3c4d5e6f7a",
+              "kind": "create_table"
+            },
+            {
+              "detail": "3c4d5e6f7a8b",
+              "kind": "drop_table"
+            }
+          ],
+          "migrationManaged": "yes",
+          "name": "archived_orders",
+          "table": null
+        },
+        {
+          "autogenerate": "excluded",
+          "certainty": "certain",
+          "declared": false,
+          "evidence": [
+            {
+              "detail": "4d5e6f7a8b9c",
+              "kind": "create_table"
+            },
+            {
+              "detail": "include_object skips audit_log",
+              "kind": "include_filter"
+            }
+          ],
+          "migrationManaged": "yes",
+          "name": "audit_log",
+          "table": "app:tenant_current.audit_log"
+        },
+        {
+          "autogenerate": "unknown",
+          "certainty": "likely",
+          "declared": false,
+          "evidence": [],
+          "migrationManaged": "unknown",
+          "name": "legacy_import",
+          "table": "app:tenant_current.legacy_import"
+        },
+        {
+          "autogenerate": "included",
+          "certainty": "certain",
+          "declared": true,
+          "evidence": [
+            {
+              "detail": "1a2b3c4d5e6f",
+              "kind": "create_table"
+            },
+            {
+              "detail": "app.models.User",
+              "kind": "model"
+            }
+          ],
+          "migrationManaged": "yes",
+          "name": "users",
+          "table": "app:tenant_current.users"
+        }
+      ],
+      "current": [
+        "5e6f7a8b9c0d"
+      ],
+      "history": {
+        "heads": [
+          "5e6f7a8b9c0d"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [
+              "reporting"
+            ],
+            "id": "4d5e6f7a8b9c",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "5e6f7a8b9c0d",
+            "parents": [
+              "3c4d5e6f7a8b",
+              "4d5e6f7a8b9c"
+            ]
+          }
+        ]
+      },
+      "id": "m3be1d2657ba76452",
+      "pending": [],
+      "provider": "alembic",
+      "schema": "tenant_current",
+      "status": "up_to_date",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_current.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [],
+      "history": {
+        "heads": [
+          "3c4d5e6f7a8b"
+        ],
+        "missing": [
+          "1a2b3c4d5e6f"
+        ],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          }
+        ]
+      },
+      "id": "m4d78acb5e250481e",
+      "pending": null,
+      "provider": "alembic",
+      "schema": "tenant_partial_new",
+      "status": "uninitialized",
+      "unknownRevisions": [],
+      "versionTable": null
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [
+        "2b3c4d5e6f7a"
+      ],
+      "history": {
+        "heads": [
+          "5e6f7a8b9c0d"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [
+              "reporting"
+            ],
+            "id": "4d5e6f7a8b9c",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "5e6f7a8b9c0d",
+            "parents": [
+              "3c4d5e6f7a8b",
+              "4d5e6f7a8b9c"
+            ]
+          }
+        ]
+      },
+      "id": "m6f232d1f134c9161",
+      "pending": [
+        "3c4d5e6f7a8b",
+        "4d5e6f7a8b9c",
+        "5e6f7a8b9c0d"
+      ],
+      "provider": "alembic",
+      "schema": "tenant_behind",
+      "status": "behind",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_behind.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [
+        "6f7a8b9c0d1e"
+      ],
+      "history": {
+        "heads": [
+          "6f7a8b9c0d1e",
+          "7a8b9c0d1e2f"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [
+              "billing"
+            ],
+            "id": "6f7a8b9c0d1e",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [
+              "search"
+            ],
+            "id": "7a8b9c0d1e2f",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          }
+        ]
+      },
+      "id": "m880c9bc7d46d1226",
+      "pending": [
+        "7a8b9c0d1e2f"
+      ],
+      "provider": "alembic",
+      "schema": "tenant_branches",
+      "status": "behind",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_branches.alembic_version"
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [],
+      "history": {
+        "heads": [
+          "5e6f7a8b9c0d"
+        ],
+        "missing": [],
+        "revisions": [
+          {
+            "branchLabels": [],
+            "id": "1a2b3c4d5e6f",
+            "parents": []
+          },
+          {
+            "branchLabels": [],
+            "id": "2b3c4d5e6f7a",
+            "parents": [
+              "1a2b3c4d5e6f"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "3c4d5e6f7a8b",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [
+              "reporting"
+            ],
+            "id": "4d5e6f7a8b9c",
+            "parents": [
+              "2b3c4d5e6f7a"
+            ]
+          },
+          {
+            "branchLabels": [],
+            "id": "5e6f7a8b9c0d",
+            "parents": [
+              "3c4d5e6f7a8b",
+              "4d5e6f7a8b9c"
+            ]
+          }
+        ]
+      },
+      "id": "me205b723e61c0118",
+      "pending": [
+        "1a2b3c4d5e6f",
+        "2b3c4d5e6f7a",
+        "3c4d5e6f7a8b",
+        "4d5e6f7a8b9c",
+        "5e6f7a8b9c0d"
+      ],
+      "provider": "alembic",
+      "schema": "tenant_new",
+      "status": "uninitialized",
+      "unknownRevisions": [],
+      "versionTable": null
+    },
+    {
+      "connection": "connection:app",
+      "coverage": [],
+      "current": [
+        "3c4d5e6f7a8b"
+      ],
+      "history": null,
+      "id": "meba115e80ea19974",
+      "pending": null,
+      "provider": "alembic",
+      "schema": "tenant_scriptless",
+      "status": "unknown",
+      "unknownRevisions": [],
+      "versionTable": "app:tenant_scriptless.alembic_version"
+    }
+  ],
+  "models": [],
+  "note": null,
+  "relationships": [],
+  "source": "database",
+  "version": "2.0"
+}

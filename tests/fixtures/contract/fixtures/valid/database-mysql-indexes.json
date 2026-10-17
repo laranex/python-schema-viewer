@@ -1,4 +1,5 @@
 {
+  "comparisons": [],
   "connections": [
     {
       "coverage": {
@@ -223,9 +224,6 @@
                 "constraint": null,
                 "kind": "primary_key"
               },
-              "columns": [
-                "id"
-              ],
               "expression": false,
               "id": "mysql:shop.products:index:PRIMARY",
               "included": [],
@@ -244,7 +242,6 @@
                 }
               ],
               "predicate": null,
-              "primary": true,
               "provenance": [
                 "database"
               ],
@@ -252,9 +249,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "sku"
-              ],
               "expression": false,
               "id": "mysql:shop.products:index:products_sku_unique",
               "included": [],
@@ -273,7 +267,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -281,9 +274,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "name"
-              ],
               "expression": false,
               "id": "mysql:shop.products:index:products_name_prefix",
               "included": [],
@@ -302,7 +292,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -310,10 +299,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "status",
-                "created_at"
-              ],
               "expression": false,
               "id": "mysql:shop.products:index:products_status_created",
               "included": [],
@@ -341,7 +326,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -349,7 +333,6 @@
             },
             {
               "backs": null,
-              "columns": [],
               "expression": true,
               "id": "mysql:shop.products:index:products_color",
               "included": [],
@@ -368,7 +351,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -376,9 +358,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "description"
-              ],
               "expression": false,
               "id": "mysql:shop.products:index:products_description_fulltext",
               "included": [],
@@ -397,7 +376,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -405,9 +383,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "location"
-              ],
               "expression": false,
               "id": "mysql:shop.products:index:products_location_spatial",
               "included": [],
@@ -426,7 +401,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -434,9 +408,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "price"
-              ],
               "dialectOptions": {
                 "mysql": {
                   "options": {
@@ -462,7 +433,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -493,10 +463,12 @@
     "name": "contract-fixtures",
     "orm": null
   },
+  "inferredAssociations": [],
   "links": [],
+  "migrations": [],
   "models": [],
   "note": null,
   "relationships": [],
   "source": "database",
-  "version": "1.0"
+  "version": "2.0"
 }

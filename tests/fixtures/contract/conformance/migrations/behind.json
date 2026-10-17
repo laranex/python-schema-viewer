@@ -1,0 +1,64 @@
+{
+  "description": "The database is at an ancestor of the head; pending lists what is not applied, sorted",
+  "expected": {
+    "history": {
+      "heads": [
+        "c"
+      ],
+      "missing": [],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "a",
+          "parents": []
+        },
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "a"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "c",
+          "parents": [
+            "b"
+          ]
+        }
+      ]
+    },
+    "pending": [
+      "b",
+      "c"
+    ],
+    "status": "behind",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": [
+      "a"
+    ],
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "a",
+        "parents": []
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "a"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "c",
+        "parents": [
+          "b"
+        ]
+      }
+    ]
+  }
+}

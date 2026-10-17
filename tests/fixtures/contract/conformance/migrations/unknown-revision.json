@@ -1,0 +1,64 @@
+{
+  "description": "A recorded revision the history does not have is listed in unknownRevisions; status unknown",
+  "expected": {
+    "history": {
+      "heads": [
+        "c"
+      ],
+      "missing": [],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "a",
+          "parents": []
+        },
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "a"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "c",
+          "parents": [
+            "b"
+          ]
+        }
+      ]
+    },
+    "pending": null,
+    "status": "unknown",
+    "unknownRevisions": [
+      "q"
+    ]
+  },
+  "input": {
+    "current": [
+      "q",
+      "c"
+    ],
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "a",
+        "parents": []
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "a"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "c",
+        "parents": [
+          "b"
+        ]
+      }
+    ]
+  }
+}

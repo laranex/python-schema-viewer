@@ -1,4 +1,5 @@
 {
+  "comparisons": [],
   "connections": [
     {
       "coverage": {
@@ -253,9 +254,6 @@
           "indexes": [
             {
               "backs": null,
-              "columns": [
-                "email"
-              ],
               "dialectOptions": {
                 "postgresql": {
                   "predicate": "active = true"
@@ -279,7 +277,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -287,7 +284,6 @@
             },
             {
               "backs": null,
-              "columns": [],
               "dialectOptions": {
                 "postgresql": {
                   "included": [
@@ -314,7 +310,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -691,9 +686,6 @@
           "indexes": [
             {
               "backs": null,
-              "columns": [
-                "customer_id"
-              ],
               "expression": false,
               "id": "table:default.sales.orders:index:ix_orders_customer_id",
               "included": [],
@@ -712,7 +704,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -812,6 +803,7 @@
     {
       "category": "extraction",
       "certainty": "certain",
+      "id": "n93e33ca7f8dc0dbc",
       "kind": "unresolved_foreign_key",
       "message": "sales.orders.legacy_ref references customers.legacy_code, which is not declared",
       "severity": "warning",
@@ -830,6 +822,7 @@
     "name": "python-schema-viewer",
     "orm": "sqlalchemy"
   },
+  "inferredAssociations": [],
   "links": [
     {
       "foreignKey": "table:default.customer_tags:fk:fk_customer_tags_tag",
@@ -967,6 +960,7 @@
       }
     }
   ],
+  "migrations": [],
   "models": [
     {
       "className": "shop.models.Customer",
@@ -1259,5 +1253,5 @@
     }
   ],
   "source": "declared",
-  "version": "1.0"
+  "version": "2.0"
 }

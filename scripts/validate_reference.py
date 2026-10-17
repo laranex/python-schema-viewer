@@ -20,7 +20,18 @@ from sqlalchemy import CheckConstraint, Column, UniqueConstraint
 from sqlalchemy.engine import Engine
 
 from laranex_schema_viewer.build import build_document
-from laranex_schema_viewer.snapshot import read_snapshot, snapshot_bytes, write_snapshot
+from laranex_schema_viewer.contract import document_bytes, to_json
+from laranex_schema_viewer.snapshot import read_document, write_document
+
+
+def action(value: str | None) -> str | None:
+    """A referential action as the document spells it."""
+    return str(value).upper().replace("_", " ") if value else None
+
+
+def literal_sql(expression: object) -> str:
+    """SQL text with bound values inlined, as extraction records expressions."""
+    return str(expression.compile(compile_kwargs={"literal_binds": True}))  # type: ignore[attr-defined]
 
 
 def manifest(root: Path) -> dict[str, str]:
@@ -77,7 +88,7 @@ async def validate_mcp(snapshot: Path, expected: dict) -> dict:
         "env": params.env,
     }}}
     snapshot.with_name("backend-mcp.json").write_text(json.dumps(configuration, indent=2) + "\n")
-    document = read_snapshot(snapshot)
+    document = read_document(snapshot).document
     calls = 0
     async with Client(params, read_timeout_seconds=10) as client:
         tools = await client.list_tools()
@@ -102,34 +113,35 @@ async def validate_mcp(snapshot: Path, expected: dict) -> dict:
                 assert value["revision"] == pinned_revision
                 first = first or value
                 items.extend(value["items"])
-                if value["next_offset"] is None:
+                if value["nextOffset"] is None:
                     assert len(items) == value["total"]
                     return items, first
-                assert value["next_offset"] > offset
-                offset = value["next_offset"]
+                assert value["nextOffset"] > offset
+                offset = value["nextOffset"]
 
         overview, summary = await pages("schema_overview", {})
         assert summary["counts"] == expected
-        assert {t["id"] for t in overview} == {t.id for t in document.tables}
-        for table in document.tables:
+        assert {t["id"] for t in overview} == {t.id for t in document.tables()}
+        for table in document.tables():
             sections = {
                 "columns": table.columns, "indexes": table.indexes,
                 "foreign_keys": table.foreign_keys, "constraints": table.constraints,
-                "models": [m for m in document.models if table.id in m.table_ids],
+                "models": [m for m in document.models if table.id in m.tables],
                 "relationships": [r for r in document.relationships
-                                  if table.id in (r.source_table, r.target_table)],
+                                  if table.id in (r.table, r.related_table)
+                                  or (r.pivot is not None and r.pivot.table == table.id)
+                                  or table.id in (r.through or ())],
             }
             for section, values in sections.items():
                 items, _ = await pages("schema_get_table", {"table": table.id, "section": section})
-                assert items == [value.model_dump(mode="json") for value in values]
+                assert items == [to_json(value) for value in values]
         for model in document.models:
             items, value = await pages("schema_get_model", {"model": model.id})
-            assert value["model"] == model.model_dump(mode="json")
-            assert items == [r.model_dump(mode="json") for r in document.relationships
-                             if r.model == model.id]
+            assert value["model"] == to_json(model)
+            assert items == [to_json(r) for r in document.relationships if r.model == model.id]
         for kind in ["foreign_key", "orm"]:
             items, _ = await pages("schema_get_relationships", {"kind": kind})
-            assert len(items) == expected["foreign_keys" if kind == "foreign_key" else "relationships"]
+            assert len(items) == expected["foreignKeys" if kind == "foreign_key" else "relationships"]
         items, _ = await pages("schema_search", {"query_text": "users"})
         assert any(i["kind"] == "table" and i["name"] == "users" for i in items)
     return {"tools": 5, "successful_calls": calls, "transport": "stdio",
@@ -164,7 +176,7 @@ def main() -> None:
         document = build_document([args.module], project_root=root, recursive=True)
         assert not attempts
         # Run a second independent build in a fresh process and compare bytes.
-        write_snapshot(document, snapshot)
+        write_document(document, snapshot)
         second = snapshot.with_name("reference-second.json")
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
         env.pop("PYTHONPATH", None)
@@ -173,10 +185,10 @@ def main() -> None:
             "--module", args.module, "--recursive", "--output", str(second),
         ], env=env, text=True, capture_output=True, timeout=30)
         assert result.returncode == 0, result.stderr
-        assert snapshot_bytes(document) == second.read_bytes(), "Fresh builds are nondeterministic"
+        assert document_bytes(document) == second.read_bytes(), "Fresh builds are nondeterministic"
         second.unlink()
 
-        tables = {(t.schema_name, t.name): t for t in document.tables}
+        tables = {(t.schema, t.name): t for t in document.tables()}
         loaded, failures = [], []
         expression_indexes = 0
         for module_name, name in declarations:
@@ -185,27 +197,27 @@ def main() -> None:
                 actual = model.__table__
                 table = tables[(actual.schema, actual.name)]
                 assert [c.name for c in actual.columns] == [c.name for c in table.columns]
-                assert [c.name for c in actual.primary_key] == table.primary_key
+                assert [c.name for c in actual.primary_key] == list(table.primary_key)
                 for column, extracted in zip(actual.columns, table.columns):
                     assert str(column.type) == extracted.type
                     assert getattr(column.type, "timezone", None) == extracted.timezone
                     assert column.nullable == extracted.nullable
-                    assert column.primary_key == extracted.primary_key
+                    assert column.primary_key == (extracted.name in table.primary_key)
                 assert len(actual.indexes) == len(table.indexes)
                 indexes = {i.name: i for i in table.indexes}
                 for index in actual.indexes:
                     expression_indexes += any(not isinstance(e, Column) for e in index.expressions)
                     extracted = indexes[index.name]
-                    assert [str(e) for e in index.expressions] == extracted.expressions
-                    assert [c.name for c in index.columns] == extracted.columns
+                    assert [e.name if isinstance(e, Column) else literal_sql(e) for e in index.expressions] == [
+                        p.column if p.column is not None else p.expression for p in extracted.parts]
                     assert bool(index.unique) == extracted.unique
                     for dialect, options in index.dialect_options.items():
                         if options.get("where") is not None:
-                            assert str(options["where"]) == extracted.predicates[dialect]
+                            assert str(options["where"]) == extracted.dialect_options[dialect].predicate
                         if options.get("include"):
-                            assert list(options["include"]) == extracted.included_columns[dialect]
+                            assert tuple(options["include"]) == extracted.dialect_options[dialect].included
                         if options.get("using"):
-                            assert options["using"] == extracted.methods[dialect]
+                            assert options["using"] == extracted.dialect_options[dialect].method
                 actual_constraints = sorted(((
                     "check" if isinstance(c, CheckConstraint) else "unique", c.name,
                     tuple(column.name for column in c.columns),
@@ -217,12 +229,12 @@ def main() -> None:
                 actual_fks = sorted(((
                     f.name, tuple(e.parent.name for e in f.elements),
                     f.elements[0].column.table.schema, f.elements[0].column.table.name,
-                    tuple(e.column.name for e in f.elements), f.ondelete, f.onupdate,
+                    tuple(e.column.name for e in f.elements), action(f.ondelete), action(f.onupdate),
                 ) for f in actual.foreign_key_constraints), key=repr)
-                table_map = {t.id: t for t in document.tables}
+                table_map = {t.id: t for t in document.tables()}
                 extracted_fks = sorted(((
-                    f.name, tuple(f.columns), table_map[f.target_table].schema_name,
-                    table_map[f.target_table].name, tuple(f.target_columns), f.on_delete, f.on_update,
+                    f.name, tuple(f.columns), table_map[f.foreign_table].schema,
+                    table_map[f.foreign_table].name, tuple(f.foreign_columns), f.on_delete, f.on_update,
                 ) for f in table.foreign_keys), key=repr)
                 assert actual_fks == extracted_fks
                 loaded.append(f"{module_name}.{name}")
@@ -240,12 +252,13 @@ def main() -> None:
         "counts": counts, "failures": failures, "reference_files_unchanged": unchanged,
         "reference_files_hashed": len(before), "deterministic_fresh_builds": True,
         "database_connection_attempts": len(attempts), "mcp": mcp,
-        "qualified_tables": [f"{t.schema_name}.{t.name}" for t in document.tables if t.schema_name],
-        "unqualified_tables": sum(t.schema_name is None for t in document.tables),
-        "partial_indexes": sum(bool(i.predicates) for t in document.tables for i in t.indexes),
-        "constraints": sum(len(t.constraints) for t in document.tables),
+        "qualified_tables": [f"{t.schema}.{t.name}" for t in document.tables() if t.schema],
+        "unqualified_tables": sum(t.schema is None for t in document.tables()),
+        "partial_indexes": sum(any(o.predicate for o in (i.dialect_options or {}).values()) or i.partial
+                               for t in document.tables() for i in t.indexes),
+        "constraints": sum(len(t.constraints) for t in document.tables()),
         "expression_indexes": expression_indexes,
-        "timezone_aware_columns": sum(c.timezone is True for t in document.tables for c in t.columns),
+        "timezone_aware_columns": sum(c.timezone is True for t in document.tables() for c in t.columns),
         "existing_zero_fixture_mapper_tests_passed": mapper_checks,
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -253,7 +266,7 @@ def main() -> None:
     print(json.dumps(report, indent=2))
     assert unchanged, "Reference project was modified"
     assert not failures and len(loaded) == len(declarations)
-    assert len(read_snapshot(snapshot).models) == len(loaded)
+    assert len(read_document(snapshot).document.models) == len(loaded)
 
 
 if __name__ == "__main__":

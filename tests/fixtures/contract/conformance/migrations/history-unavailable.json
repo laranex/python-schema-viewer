@@ -1,0 +1,15 @@
+{
+  "description": "Unreadable scripts with a recorded revision: unknown, and nothing can be called an unknown revision",
+  "expected": {
+    "history": null,
+    "pending": null,
+    "status": "unknown",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": [
+      "c"
+    ],
+    "revisions": null
+  }
+}

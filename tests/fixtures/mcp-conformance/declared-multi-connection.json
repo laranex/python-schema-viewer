@@ -1,0 +1,3350 @@
+{
+  "calls": [
+    {
+      "arguments": {
+        "limit": 100
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:default",
+            "name": "default",
+            "tables": 1
+          },
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "mysql",
+            "id": "connection:reporting",
+            "name": "reporting",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 7,
+          "comparisons": 0,
+          "connections": 2,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 0,
+          "inferredAssociations": 0,
+          "links": 2,
+          "migrations": 0,
+          "models": 3,
+          "relationships": 2,
+          "tables": 3
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "python-schema-viewer",
+          "orm": "sqlalchemy"
+        },
+        "items": [
+          {
+            "connection": "connection:default",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 0
+            },
+            "id": "table:default.public.users",
+            "name": "users",
+            "provenance": [
+              "declared"
+            ],
+            "schema": "public"
+          },
+          {
+            "connection": "connection:reporting",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 0
+            },
+            "id": "table:reporting.reports",
+            "name": "reports",
+            "provenance": [
+              "declared"
+            ],
+            "schema": null
+          },
+          {
+            "connection": "connection:reporting",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 0
+            },
+            "id": "table:reporting.users",
+            "name": "users",
+            "provenance": [
+              "declared"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "source": "declared",
+        "total": 3,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:default",
+            "name": "default",
+            "tables": 1
+          },
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "mysql",
+            "id": "connection:reporting",
+            "name": "reporting",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 7,
+          "comparisons": 0,
+          "connections": 2,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 0,
+          "inferredAssociations": 0,
+          "links": 2,
+          "migrations": 0,
+          "models": 3,
+          "relationships": 2,
+          "tables": 3
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "python-schema-viewer",
+          "orm": "sqlalchemy"
+        },
+        "items": [
+          {
+            "connection": "connection:default",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 0
+            },
+            "id": "table:default.public.users",
+            "name": "users",
+            "provenance": [
+              "declared"
+            ],
+            "schema": "public"
+          },
+          {
+            "connection": "connection:reporting",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 0
+            },
+            "id": "table:reporting.reports",
+            "name": "reports",
+            "provenance": [
+              "declared"
+            ],
+            "schema": null
+          },
+          {
+            "connection": "connection:reporting",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 0
+            },
+            "id": "table:reporting.users",
+            "name": "users",
+            "provenance": [
+              "declared"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "source": "declared",
+        "total": 3,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:default",
+            "name": "default",
+            "tables": 1
+          },
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "mysql",
+            "id": "connection:reporting",
+            "name": "reporting",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 7,
+          "comparisons": 0,
+          "connections": 2,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 0,
+          "inferredAssociations": 0,
+          "links": 2,
+          "migrations": 0,
+          "models": 3,
+          "relationships": 2,
+          "tables": 3
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "python-schema-viewer",
+          "orm": "sqlalchemy"
+        },
+        "items": [
+          {
+            "connection": "connection:default",
+            "counts": {
+              "columns": 2,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 0
+            },
+            "id": "table:default.public.users",
+            "name": "users",
+            "provenance": [
+              "declared"
+            ],
+            "schema": "public"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 1,
+        "note": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "source": "declared",
+        "total": 3,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059"
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": "public",
+            "driver": "postgresql",
+            "id": "connection:default",
+            "name": "default",
+            "tables": 1
+          },
+          {
+            "coverage": {
+              "database": null,
+              "declared": {
+                "complete": true,
+                "features": {
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "foreignKeys": "complete",
+                  "models": "complete",
+                  "primaryKeys": "complete",
+                  "relationships": "complete",
+                  "tables": "complete"
+                },
+                "schemas": null
+              }
+            },
+            "defaultSchema": null,
+            "driver": "mysql",
+            "id": "connection:reporting",
+            "name": "reporting",
+            "tables": 2
+          }
+        ],
+        "counts": {
+          "columns": 7,
+          "comparisons": 0,
+          "connections": 2,
+          "constraints": 0,
+          "derivedLinks": 0,
+          "diagnostics": 0,
+          "drift": 0,
+          "foreignKeys": 1,
+          "indexes": 0,
+          "inferredAssociations": 0,
+          "links": 2,
+          "migrations": 0,
+          "models": 3,
+          "relationships": 2,
+          "tables": 3
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 0,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 0,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 0,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "python-schema-viewer",
+          "orm": "sqlalchemy"
+        },
+        "items": [
+          {
+            "connection": "connection:reporting",
+            "counts": {
+              "columns": 3,
+              "constraints": 0,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 1,
+              "indexes": 0
+            },
+            "id": "table:reporting.reports",
+            "name": "reports",
+            "provenance": [
+              "declared"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 2,
+        "note": null,
+        "offset": 1,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "source": "declared",
+        "total": 3,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "id"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "table:default.public.users"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "table:reporting.reports"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "owner_id",
+            "table": "table:reporting.reports"
+          },
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "table:reporting.users"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "id",
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 4
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "USER"
+      },
+      "result": {
+        "items": [
+          {
+            "id": "table:default.public.users",
+            "kind": "table",
+            "name": "users",
+            "table": "table:default.public.users"
+          },
+          {
+            "id": "table:reporting.users",
+            "kind": "table",
+            "name": "users",
+            "table": "table:reporting.users"
+          },
+          {
+            "id": "model:app.models.ReportUser",
+            "kind": "model",
+            "name": "app.models.reporting.ReportUser",
+            "table": null
+          },
+          {
+            "id": "model:app.models.User",
+            "kind": "model",
+            "name": "app.models.User",
+            "table": null
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "USER",
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 4
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "_at"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "_at",
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "zzz-no-match"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "zzz-no-match",
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "email",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "VARCHAR(255)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "className": "app.models.User",
+            "id": "model:app.models.User",
+            "primaryKey": [
+              "id"
+            ],
+            "source": null,
+            "tables": [
+              "table:default.public.users"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "foreignKey": null,
+            "from": {
+              "columns": [
+                "requested_by"
+              ],
+              "table": "table:reporting.reports"
+            },
+            "id": "lde4b42b9125b3325",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "polymorphic": false,
+            "relationships": [
+              "relationship:app.models.Report.requester"
+            ],
+            "state": "relationship",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "table:default.public.users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": "table:default.public.users",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "items": [],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": "table:default.public.users",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "owner_id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "requested_by",
+            "note": null,
+            "nullable": true,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 3
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "columns": [
+              "owner_id"
+            ],
+            "deferrable": null,
+            "foreignColumns": [
+              "id"
+            ],
+            "foreignTable": "table:reporting.users",
+            "id": "table:reporting.reports:fk:fk_reports_owner",
+            "initially": null,
+            "name": "fk_reports_owner",
+            "onDelete": "CASCADE",
+            "onUpdate": null,
+            "provenance": [
+              "declared"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "className": "app.models.reporting.Report",
+            "id": "model:app.models.Report",
+            "primaryKey": [
+              "id"
+            ],
+            "source": null,
+            "tables": [
+              "table:reporting.reports"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [
+          {
+            "foreignKey": "table:reporting.reports:fk:fk_reports_owner",
+            "from": {
+              "columns": [
+                "owner_id"
+              ],
+              "table": "table:reporting.reports"
+            },
+            "id": "l5b2c54280ad333e8",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "relationship:app.models.Report.owner"
+            ],
+            "state": "both",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "table:reporting.users"
+            }
+          },
+          {
+            "foreignKey": null,
+            "from": {
+              "columns": [
+                "requested_by"
+              ],
+              "table": "table:reporting.reports"
+            },
+            "id": "lde4b42b9125b3325",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "polymorphic": false,
+            "relationships": [
+              "relationship:app.models.Report.requester"
+            ],
+            "state": "relationship",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "table:default.public.users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 3,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 1,
+          "indexes": 0,
+          "links": 2,
+          "models": 1,
+          "relationships": 2
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.reports",
+          "name": "reports",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": "table:reporting.reports",
+        "total": 2
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "table:reporting.reports"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "owner_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "table:reporting.users",
+              "id": "table:reporting.reports:fk:fk_reports_owner",
+              "initially": null,
+              "name": "fk_reports_owner",
+              "onDelete": "CASCADE",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            "table": "table:reporting.reports"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": "table:reporting.reports",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "display_name",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "VARCHAR(80)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "className": "app.models.reporting.ReportUser",
+            "id": "model:app.models.ReportUser",
+            "primaryKey": [
+              "id"
+            ],
+            "source": null,
+            "tables": [
+              "table:reporting.users"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "foreignKey": "table:reporting.reports:fk:fk_reports_owner",
+            "from": {
+              "columns": [
+                "owner_id"
+              ],
+              "table": "table:reporting.reports"
+            },
+            "id": "l5b2c54280ad333e8",
+            "note": null,
+            "polymorphic": false,
+            "relationships": [
+              "relationship:app.models.Report.owner"
+            ],
+            "state": "both",
+            "to": {
+              "columns": [
+                "id"
+              ],
+              "table": "table:reporting.users"
+            }
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 1
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "mysql",
+          "id": "connection:reporting",
+          "name": "reporting"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "table:reporting.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": "table:reporting.users",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "table:reporting.users"
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "owner_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "table:reporting.users",
+              "id": "table:reporting.reports:fk:fk_reports_owner",
+              "initially": null,
+              "name": "fk_reports_owner",
+              "onDelete": "CASCADE",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            "table": "table:reporting.reports"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": "table:reporting.users",
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "email",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "VARCHAR(255)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "columns",
+        "table": "table:default.public.users"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:default",
+          "name": "default"
+        },
+        "counts": {
+          "columns": 2,
+          "constraints": 0,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 0,
+          "links": 1,
+          "models": 1,
+          "relationships": 1
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "email",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "declared"
+            ],
+            "timezone": null,
+            "type": "VARCHAR(255)",
+            "typeName": "varchar"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": null,
+        "offset": 1,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "table:default.public.users",
+          "name": "users",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "declared"
+          ],
+          "schema": "public"
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "model:app.models.Report"
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "limit": 100,
+        "model": {
+          "className": "app.models.reporting.Report",
+          "id": "model:app.models.Report",
+          "primaryKey": [
+            "id"
+          ],
+          "source": null,
+          "tables": [
+            "table:reporting.reports"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 2
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "model:app.models.ReportUser"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "model": {
+          "className": "app.models.reporting.ReportUser",
+          "id": "model:app.models.ReportUser",
+          "primaryKey": [
+            "id"
+          ],
+          "source": null,
+          "tables": [
+            "table:reporting.users"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 0
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "model": "model:app.models.User"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "model": {
+          "className": "app.models.User",
+          "id": "model:app.models.User",
+          "primaryKey": [
+            "id"
+          ],
+          "source": null,
+          "tables": [
+            "table:default.public.users"
+          ]
+        },
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "total": 0
+      },
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100
+      },
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": null,
+        "total": 2
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100
+      },
+      "result": {
+        "items": [
+          {
+            "foreignKey": {
+              "columns": [
+                "owner_id"
+              ],
+              "deferrable": null,
+              "foreignColumns": [
+                "id"
+              ],
+              "foreignTable": "table:reporting.users",
+              "id": "table:reporting.reports:fk:fk_reports_owner",
+              "initially": null,
+              "name": "fk_reports_owner",
+              "onDelete": "CASCADE",
+              "onUpdate": null,
+              "provenance": [
+                "declared"
+              ]
+            },
+            "table": "table:reporting.reports"
+          }
+        ],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": null,
+        "total": 1
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "items": [
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.owner",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "owner_id"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:reporting.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "owner",
+            "note": null,
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.ReportUser",
+            "relatedTable": "table:reporting.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          },
+          {
+            "cardinality": "many-to-one",
+            "collection": false,
+            "constraints": [],
+            "id": "relationship:app.models.Report.requester",
+            "inverse": null,
+            "join": null,
+            "keys": {
+              "from": {
+                "columns": [
+                  "requested_by"
+                ],
+                "table": "table:reporting.reports"
+              },
+              "to": {
+                "columns": [
+                  "id"
+                ],
+                "table": "table:default.public.users"
+              }
+            },
+            "model": "model:app.models.Report",
+            "name": "requester",
+            "note": "Joined in Python across binds; the databases do not know about it.",
+            "pivot": null,
+            "polymorphic": null,
+            "readOnly": false,
+            "relatedModel": "model:app.models.User",
+            "relatedTable": "table:default.public.users",
+            "source": null,
+            "table": "table:reporting.reports",
+            "through": null,
+            "type": "MANYTOONE"
+          }
+        ],
+        "kind": "orm",
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059",
+        "table": null,
+        "total": 2
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 0
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 101
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "offset": -1
+      },
+      "error": "offset must be a nonnegative integer",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "revision": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "error": "Document revision differs; restart pagination without revision",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "query_text": ""
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "query_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "table": "../../.env"
+      },
+      "error": "Unknown table ID; use schema_overview or schema_search",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "section": "rows",
+        "table": "table:default.public.users"
+      },
+      "error": "Unknown table section: rows",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "model": "missing"
+      },
+      "error": "Unknown model ID; use schema_search",
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "table": "missing"
+      },
+      "error": "Unknown table ID",
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "sql"
+      },
+      "error": "kind must be orm or foreign_key",
+      "tool": "schema_get_relationships"
+    }
+  ],
+  "document": "tests/fixtures/contract/fixtures/valid/declared-multi-connection.json",
+  "revision": "64d53ee58727c2eaef039a5d6a9d072559ed8d18386461170c133bc04a8eb059"
+}

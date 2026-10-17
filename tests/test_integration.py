@@ -13,7 +13,7 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 
 from laranex_schema_viewer.server import create_server
-from laranex_schema_viewer.snapshot import write_snapshot
+from laranex_schema_viewer.snapshot import write_document
 from tests.test_extraction import example_document
 
 
@@ -22,7 +22,7 @@ class IntegrationTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.path = Path(self.tmp.name) / "snapshot.json"
-        write_snapshot(example_document(), self.path)
+        write_document(example_document(), self.path)
 
     def run_cli(self, *args, cwd=None):
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
@@ -86,9 +86,10 @@ class IntegrationTests(unittest.TestCase):
             self.assertIn(b"X-Content-Type-Options: nosniff", response)
             self.assertIn(f"Content-Security-Policy: {POLICY}".encode(), response)
         self.assertIn(b"Content-Type: font/woff2", request(next(r for r in routes if r.endswith(".woff2"))))
-        # A version 1 snapshot reaches the viewer converted, as laranex-schema.
-        body = json.loads(request("/snapshot.json").split(b"\r\n\r\n", 1)[1])
-        self.assertEqual((body["format"], body["source"]), ("laranex-schema", "declared"))
+        # The saved document, validated and in canonical form.
+        body = request("/snapshot.json").split(b"\r\n\r\n", 1)[1]
+        self.assertEqual(body, self.path.read_bytes())
+        self.assertEqual((json.loads(body)["format"], json.loads(body)["version"]), ("laranex-schema", "2.0"))
         for route in ["/../pyproject.toml", "/%2e%2e/pyproject.toml", "/.env", "/manifest.json",
                       "/LICENSE.txt", "/graph.js", "/styles.css", "/assets/", "/assets/../manifest.json"]:
             self.assertIn(b"404 Not Found", request(route))
@@ -99,6 +100,22 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(request("/snapshot.json", method="HEAD").split(b"\r\n\r\n")[1], b"")
         self.path.write_text("invalid")
         self.assertIn(b"503", request("/snapshot.json"))
+        self.path.write_text(json.dumps({"format": "laranex-schema", "version": "1.0"}))
+        self.assertIn(b"503", request("/snapshot.json"))
+
+    def test_serve_and_mcp_refuse_other_versions_clearly(self):
+        rebuild = "rebuild it with `laranex-schema-viewer build`, which writes laranex-schema 2.0"
+        cases = [({"format": "laranex-schema-viewer", "version": 1, "tables": []}, "is a version 1 snapshot", True),
+                 ({"format": "laranex-schema", "version": "1.0"}, 'version "1.0"; this reader supports 2.x', True),
+                 ({"format": "other"}, "is not a laranex-schema 2.x document", False)]
+        for data, message, hint in cases:
+            self.path.write_text(json.dumps(data))
+            for command in ("serve", "mcp"):
+                with self.subTest(command=command, message=message):
+                    result = self.run_cli(command, "--snapshot", str(self.path))
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn(message, result.stderr)
+                    self.assertEqual(rebuild in result.stderr, hint)
 
     def test_http_loopback_end_to_end(self):
         try:

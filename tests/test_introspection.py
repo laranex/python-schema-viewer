@@ -22,7 +22,7 @@ from contextlib import closing
 from pathlib import Path
 from unittest import mock
 
-from laranex_schema_viewer.contract import validate_document
+from laranex_schema_viewer.contract import document_to_json, validate_document
 from laranex_schema_viewer.introspection import DatabaseRequest, IntrospectionError
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,8 +31,13 @@ HAS_SQLALCHEMY = importlib.util.find_spec("sqlalchemy") is not None
 
 if HAS_SQLALCHEMY:
     from laranex_schema_viewer.introspection.readonly import STATEMENT, create_engine, read_only
-    from laranex_schema_viewer.introspection.runner import introspect
+    from laranex_schema_viewer.introspection import runner
     from laranex_schema_viewer.introspection.worker import loaded_from, scrub
+
+
+def introspect(request, **kwargs):
+    """The database document as the laranex-schema 2.0 JSON a build writes."""
+    return document_to_json(runner.introspect(request, **kwargs))
 
 
 def tables(doc):
@@ -68,6 +73,8 @@ class SQLiteIntrospection(unittest.TestCase):
         self.assertEqual(self.doc["source"], "database")
         connection = self.doc["connections"][0]
         self.assertEqual((connection["driver"], connection["coverage"]["declared"]), ("sqlite", None))
+        self.assertEqual((self.doc["version"], self.doc["comparisons"], self.doc["migrations"],
+                          self.doc["inferredAssociations"]), ("2.0", [], [], []))
         features = connection["coverage"]["database"]["features"]
         self.assertEqual((features["comments"], features["checkConstraints"]), ("not_applicable", "partial"))
 
@@ -92,7 +99,9 @@ class SQLiteIntrospection(unittest.TestCase):
         self.assertIsNone(indexes["notes_active_title"]["parts"][0]["collation"])
         self.assertEqual(indexes["sqlite_autoindex_notes_1"]["backs"]["kind"], "unique_constraint")
         primary = by_name(self.tables["tags"]["indexes"])["sqlite_autoindex_tags_1"]
-        self.assertEqual((primary["primary"], primary["columns"]), (True, ["note_id", "name"]))
+        self.assertEqual((primary["backs"]["kind"], [p["column"] for p in primary["parts"]]),
+                         ("primary_key", ["note_id", "name"]))
+        self.assertNotIn("columns", primary)
 
     def test_columns_and_constraints(self):
         notes = self.tables["notes"]
@@ -294,8 +303,10 @@ class PostgreSQLIntrospection(ServerCase):
         self.assertEqual(found["accounts"]["id"], '["default",null,"accounts"]')
         self.assertEqual(found["invoices"]["id"], '["default","billing","invoices"]')
         self.assertEqual((found["accounts"]["schema"], found["invoices"]["schema"]), ("public", "billing"))
-        coverage = self.document()["connections"][0]["coverage"]["database"]
+        connection = self.document()["connections"][0]
+        coverage = connection["coverage"]["database"]
         self.assertEqual((coverage["schemas"], coverage["complete"]), (["public", "billing"], True))
+        self.assertEqual((connection["driver"], connection["defaultSchema"]), ("postgresql", "public"))
         self.assertEqual(sorted(tables(self.inspect())), ["accounts"])
         with self.assertRaisesRegex(IntrospectionError, "does not exist"):
             self.inspect(schemas=("missing",))
@@ -387,6 +398,7 @@ class MySQLFamily(ServerCase):
         self.assertEqual(columns["name"]["collation"], "utf8mb4_bin")
         self.assertEqual(found["accounts"]["comment"], "Customer accounts")
         self.assertEqual(by_name(found["products"]["constraints"])["products_price_positive"]["columns"], ["price"])
+        self.assertEqual(doc["connections"][0]["driver"], self.driver)
         features = doc["connections"][0]["coverage"]["database"]["features"]
         self.assertEqual(features["indexExpressions"], "complete" if self.functional else "not_applicable")
         if self.functional:
@@ -396,10 +408,12 @@ class MySQLFamily(ServerCase):
 
 class MySQLIntrospection(MySQLFamily):
     variable = "LSV_TEST_MYSQL_URL"
+    driver = "mysql"
 
 
 class MariaDBIntrospection(MySQLFamily):
     variable = "LSV_TEST_MARIADB_URL"
+    driver = "mariadb"
     functional = False
 
 

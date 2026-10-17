@@ -1,0 +1,80 @@
+{
+  "description": "A database at both merged branches is behind the merge revision; parents are sorted",
+  "expected": {
+    "history": {
+      "heads": [
+        "m"
+      ],
+      "missing": [],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "a",
+          "parents": []
+        },
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "a"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "m",
+          "parents": [
+            "b",
+            "x"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "x",
+          "parents": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "pending": [
+      "m"
+    ],
+    "status": "behind",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": [
+      "b",
+      "x"
+    ],
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "a",
+        "parents": []
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "a"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "m",
+        "parents": [
+          "x",
+          "b"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "x",
+        "parents": [
+          "a"
+        ]
+      }
+    ]
+  }
+}

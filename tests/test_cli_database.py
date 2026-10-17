@@ -1,4 +1,4 @@
-"""build --source database|combined, convert, and how serve treats laranex-schema documents. Uses SQLite only."""
+"""build --source declared|database|combined, and serve and mcp on what it writes. Uses SQLite only."""
 
 import importlib.util
 import json
@@ -79,27 +79,30 @@ class DatabaseBuilds(unittest.TestCase):
         document = self.read("db.json")
         self.assertEqual((document["source"], document["models"]), ("database", []))
 
-    def test_declared_documents_and_conversion(self):
-        result = self.run_cli("build", "--module", "app.models", "--format", "laranex-schema", "--output", "d.json")
+    def test_declared_documents(self):
+        result = self.run_cli("build", "--module", "app.models")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(self.read("d.json")["source"], "declared")
-        result = self.run_cli("build", "--module", "app.models", "--output", "v1.json")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(json.loads((self.root / "v1.json").read_text())["format"], "laranex-schema-viewer")
-        result = self.run_cli("convert", "v1.json", "--output", "converted.json", "--orm", "sqlalchemy")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        converted = self.read("converted.json")
-        self.assertEqual(converted["generator"]["orm"], "sqlalchemy")
-        self.assertEqual(converted["connections"], {**self.read("d.json"), "generator": converted["generator"]}[
-            "connections"])
+        self.assertIn("Saved laranex-schema 2.0 (declared): 2 tables, 2 models", result.stdout)
+        document = self.read("schema-viewer.json")
+        self.assertEqual((document["format"], document["version"], document["source"]),
+                         ("laranex-schema", "2.0", "declared"))
+        self.assertEqual(document["generator"], {"name": "python-schema-viewer", "orm": "sqlalchemy"})
+
+    def test_removed_options_and_commands(self):
+        for args in (["build", "--format", "v1"], ["convert", "v1.json", "--output", "o.json"]):
+            result = self.run_cli(*args)
+            self.assertEqual(result.returncode, 2, args)
+            self.assertIn("invalid choice: 'convert'" if args[0] == "convert" else "unrecognized arguments: --format",
+                          result.stderr)
+        (self.root / "pyproject.toml").write_text("[tool.laranex-schema-viewer]\nformat = 'v1'\n")
+        result = self.run_cli("build", "--module", "app.models")
+        self.assertIn("format was removed: build always writes laranex-schema 2.0", result.stderr)
 
     def test_failures_are_clear_and_change_nothing(self):
         result = self.run_cli("build", "--source", "combined", "--module", "app.models", "--output", "o.json",
                               url=False)
         self.assertEqual(result.returncode, 1)
         self.assertIn("Set LARANEX_SCHEMA_DATABASE_URL", result.stderr)
-        result = self.run_cli("build", "--source", "database", "--format", "v1", "--output", "o.json")
-        self.assertIn("cannot hold database metadata", result.stderr)
         result = self.run_cli("build", "--source", "database", "--output", "o.json", url=False,
                               env={"LARANEX_SCHEMA_DATABASE_URL": "sqlite:///missing.db"})
         self.assertEqual(result.returncode, 1)

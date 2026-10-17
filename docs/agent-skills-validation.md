@@ -4,14 +4,14 @@ Executed on 2026-10-16. No commits, pushes, global skill installations, Laravel 
 
 ## Implementation
 
-`skills/` contains five application-facing bundles: `python-schema-viewer`, `schema-discovery`, `relationship-analysis`, `schema-diagnostics`, and `schema-viewer-mcp`. Each has portable YAML frontmatter and MIT licensing. Schema discovery includes its own snapshot reference. Contributor instructions remain in root `AGENTS.md`.
+`skills/` contains five application-facing bundles: `python-schema-viewer`, `schema-discovery`, `relationship-analysis`, `schema-diagnostics`, and `schema-viewer-mcp`. Each has portable YAML frontmatter and MIT licensing. Schema discovery includes its own document reference. Contributor instructions remain in root `AGENTS.md`.
 
-The distribution follows the sibling Laravel repository's `skills/<name>/SKILL.md` layout. Command options and supported agent paths were checked against the [official Skills CLI source documentation](https://github.com/vercel-labs/skills). Skills use snapshot-only MCP tools with JSON fallback; they do not add live reflection, a hints tool, or Laravel commands.
+The distribution follows the sibling Laravel repository's `skills/<name>/SKILL.md` layout. Command options and supported agent paths were checked against the [official Skills CLI source documentation](https://github.com/vercel-labs/skills). Skills use read-only MCP tools over a saved laranex-schema 2.0 document, with JSON fallback; they do not add live reflection, a hints tool, or Laravel commands.
 
 ## Executed checks
 
 - All five bundles passed the skill-creator `quick_validate.py` validator.
-- Four tests in `tests.test_distributed_skills` passed. They validate YAML metadata, isolated copies into Codex and Claude directory layouts, bundled references, broken/escaping reference rejection, JSON examples for all five query APIs, and execution of the snapshot-reader example in a temporary project.
+- Four tests in `tests.test_distributed_skills` passed. They validate YAML metadata, isolated copies into Codex and Claude directory layouts, bundled references, broken/escaping reference rejection, JSON examples for all five query APIs, and execution of the document-reader example in a temporary project.
 - Full Python suite: 37 tests ran, 36 passed, one loopback HTTP test skipped because this environment denies socket binding. The real MCP subprocess stdio integration test passed.
 - Documentation demo tests: two passed.
 - `git diff --check` passed. Ruff could not run because its executable is unavailable in this environment.

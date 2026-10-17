@@ -24,6 +24,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from ..model import Document
+
 LEVELS = ("process", "container")
 Level = Literal["process", "container"]
 
@@ -59,7 +61,8 @@ class ExtractRequest:
 
 @dataclass
 class ExtractResult:
-    document: dict
+    # The declared laranex-schema 2.0 document, validated strictly.
+    document: Document
     blocked: list[dict[str, str]] = field(default_factory=list)
     # How many of the parent's environment variables the worker did not get; names are never reported.
     withheld: int = 0

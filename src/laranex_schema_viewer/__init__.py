@@ -1,8 +1,7 @@
-"""Saved schema documents for people and agents. Application loading is build-only."""
+"""Saved laranex-schema 2.0 documents for people and agents. Application loading is build-only."""
 
-from .document import SchemaDocument
-from .snapshot import read_snapshot, write_snapshot
+from .model import Document
+from .snapshot import Snapshot, read_document, write_document
 
-__all__ = ["SchemaDocument", "read_snapshot", "write_snapshot"]
+__all__ = ["Document", "Snapshot", "read_document", "write_document"]
 __version__ = "0.4.0"
-

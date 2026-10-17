@@ -10,8 +10,7 @@ import sys
 import tempfile
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
-
+from .. import model as m
 from ..isolation.env import ALLOWED_PREFIXES
 from ..isolation.runner import MAX_RESULT_BYTES, _kill_group, _log_tail
 from . import DatabaseRequest, IntrospectionError
@@ -23,8 +22,8 @@ BOOTSTRAP = ("import sys; sys.path.insert(0, sys.argv.pop(1)); "
              "from laranex_schema_viewer.introspection.worker import main; main()")
 
 
-def introspect(request: DatabaseRequest, *, project_roots: list[str] | tuple[str, ...] = ()) -> dict[str, Any]:
-    """The database as a laranex-schema 1.0 document (source: database), or IntrospectionError."""
+def introspect(request: DatabaseRequest, *, project_roots: list[str] | tuple[str, ...] = ()) -> m.Document:
+    """The database as a database document, validated strictly, or IntrospectionError."""
     from ..contract import assert_document
 
     scratch = Path(tempfile.mkdtemp(prefix="lsv-introspect-")).resolve()
@@ -64,13 +63,19 @@ def introspect(request: DatabaseRequest, *, project_roots: list[str] | tuple[str
         result = json.loads(path.read_bytes())
         if not result.get("ok"):
             raise IntrospectionError(_scrub(str(result.get("error")), request.url))
-        return assert_document(result["document"], strict=True).to_json()
+        try:
+            document = assert_document(result["document"], strict=True)
+        except ValueError as error:
+            raise IntrospectionError(f"The introspection worker returned an invalid document: {error}") from None
+        if document.source != "database":
+            raise IntrospectionError("The introspection worker returned a document that is not database metadata")
+        return document
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
 
 
 def introspect_all(requests: list[DatabaseRequest] | tuple[DatabaseRequest, ...], *,
-                   project_roots: list[str] | tuple[str, ...] = ()) -> dict[str, Any]:
+                   project_roots: list[str] | tuple[str, ...] = ()) -> m.Document:
     """Several connections as one database document. Each connection is read by its own worker, which receives only
     that connection's URL; one failure fails the whole inspection."""
     names = [r.connection for r in requests]
@@ -80,17 +85,12 @@ def introspect_all(requests: list[DatabaseRequest] | tuple[DatabaseRequest, ...]
     return merge(documents)
 
 
-def merge(documents: list[dict[str, Any]]) -> dict[str, Any]:
+def merge(documents: list[m.Document]) -> m.Document:
     """Database documents with distinct connection names as one document."""
-    from ..contract import assert_document, build_graph
-    from ..unified import sort_diagnostics
+    from ..contract import finalize
 
-    doc = {**documents[0], "connections": sorted([c for d in documents for c in d["connections"]],
-                                                 key=lambda c: c["name"]),
-           "diagnostics": sort_diagnostics([x for d in documents for x in d["diagnostics"]]),
-           "links": [], "derivedLinks": []}
-    doc.update(build_graph(doc))
-    return assert_document(doc, strict=True).to_json()
+    return finalize(m.replace(documents[0], connections=tuple(c for d in documents for c in d.connections),
+                              diagnostics=tuple(x for d in documents for x in d.diagnostics)))
 
 
 def _scrub(message: str, url: str) -> str:

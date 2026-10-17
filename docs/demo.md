@@ -4,7 +4,7 @@ aside: false
 
 # Explore a sample schema
 
-An invented project workspace with nine tables, foreign keys, self references, association tables, indexes, and ORM relationships. This demo runs entirely in your browser from a synthetic JSON snapshot.
+An invented project workspace with nine tables, foreign keys, self references, association tables, indexes, and ORM relationships. This demo runs entirely in your browser from a synthetic laranex-schema 2.0 document.
 
 <LiveDemo />
 

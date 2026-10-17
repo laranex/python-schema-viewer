@@ -1,4 +1,5 @@
 {
+  "comparisons": [],
   "connections": [
     {
       "coverage": {
@@ -750,9 +751,6 @@
           "indexes": [
             {
               "backs": null,
-              "columns": [
-                "project_id"
-              ],
               "expression": false,
               "id": "demo:tasks:index:ix_tasks_project",
               "included": [],
@@ -771,7 +769,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -779,7 +776,6 @@
             },
             {
               "backs": null,
-              "columns": [],
               "expression": true,
               "id": "demo:tasks:index:ix_tasks_lower_title",
               "included": [],
@@ -798,7 +794,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -920,10 +915,6 @@
           "indexes": [
             {
               "backs": null,
-              "columns": [
-                "team_id",
-                "user_id"
-              ],
               "expression": false,
               "id": "demo:team_members:index:uq_team_members_pair",
               "included": [],
@@ -951,7 +942,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -1131,9 +1121,6 @@
           "indexes": [
             {
               "backs": null,
-              "columns": [
-                "email"
-              ],
               "dialectOptions": {
                 "postgresql": {
                   "predicate": "active = true"
@@ -1157,7 +1144,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "declared"
               ],
@@ -1188,6 +1174,7 @@
     "name": "python-schema-viewer",
     "orm": "sqlalchemy"
   },
+  "inferredAssociations": [],
   "links": [
     {
       "foreignKey": "fk:projects:team_id",
@@ -1470,6 +1457,7 @@
       }
     }
   ],
+  "migrations": [],
   "models": [
     {
       "className": "demo.models.CommentsModel",
@@ -1881,5 +1869,5 @@
     }
   ],
   "source": "declared",
-  "version": "1.0"
+  "version": "2.0"
 }

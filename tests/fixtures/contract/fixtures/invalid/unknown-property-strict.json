@@ -1,6 +1,7 @@
 {
-  "description": "A property 1.0 does not define, rejected only in strict mode",
+  "description": "A property 2.0 does not define, rejected only in strict mode",
   "document": {
+    "comparisons": [],
     "connections": [
       {
         "coverage": {
@@ -147,9 +148,6 @@
                   "constraint": "sqlite:main.notes:constraint:notes_slug",
                   "kind": "unique_constraint"
                 },
-                "columns": [
-                  "slug"
-                ],
                 "expression": false,
                 "id": "sqlite:main.notes:index:sqlite_autoindex_notes_1",
                 "included": [],
@@ -168,7 +166,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -176,9 +173,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "title"
-                ],
                 "expression": false,
                 "id": "sqlite:main.notes:index:notes_active_title",
                 "included": [],
@@ -197,7 +191,6 @@
                   }
                 ],
                 "predicate": "archived = 0",
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -205,7 +198,6 @@
               },
               {
                 "backs": null,
-                "columns": [],
                 "expression": true,
                 "id": "sqlite:main.notes:index:notes_lower_title",
                 "included": [],
@@ -224,7 +216,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -232,9 +223,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "title"
-                ],
                 "expression": false,
                 "id": "sqlite:main.notes:index:notes_title_nocase",
                 "included": [],
@@ -253,7 +241,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -282,6 +269,7 @@
       {
         "category": "inspection",
         "certainty": "certain",
+        "id": "necb2896ad42f5c2c",
         "kind": "unsupported_metadata",
         "message": "Check constraints were read from the table SQL; unnamed checks get generated names.",
         "severity": "info",
@@ -298,12 +286,14 @@
       "name": "contract-fixtures",
       "orm": null
     },
+    "inferredAssociations": [],
     "links": [],
+    "migrations": [],
     "models": [],
     "note": null,
     "relationships": [],
     "source": "database",
-    "version": "1.0"
+    "version": "2.0"
   },
   "errors": [
     "$.connections[0].tables[0]: unknown property engine"

@@ -1,4 +1,5 @@
-"""The extraction worker: imports application code in its own process (or container) and returns declared metadata.
+"""The extraction worker: imports application code in its own process (or container) and returns declared metadata
+as a laranex-schema 2.0 document, which the parent validates strictly before using it.
 
 Run as ``python -B -m laranex_schema_viewer.isolation.worker --result PATH --allow-write DIR ...`` with the request on
 stdin. It never receives database credentials (the parent filters its environment) and never opens a connection on
@@ -32,7 +33,9 @@ def main() -> None:
             recursive=request.get("recursive", False), targets=request.get("targets", []),
             orm=request.get("orm", "auto"), settings=request.get("settings"),
         )
-        result = {"ok": True, "document": document.model_dump(mode="json"), "blocked": guards.blocked}
+        from ..contract import document_to_json
+
+        result = {"ok": True, "document": document_to_json(document), "blocked": guards.blocked}
     except BaseException as error:  # noqa: BLE001 - every failure is reported to the parent
         result = {"ok": False, "error": f"{type(error).__name__}: {error}", "blocked": guards.blocked}
     data = json.dumps(result, ensure_ascii=False).encode("utf-8")

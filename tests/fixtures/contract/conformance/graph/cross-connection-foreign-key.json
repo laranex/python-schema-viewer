@@ -1,0 +1,153 @@
+{
+  "description": "A foreign key naming a table in another connection has no link: constraints never cross connections",
+  "expected": {
+    "derivedLinks": [],
+    "links": []
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "postgresql",
+        "id": "connection:a",
+        "name": "a",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "a:users",
+            "indexes": [],
+            "name": "users",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      },
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "mysql",
+        "id": "connection:b",
+        "name": "b",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "user_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "user_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "a:users",
+                "id": "b:sessions:fk:sessions_user_fk",
+                "initially": null,
+                "name": "sessions_user_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "b:sessions",
+            "indexes": [],
+            "name": "sessions",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "relationships": []
+  }
+}

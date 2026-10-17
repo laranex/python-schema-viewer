@@ -1,0 +1,423 @@
+{
+  "description": "A unique index on exactly the foreign-key columns makes a one-to-one; a partial unique index does not",
+  "expected": {
+    "inferredAssociations": [
+      {
+        "ambiguities": [],
+        "cardinality": "one-to-one",
+        "confidence": "high",
+        "evidence": [
+          {
+            "confirmed": true,
+            "id": "t:posts:fk:posts_user_fk",
+            "kind": "foreign_key"
+          },
+          {
+            "confirmed": true,
+            "id": "m:Post",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "m:User",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "t:posts:index:posts_user_idx",
+            "kind": "unique_index"
+          }
+        ],
+        "foreignKeys": [
+          "t:posts:fk:posts_user_fk"
+        ],
+        "id": "i6d51b1742432644e",
+        "kind": "foreign_key",
+        "links": [
+          "l3912aaabb7b52688"
+        ],
+        "model": "m:Post",
+        "relatedModel": "m:User",
+        "relatedTable": "t:users",
+        "table": "t:posts",
+        "via": null
+      },
+      {
+        "ambiguities": [],
+        "cardinality": "many-to-one",
+        "confidence": "high",
+        "evidence": [
+          {
+            "confirmed": true,
+            "id": "t:drafts:fk:drafts_user_fk",
+            "kind": "foreign_key"
+          },
+          {
+            "confirmed": true,
+            "id": "m:Draft",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "m:User",
+            "kind": "model_mapping"
+          }
+        ],
+        "foreignKeys": [
+          "t:drafts:fk:drafts_user_fk"
+        ],
+        "id": "i8e8304e344345871",
+        "kind": "foreign_key",
+        "links": [
+          "la4798cf5a7955a04"
+        ],
+        "model": "m:Draft",
+        "relatedModel": "m:User",
+        "relatedTable": "t:users",
+        "table": "t:drafts",
+        "via": null
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "postgresql",
+        "id": "connection:c",
+        "name": "c",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "user_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "user_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:users",
+                "id": "t:posts:fk:posts_user_fk",
+                "initially": null,
+                "name": "posts_user_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:posts",
+            "indexes": [
+              {
+                "backs": null,
+                "expression": false,
+                "id": "t:posts:index:posts_user_idx",
+                "included": [],
+                "method": null,
+                "name": "posts_user_idx",
+                "partial": false,
+                "parts": [
+                  {
+                    "collation": null,
+                    "column": "user_id",
+                    "expression": null,
+                    "length": null,
+                    "nulls": null,
+                    "opclass": null,
+                    "order": null
+                  }
+                ],
+                "predicate": null,
+                "provenance": [
+                  "database"
+                ],
+                "unique": true
+              }
+            ],
+            "name": "posts",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:users",
+            "indexes": [],
+            "name": "users",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "user_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "user_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:users",
+                "id": "t:drafts:fk:drafts_user_fk",
+                "initially": null,
+                "name": "drafts_user_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:drafts",
+            "indexes": [
+              {
+                "backs": null,
+                "expression": false,
+                "id": "t:drafts:index:drafts_user_idx",
+                "included": [],
+                "method": null,
+                "name": "drafts_user_idx",
+                "partial": true,
+                "parts": [
+                  {
+                    "collation": null,
+                    "column": "user_id",
+                    "expression": null,
+                    "length": null,
+                    "nulls": null,
+                    "opclass": null,
+                    "order": null
+                  }
+                ],
+                "predicate": "live",
+                "provenance": [
+                  "database"
+                ],
+                "unique": true
+              }
+            ],
+            "name": "drafts",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "foreignKey": "t:posts:fk:posts_user_fk",
+        "from": {
+          "columns": [
+            "user_id"
+          ],
+          "table": "t:posts"
+        },
+        "id": "l3912aaabb7b52688",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [],
+        "state": "foreign_key",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:users"
+        }
+      },
+      {
+        "foreignKey": "t:drafts:fk:drafts_user_fk",
+        "from": {
+          "columns": [
+            "user_id"
+          ],
+          "table": "t:drafts"
+        },
+        "id": "la4798cf5a7955a04",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [],
+        "state": "foreign_key",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:users"
+        }
+      }
+    ],
+    "models": [
+      {
+        "className": "Draft",
+        "id": "m:Draft",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:drafts"
+        ]
+      },
+      {
+        "className": "Post",
+        "id": "m:Post",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:posts"
+        ]
+      },
+      {
+        "className": "User",
+        "id": "m:User",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:users"
+        ]
+      }
+    ],
+    "relationships": [],
+    "source": "combined"
+  }
+}

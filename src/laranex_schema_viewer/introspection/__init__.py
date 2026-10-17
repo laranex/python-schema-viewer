@@ -1,4 +1,4 @@
-"""Live database introspection: reads a database's catalogs into a laranex-schema 1.0 document (source: database).
+"""Live database introspection: reads a database's catalogs into a laranex-schema 2.0 database document.
 
 It runs in its own worker process (worker.py), separate from the extraction worker that imports application code:
 

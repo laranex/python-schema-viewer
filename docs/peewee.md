@@ -16,7 +16,7 @@ The adapter is detected from the imported modules; add `--orm peewee` to choose 
 
 ## What is extracted
 
-| Peewee declaration | Snapshot |
+| Peewee declaration | Document |
 | --- | --- |
 | `Meta.table_name`, `Meta.schema` | Table name and schema |
 | Fields | Columns with SQL types, nullability, Python defaults, and `SQL("DEFAULT ...")` server defaults |

@@ -1,6 +1,6 @@
 # Interactive ERD viewer
 
-Open a saved snapshot with:
+Open a saved document with:
 
 ```bash
 laranex-schema-viewer serve --snapshot schema-viewer.json
@@ -8,7 +8,7 @@ laranex-schema-viewer serve --snapshot schema-viewer.json
 
 Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is vendored prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
 
-The viewer reads laranex-schema documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). A version 1 snapshot is converted on each request, exactly as `convert` would.
+The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The vendored build is laranex-schema-viewer-ui 0.3.0-dev.0, which reads laranex-schema 2.x. A file of another format or version stops `serve` with an error asking for a rebuild.
 
 ## Explore the diagram
 
@@ -58,6 +58,6 @@ In a combined document the viewer also shows where the two sides disagree:
 
 ## Current boundaries
 
-The viewer is read-only. It does not edit schemas, persist layouts, connect to a database or generate migrations. Rebuild the snapshot when models or the database change.
+The viewer is read-only. It does not edit schemas, persist layouts, connect to a database or generate migrations. Rebuild the document when models or the database change.
 
 Try the [interactive demo](./demo.md).

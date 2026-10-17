@@ -1,6 +1,7 @@
 {
   "description": "A pivot naming a column its table does not have",
   "document": {
+    "comparisons": [],
     "connections": [
       {
         "coverage": {
@@ -129,9 +130,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:categories:index:PRIMARY",
                 "included": [],
@@ -150,7 +148,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -158,9 +155,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "parent_id"
-                ],
                 "expression": false,
                 "id": "mysql:categories:index:categories_parent_id_index",
                 "included": [],
@@ -179,7 +173,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -358,9 +351,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:comments:index:PRIMARY",
                 "included": [],
@@ -379,7 +369,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -387,10 +376,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "commentable_type",
-                  "commentable_id"
-                ],
                 "expression": false,
                 "id": "mysql:comments:index:comments_commentable_type_commentable_id_index",
                 "included": [],
@@ -418,7 +403,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -488,9 +472,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:countries:index:PRIMARY",
                 "included": [],
@@ -509,7 +490,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -517,9 +497,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "code"
-                ],
                 "expression": false,
                 "id": "mysql:countries:index:countries_code_unique",
                 "included": [],
@@ -538,7 +515,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -626,9 +602,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:jobs:index:PRIMARY",
                 "included": [],
@@ -647,7 +620,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -655,9 +627,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "queue"
-                ],
                 "expression": false,
                 "id": "mysql:jobs:index:jobs_queue_index",
                 "included": [],
@@ -676,7 +645,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -764,9 +732,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:oauth_clients:index:PRIMARY",
                 "included": [],
@@ -785,7 +750,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -793,9 +757,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "user_id"
-                ],
                 "expression": false,
                 "id": "mysql:oauth_clients:index:oauth_clients_user_id_index",
                 "included": [],
@@ -814,7 +775,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1059,9 +1019,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:posts:index:PRIMARY",
                 "included": [],
@@ -1080,7 +1037,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -1088,9 +1044,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "user_id"
-                ],
                 "expression": false,
                 "id": "mysql:posts:index:posts_user_id_index",
                 "included": [],
@@ -1109,7 +1062,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1117,9 +1069,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "category_id"
-                ],
                 "expression": false,
                 "id": "mysql:posts:index:posts_category_id_index",
                 "included": [],
@@ -1138,7 +1087,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1146,10 +1094,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "status",
-                  "published_at"
-                ],
                 "expression": false,
                 "id": "mysql:posts:index:posts_status_published_at_index",
                 "included": [],
@@ -1177,7 +1121,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1302,10 +1245,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "user_id",
-                  "role_id"
-                ],
                 "expression": false,
                 "id": "mysql:role_user:index:PRIMARY",
                 "included": [],
@@ -1333,7 +1272,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -1341,9 +1279,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "role_id"
-                ],
                 "expression": false,
                 "id": "mysql:role_user:index:role_user_role_id_index",
                 "included": [],
@@ -1362,7 +1297,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1433,9 +1367,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:roles:index:PRIMARY",
                 "included": [],
@@ -1454,7 +1385,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -1558,9 +1488,6 @@
             "indexes": [
               {
                 "backs": null,
-                "columns": [
-                  "tag_id"
-                ],
                 "expression": false,
                 "id": "mysql:taggables:index:taggables_tag_id_index",
                 "included": [],
@@ -1579,7 +1506,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1587,10 +1513,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "taggable_type",
-                  "taggable_id"
-                ],
                 "expression": false,
                 "id": "mysql:taggables:index:taggables_taggable_type_taggable_id_index",
                 "included": [],
@@ -1618,7 +1540,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1686,9 +1607,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:tags:index:PRIMARY",
                 "included": [],
@@ -1707,7 +1625,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -1868,9 +1785,6 @@
                   "constraint": null,
                   "kind": "primary_key"
                 },
-                "columns": [
-                  "id"
-                ],
                 "expression": false,
                 "id": "mysql:users:index:PRIMARY",
                 "included": [],
@@ -1889,7 +1803,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": true,
                 "provenance": [
                   "database"
                 ],
@@ -1897,9 +1810,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "email"
-                ],
                 "expression": false,
                 "id": "mysql:users:index:users_email_unique",
                 "included": [],
@@ -1918,7 +1828,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1926,9 +1835,6 @@
               },
               {
                 "backs": null,
-                "columns": [
-                  "country_id"
-                ],
                 "expression": false,
                 "id": "mysql:users:index:users_country_id_index",
                 "included": [],
@@ -1947,7 +1853,6 @@
                   }
                 ],
                 "predicate": null,
-                "primary": false,
                 "provenance": [
                   "database"
                 ],
@@ -1986,6 +1891,7 @@
       {
         "category": "extraction",
         "certainty": "certain",
+        "id": "n6cd325a5cb673398",
         "kind": "unresolved_relationship",
         "message": "Class \"App\\Models\\Missing\" not found.",
         "severity": "warning",
@@ -1999,6 +1905,7 @@
       {
         "category": "inspection",
         "certainty": "certain",
+        "id": "n0e81d4e9070ad3c9",
         "kind": "unsupported_metadata",
         "message": "MySQL reports functional index key parts without their expressions.",
         "severity": "info",
@@ -2012,6 +1919,7 @@
       {
         "category": "lint",
         "certainty": "likely",
+        "id": "n50426bc8b7e78ae3",
         "kind": "missing_index",
         "message": "posts.editor_id is joined on but no index starts with it.",
         "severity": "info",
@@ -2037,6 +1945,7 @@
             }
           }
         },
+        "id": "n351f2543d814aebc",
         "kind": "relationship_without_foreign_key",
         "message": "Post::editor joins posts.editor_id to users.id, but no foreign key enforces it.",
         "severity": "warning",
@@ -2055,6 +1964,43 @@
       "name": "laravel-schema-viewer",
       "orm": "eloquent"
     },
+    "inferredAssociations": [
+      {
+        "ambiguities": [],
+        "cardinality": "many-to-one",
+        "confidence": "high",
+        "evidence": [
+          {
+            "confirmed": true,
+            "id": "mysql:users:fk:users_country_id_foreign",
+            "kind": "foreign_key"
+          },
+          {
+            "confirmed": true,
+            "id": "App\\Models\\Country",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "App\\Models\\User",
+            "kind": "model_mapping"
+          }
+        ],
+        "foreignKeys": [
+          "mysql:users:fk:users_country_id_foreign"
+        ],
+        "id": "id1edd7fc8c7b0506",
+        "kind": "foreign_key",
+        "links": [
+          "l8d384b656ddd2bc0"
+        ],
+        "model": "App\\Models\\User",
+        "relatedModel": "App\\Models\\Country",
+        "relatedTable": "mysql:countries",
+        "table": "mysql:users",
+        "via": null
+      }
+    ],
     "links": [
       {
         "foreignKey": "mysql:comments:fk:comments_user_id_foreign",
@@ -2302,6 +2248,7 @@
         }
       }
     ],
+    "migrations": [],
     "models": [
       {
         "className": "App\\Models\\Category",
@@ -2985,7 +2932,7 @@
       }
     ],
     "source": "combined",
-    "version": "1.0"
+    "version": "2.0"
   },
   "errors": [
     "Invalid relationship pivot"

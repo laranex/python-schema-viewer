@@ -1,0 +1,13 @@
+{
+  "description": "Uninitialized takes precedence over unreadable scripts; pending is then not determined",
+  "expected": {
+    "history": null,
+    "pending": null,
+    "status": "uninitialized",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": [],
+    "revisions": null
+  }
+}

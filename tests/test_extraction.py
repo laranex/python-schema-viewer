@@ -3,12 +3,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, Table, Time
+from sqlalchemy import Column, Computed, DateTime, ForeignKey, Identity, Index, Integer, MetaData, Table, Time, func, text
 from sqlalchemy.orm import registry, relationship
 
-from laranex_schema_viewer.adapters.sqlalchemy import SQLAlchemyAdapter
+from laranex_schema_viewer import model as m
+from laranex_schema_viewer.adapters import referential_action
+from laranex_schema_viewer.adapters.sqlalchemy import SQLAlchemyAdapter, server_default
 from laranex_schema_viewer.build import build_document
-from laranex_schema_viewer.snapshot import snapshot_bytes
+from laranex_schema_viewer.contract import document_bytes, document_to_json, validate_document
 from tests.fixtures import sqlalchemy_models as fixture
 
 
@@ -20,57 +22,100 @@ def example_document():
 class ExtractionTests(unittest.TestCase):
     def setUp(self):
         self.doc = example_document()
-        self.tables = {t.name: t for t in self.doc.tables}
+        self.tables = {t.name: t for t in self.doc.tables()}
+
+    def test_is_a_strictly_valid_declared_document(self):
+        self.assertEqual(validate_document(document_to_json(self.doc), strict=True)[1], [])
+        self.assertEqual((self.doc.source, self.doc.generator), ("declared", m.Generator(
+            name="python-schema-viewer", orm="sqlalchemy")))
+        [connection] = self.doc.connections
+        self.assertEqual((connection.name, connection.driver, connection.coverage.database), ("default", None, None))
+        self.assertTrue(connection.coverage.declared.complete)
 
     def test_metadata_includes_unmapped_tables(self):
-        self.assertEqual(len(self.doc.tables), 6)
+        self.assertEqual(len(self.doc.tables()), 6)
         self.assertEqual(len(self.doc.models), 3)
         self.assertIn("parent", self.tables)
 
     def test_fk_pairs_keep_order_and_actions(self):
         fk = self.tables["child"].foreign_keys[0]
-        self.assertEqual(fk.columns, ["a", "b"])
-        self.assertEqual(fk.target_columns, ["a", "b"])
-        self.assertEqual(fk.target_table, self.tables["parent"].id)
+        self.assertEqual(fk.columns, ("a", "b"))
+        self.assertEqual(fk.foreign_columns, ("a", "b"))
+        self.assertEqual(fk.foreign_table, self.tables["parent"].id)
         self.assertEqual(self.tables["users"].foreign_keys[0].on_delete, "SET NULL")
+        self.assertEqual(fk.provenance, ("declared",))
 
-    def test_indexes_preserve_postgres_details(self):
+    def test_indexes_keep_column_parts_and_dialect_options(self):
         indexes = {i.name: i for i in self.tables["users"].indexes}
-        self.assertEqual(indexes["ix_users_active"].predicates, {"postgresql": "active = true"})
-        self.assertEqual(indexes["ix_users_active"].included_columns, {"postgresql": ["name"]})
-        self.assertIn("lower(email)", indexes["ix_users_email_lower"].expressions)
+        active = indexes["ix_users_active"]
+        self.assertEqual((active.parts, active.expression, active.unique),
+                         ((m.IndexPart(column="email"),), False, True))
+        self.assertEqual(active.dialect_options,
+                         {"postgresql": m.IndexOptions(predicate="active = true", included=("name",))})
+        self.assertEqual((active.partial, active.predicate), (False, None))  # a PostgreSQL-only predicate
+        lower = indexes["ix_users_email_lower"]
+        self.assertEqual((lower.parts, lower.expression), ((m.IndexPart(expression="lower(email)"),), True))
 
-    def test_callable_defaults_are_not_executed(self):
+    def test_index_parts_keep_order_and_expressions(self):
+        metadata = MetaData()
+        table = Table("t", metadata, Column("a", Integer), Column("b", Integer))
+        Index("ix", table.c.a, table.c.b.desc().nulls_last(), func.lower(text("a")))
+        [index] = SQLAlchemyAdapter({"default": metadata}).extract().tables()[0].indexes
+        self.assertEqual(index.parts, (m.IndexPart(column="a"), m.IndexPart(column="b", order="desc", nulls="last"),
+                                       m.IndexPart(expression="lower(a)")))
+        self.assertEqual(index.id, '["default",null,"t"]:index:ix')
+
+    def test_database_and_orm_defaults_stay_apart(self):
         columns = {c.name: c for c in self.tables["users"].columns}
-        self.assertEqual(columns["name"].default.kind, "callable")
-        self.assertTrue(columns["name"].default.value.endswith("never_call"))
-        self.assertEqual(columns["active"].server_default.value, "1")
+        self.assertEqual(columns["name"].orm_default.kind, "callable")
+        self.assertTrue(columns["name"].orm_default.value.endswith("never_call"))
+        self.assertEqual(columns["active"].default, m.DefaultValue(kind="literal", value="1"))
+        self.assertEqual(columns["active"].orm_default, m.OrmDefault(kind="scalar", value="1"))
+
+    def test_server_defaults_never_invent_sql(self):
+        self.assertEqual(server_default(Identity()), (m.DefaultValue(kind="identity", value="Identity"), None))
+        self.assertEqual(server_default(Column("x", Integer, server_default=text("now()")).server_default),
+                         (m.DefaultValue(kind="expression", value="now()"), None))
+        self.assertEqual(server_default(Computed("price * 2")), (None, m.Generated(kind=None, expression="price * 2")))
+        self.assertEqual(referential_action("set_null"), ("SET NULL", None))
+        self.assertEqual(referential_action("python_protect"), (None, "python_protect"))
 
     def test_builtin_callable_defaults_are_named_without_a_module(self):
         metadata = MetaData()
         Table("events", metadata, Column("at", DateTime, default=datetime.datetime.now))
-        column = SQLAlchemyAdapter({"default": metadata}).extract().tables[0].columns[0]
-        self.assertEqual(column.default.value, "datetime.now")
+        column = SQLAlchemyAdapter({"default": metadata}).extract().tables()[0].columns[0]
+        self.assertEqual(column.orm_default.value, "datetime.now")
 
     def test_relationships_remain_separate(self):
-        self.assertEqual(len(self.doc.relationships), 5)
-        audit = next(r for r in self.doc.relationships if r.name == "user")
-        self.assertTrue(audit.viewonly)
-        self.assertEqual(audit.direction, "MANYTOONE")
-        self.assertEqual(self.tables["audits"].foreign_keys, [])
-        teams = next(r for r in self.doc.relationships if r.name == "teams")
-        self.assertEqual(teams.secondary, self.tables["memberships"].id)
-        self.assertEqual(teams.direction, "MANYTOMANY")
+        relationships = {r.name: r for r in self.doc.relationships}
+        self.assertEqual(len(relationships), 5)
+        audit = relationships["user"]
+        self.assertTrue(audit.read_only)
+        self.assertEqual((audit.type, audit.cardinality), ("MANYTOONE", "many-to-one"))
+        self.assertEqual(self.tables["audits"].foreign_keys, ())
+        link = next(x for x in self.doc.links if audit.id in x.relationships)
+        self.assertEqual((link.state, link.foreign_key), ("relationship", None))
+        teams = relationships["teams"]
+        self.assertEqual(teams.pivot.table, self.tables["memberships"].id)
+        self.assertEqual((teams.pivot.parent_pivot_columns, teams.pivot.related_pivot_columns),
+                         (("user_id",), ("team_id",)))
+        self.assertEqual((teams.type, teams.cardinality, teams.keys), ("MANYTOMANY", "many-to-many", None))
+        pivot_links = [x for x in self.doc.links if teams.id in x.relationships]
+        self.assertEqual(sorted(x.state for x in pivot_links), ["both", "both"])
 
-    def test_self_relationship_and_sources(self):
-        manager = next(r for r in self.doc.relationships if r.name == "manager")
-        self.assertEqual(manager.source_table, manager.target_table)
-        self.assertEqual(manager.back_populates, "reports")
-        model = next(m for m in self.doc.models if m.class_name.endswith(".User"))
+    def test_keys_run_like_foreign_keys_and_inverses_resolve(self):
+        relationships = {r.name: r for r in self.doc.relationships}
+        manager, reports = relationships["manager"], relationships["reports"]
+        self.assertEqual(manager.table, manager.related_table)
+        self.assertEqual(manager.keys, reports.keys)
+        self.assertEqual(manager.keys.source.columns, ("manager_id",))
+        self.assertEqual((manager.inverse, reports.inverse), (reports.id, manager.id))
+        self.assertEqual((manager.cardinality, reports.cardinality), ("many-to-one", "one-to-many"))
+        model = next(x for x in self.doc.models if x.class_name.endswith(".User"))
         self.assertEqual(model.source.file, "tests/fixtures/sqlalchemy_models.py")
 
     def test_deterministic_output(self):
-        self.assertEqual(snapshot_bytes(self.doc), snapshot_bytes(example_document()))
+        self.assertEqual(document_bytes(self.doc), document_bytes(example_document()))
 
     def test_schema_and_namespace_identity(self):
         first, second = MetaData(), MetaData()
@@ -78,7 +123,8 @@ class ExtractionTests(unittest.TestCase):
         Table("items", first, Column("id", Integer, primary_key=True), schema="public")
         Table("items", second, Column("id", Integer, primary_key=True))
         doc = SQLAlchemyAdapter({"one": first, "two": second}).extract()
-        self.assertEqual(len({t.id for t in doc.tables}), 3)
+        self.assertEqual(len({t.id for t in doc.tables()}), 3)
+        self.assertEqual([c.name for c in doc.connections], ["one", "two"])
 
     def test_native_postgres_types_and_timezone_are_preserved(self):
         from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
@@ -90,7 +136,7 @@ class ExtractionTests(unittest.TestCase):
               Column("payload", JSONB), Column("identifier", UUID),
               Column("values", ARRAY(Integer)))
         doc = SQLAlchemyAdapter({"default": metadata}).extract()
-        columns = {column.name: column for column in doc.tables[0].columns}
+        columns = {column.name: column for column in doc.tables()[0].columns}
         self.assertTrue(columns["created"].timezone)
         self.assertFalse(columns["clock"].timezone)
         self.assertEqual(columns["payload"].type, "JSONB")
@@ -99,14 +145,19 @@ class ExtractionTests(unittest.TestCase):
 
     def test_missing_fk_target_is_reported(self):
         metadata = MetaData()
-        Table("child", metadata, Column("id", Integer, ForeignKey("absent.id")))
+        Table("child", metadata, Column("id", Integer, ForeignKey("absent.id")),
+              Column("other", Integer, ForeignKey("missing.id")))
         doc = SQLAlchemyAdapter({"default": metadata}).extract()
-        self.assertEqual(doc.diagnostics[0].kind, "unresolved_foreign_key")
-        self.assertEqual(doc.tables[0].foreign_keys[0].target_columns, ["id"])
+        foreign_keys = doc.tables()[0].foreign_keys
+        self.assertEqual(foreign_keys[0].foreign_columns, ("id",))
+        # One diagnostic per foreign key, naming it; the document stays valid without the targets.
+        self.assertEqual([(d.kind, d.subject.type, d.subject.id) for d in doc.diagnostics],
+                         [("unresolved_foreign_key", "foreignKey", fk.id) for fk in foreign_keys])
+        self.assertEqual(validate_document(document_to_json(doc), strict=True)[1], [])
 
     def test_build_module_and_explicit_target(self):
         doc = build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd())
-        self.assertEqual(len(doc.tables), 6)
+        self.assertEqual(len(doc.tables()), 6)
         doc = build_document([], project_root=Path.cwd(),
                              targets=["tests.fixtures.sqlalchemy_models:Base"])
         self.assertEqual(len(doc.relationships), 5)
@@ -122,7 +173,7 @@ class ExtractionTests(unittest.TestCase):
                 'metadata = MetaData()\nTable("loaded", metadata, Column("id", Integer))\n'
             )
             doc = build_document(["isolated_fixture"], project_root=root, recursive=True)
-            self.assertEqual([t.name for t in doc.tables], ["loaded"])
+            self.assertEqual([t.name for t in doc.tables()], ["loaded"])
             self.assertFalse(list(package.glob("__pycache__")))
             (package / "broken.py").write_text('raise RuntimeError("broken model")')
             with self.assertRaisesRegex(RuntimeError, "broken model"):
@@ -138,7 +189,7 @@ class ExtractionTests(unittest.TestCase):
         explicit = build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd(),
                                   orm="sqlalchemy")
         detected = build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd())
-        self.assertEqual(snapshot_bytes(explicit), snapshot_bytes(detected))
+        self.assertEqual(document_bytes(explicit), document_bytes(detected))
         with self.assertRaisesRegex(ValueError, "Unsupported ORM"):
             build_document(["tests.fixtures.sqlalchemy_models"], project_root=Path.cwd(), orm="nope")
         with self.assertRaisesRegex(ValueError, "No SQLAlchemy metadata or mapped classes"):
@@ -164,8 +215,7 @@ class ExtractionTests(unittest.TestCase):
         })
         doc = SQLAlchemyAdapter({"default": mappings.metadata}, [Note]).extract()
         self.assertEqual(len(doc.models), 2)
-        self.assertEqual({r.join_pairs[0].local.column for r in doc.relationships},
-                         {"author_id", "editor_id"})
+        self.assertEqual({r.keys.source.columns for r in doc.relationships}, {("author_id",), ("editor_id",)})
 
     def test_mapper_configuration_failure_is_explicit(self):
         mappings = registry()
@@ -183,9 +233,9 @@ class ExtractionTests(unittest.TestCase):
         from tests.fixtures.sqlmodel_models import FixtureBase, Hero, Squad
 
         doc = SQLAlchemyAdapter({"default": FixtureBase.metadata}, [Hero, Squad]).extract()
-        self.assertEqual(len(doc.tables), 2)
+        self.assertEqual(len(doc.tables()), 2)
         self.assertEqual(len(doc.models), 2)
         self.assertEqual(len(doc.relationships), 2)
-        self.assertEqual(sum(len(t.foreign_keys) for t in doc.tables), 1)
-        self.assertEqual({r.direction for r in doc.relationships}, {"MANYTOONE", "ONETOMANY"})
+        self.assertEqual(sum(len(t.foreign_keys) for t in doc.tables()), 1)
+        self.assertEqual({r.type for r in doc.relationships}, {"MANYTOONE", "ONETOMANY"})
 
