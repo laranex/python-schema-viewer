@@ -25,6 +25,23 @@ Foreign-key constraints and declared ORM relationships stay separate on the diag
 
 Self references and composite foreign keys keep their column pairs. Relationship cardinality describes mapped behavior; it is not a database uniqueness guarantee.
 
+## Several connections
+
+A document built from several database connections (see [database introspection](./database.md#several-connections)) holds one connection per name, each with its own driver:
+
+- **All connections** (the default): each connection is laid out on its own inside a labelled frame showing its name, driver and table count, so a `users` table on two connections is drawn twice, never merged. Relationships between connections run between the frames.
+- **One connection**: pick it in the header's **Connection** menu (on a phone, in the ⋯ menu), or step through all connections and each connection with <kbd>[</kbd> and <kbd>]</kbd>. Tables on other connections that the shown tables' relationships reach stay on the diagram as dashed reference nodes marked *On connection NAME · driver*. They cannot be moved or folded; clicking one opens that table on its own connection.
+- Every table label names its connection, for example `analytics · users`: on cards, in Browse, search results, Details headings, edge details, the phone sheet and image exports.
+- A relationship between two connections is always drawn as an ORM relationship with no constraint (dashed), marked `cross-connection`. Foreign keys never cross connections.
+- Deep links: `#connection=<id>` opens one connection (an unknown id opens all of them), and `#table=<id>` opens that table, also on its own connection when `#connection=` names another one. Connection ids look like `connection:analytics`; table ids are opaque and qualified by connection.
+- Coverage is listed per connection, and drift and reconciliation diagnostics name their connection.
+
+Known limitations of the shared viewer (laranex-schema-viewer-ui 0.2.0):
+
+- Frames are placed by the automatic layout. Dragging a table does not move or resize its connection's frame, and frames themselves cannot be dragged. **Arrange again** lays out the tables and their frames afresh.
+- The intermediate (`via`) tables of a relationship through other tables are not drawn as reference nodes when they sit on another connection; only the relationship's two ends are.
+- Frames show the connection's name, driver and table count only; the per-connection hint counts Laravel Schema Viewer shows in its frames are not reproduced.
+
 ## What each source shows
 
 The **Details** tab, with nothing selected, shows the document's source as a badge with a sentence about what it means, the legend, and a **Coverage** section per connection: whether the declared metadata and the database inspection are complete, and which features were only partly read or unavailable.
