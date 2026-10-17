@@ -3,8 +3,9 @@
 tests/fixtures/contract is vendored unchanged from laranex-schema-viewer-ui by scripts/sync_contract.py; its manifest
 records the source commit and every file's SHA-256. The Python implementation validates them independently: every
 valid document passes strict validation and serializes back to the same bytes, every invalid one fails with the
-expected rule, and the graph, comparison and migration conformance cases give the expected results. Inference
-conformance belongs to a later milestone; its cases are vendored but not run yet.
+expected rule, and the graph, comparison and migration conformance cases give the expected results, and the gate
+conformance cases give byte-identical reports through gate_document. Inference conformance belongs to a later
+milestone; its cases are vendored but not run yet.
 """
 
 import hashlib
@@ -16,7 +17,7 @@ from laranex_schema_viewer import model as m
 from laranex_schema_viewer.contract import (assert_document, build_graph, canonical_json, document_to_json,
                                             finalize, from_json, revision, to_json, validate_document)
 from laranex_schema_viewer.contract.comparison import SeverityOverride, compare_scopes
-from laranex_schema_viewer.contract.gate import gate_json_schema, validate_gate_report
+from laranex_schema_viewer.contract.gate import UNPARSED, gate_document, gate_json_schema, validate_gate_report
 from laranex_schema_viewer.contract.migration import migration_history, migration_state
 from laranex_schema_viewer.contract.shape import json_schema
 from laranex_schema_viewer.contract.validate import InvalidDocumentError, UnsupportedDocumentError
@@ -176,8 +177,29 @@ class Conformance(unittest.TestCase):
 
 
 class GateReports(unittest.TestCase):
-    """laranex-schema-gate 1.0: the shared JSON Schema and the valid and invalid reports. tests/test_check.py
-    reproduces the valid reports from the documents they were made from."""
+    """laranex-schema-gate 1.0: gate_document against the shared gate conformance cases, the shared JSON Schema, and
+    the valid and invalid reports. tests/test_check.py runs the same cases through the check command."""
+
+    def test_gate_conformance(self):
+        paths = cases("conformance/gate")
+        self.assertEqual(len(paths), 23)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                given = case["input"]
+                report = gate_document(given["document"], thresholds=given["thresholds"],
+                                       requested=given["requested"])
+                self.assertEqual(canonical_json(report), canonical_json(case["expected"]))
+                self.assertEqual(validate_gate_report(report, strict=True)[1], [])
+
+    def test_unparsed_input(self):
+        report = gate_document(UNPARSED, requested=[{"baseline": {"connection": "b", "schema": None},
+                                                     "target": {"connection": "a", "schema": "*"}}])
+        self.assertEqual(report["errors"], [{"kind": "invalid_document",
+                                             "message": "The input could not be parsed as JSON."}])
+        self.assertEqual((report["exitCode"], report["comparisons"], len(report["requested"])), (2, [], 1))
+        # JSON null is parsed input, not a document.
+        self.assertEqual(gate_document(None)["errors"][0]["message"], "The input is not a laranex-schema document.")
 
     def test_the_python_shape_describes_the_shared_schema(self):
         self.assertEqual(gate_json_schema(), load(CONTRACT / "gate-report.schema.json"))
@@ -186,16 +208,38 @@ class GateReports(unittest.TestCase):
 
     def test_valid_reports(self):
         paths = cases("fixtures/gate/valid")
-        self.assertEqual([p.name for p in paths], ["drift.json", "incomplete.json", "passed.json"])
+        self.assertEqual([p.name for p in paths], ["drift.json", "incomplete.json", "invalid.json", "migrations.json",
+                                                   "passed.json", "requested.json"])
         for path in paths:
             with self.subTest(path.name):
                 report, errors = validate_gate_report(load(path), strict=True)
                 self.assertEqual(errors, [])
                 self.assertEqual(canonical_json(report), path.read_text(encoding="utf-8"))
 
+    def test_valid_reports_are_reproduced_from_their_documents(self):
+        # The options laranex-schema-viewer-ui's tests/fixtures/gate.ts made them with.
+        def document(name):
+            return load(CONTRACT / "fixtures" / "valid" / f"{name}.json")
+
+        wildcard = [{"baseline": {"connection": "app", "schema": "tenant_a"},
+                     "target": {"connection": "app", "schema": "*"}}]
+        made = {
+            "passed.json": gate_document(document("inferred-associations"), thresholds={"severity": "error"}),
+            "drift.json": gate_document(document("comparison-tenant-schemas")),
+            "requested.json": gate_document(document("comparison-tenant-schemas"), requested=wildcard),
+            "incomplete.json": gate_document(document("comparison-incomplete"),
+                                             thresholds={"severity": "error", "certainty": "likely"}),
+            "migrations.json": gate_document(document("migrations-alembic")),
+            "invalid.json": gate_document({**document("database-sqlite-indexes"), "version": "3.0"}),
+        }
+        for name, report in made.items():
+            with self.subTest(name):
+                self.assertEqual(canonical_json(report),
+                                 (CONTRACT / "fixtures" / "gate" / "valid" / name).read_text(encoding="utf-8"))
+
     def test_invalid_reports_fail_with_the_expected_rule(self):
         paths = cases("fixtures/gate/invalid")
-        self.assertEqual(len(paths), 7)
+        self.assertEqual(len(paths), 13)
         for path in paths:
             case = load(path)
             with self.subTest(path.name):

@@ -4,6 +4,9 @@
     "Findings are unique and sorted by source, id and kind"
   ],
   "report": {
+    "comparisons": [
+      "c69f5b58e94575f1b"
+    ],
     "counts": {
       "error": 13,
       "findings": 26,
@@ -16,10 +19,10 @@
     "findings": [
       {
         "certainty": "certain",
-        "id": "m0a5a5a0c80de4687",
+        "id": "me7424f18b09f71f6",
         "kind": "migration_behind",
-        "label": "alembic · tenant_partial",
-        "message": "1 revisions are not applied",
+        "label": "app · tenant_b",
+        "message": "alembic revisions not applied: 3c4d5e6f7a8b",
         "severity": "error",
         "source": "migration"
       },
@@ -27,8 +30,8 @@
         "certainty": "certain",
         "id": "xf36a69e9931c4c4f",
         "kind": "index_changed",
-        "label": "tenant_a.users.users_name_idx",
-        "message": "unique differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.users.users_name_idx",
+        "message": "Differs in unique",
         "severity": "warning",
         "source": "comparison"
       },
@@ -36,8 +39,8 @@
         "certainty": "likely",
         "id": "xdd358392b863cf3a",
         "kind": "constraint_changed",
-        "label": "tenant_a.orders.orders_total_check",
-        "message": "expression differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.orders.orders_total_check",
+        "message": "Differs in expression",
         "severity": "warning",
         "source": "comparison"
       },
@@ -45,7 +48,7 @@
         "certainty": "certain",
         "id": "xdd225ad2192585d0",
         "kind": "table_extra",
-        "label": "tenant_b.coupons",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.coupons",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -54,7 +57,7 @@
         "certainty": "certain",
         "id": "xdaca713cc0b158a9",
         "kind": "column_extra",
-        "label": "tenant_b.line_items.variant",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.line_items.variant",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -63,7 +66,7 @@
         "certainty": "certain",
         "id": "xda87e93f7e00389d",
         "kind": "primary_key_extra",
-        "label": "tenant_b.settings primary key",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.settings primary key",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -72,7 +75,7 @@
         "certainty": "certain",
         "id": "xd3b67fd58cd1658d",
         "kind": "primary_key_missing",
-        "label": "tenant_a.audit_events primary key",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.audit_events primary key",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -81,8 +84,8 @@
         "certainty": "certain",
         "id": "xca707e08038d401b",
         "kind": "column_changed",
-        "label": "tenant_a.orders.placed_at",
-        "message": "nullable differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.orders.placed_at",
+        "message": "Differs in nullable",
         "severity": "warning",
         "source": "comparison"
       },
@@ -90,7 +93,7 @@
         "certainty": "certain",
         "id": "xbd52e4f186cfbf3d",
         "kind": "table_missing",
-        "label": "tenant_a.invoices",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.invoices",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -99,8 +102,8 @@
         "certainty": "certain",
         "id": "xa6880ce102bef32d",
         "kind": "column_changed",
-        "label": "tenant_a.orders.total",
-        "message": "type differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.orders.total",
+        "message": "Differs in type",
         "severity": "warning",
         "source": "comparison"
       },
@@ -108,8 +111,8 @@
         "certainty": "certain",
         "id": "x9923df11720e1e18",
         "kind": "primary_key_changed",
-        "label": "tenant_a.line_items primary key",
-        "message": "columns differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.line_items primary key",
+        "message": "Differs in columns",
         "severity": "error",
         "source": "comparison"
       },
@@ -117,8 +120,8 @@
         "certainty": "likely",
         "id": "x972bdcd6f09977e8",
         "kind": "column_changed",
-        "label": "tenant_a.users.status",
-        "message": "default differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.users.status",
+        "message": "Differs in default",
         "severity": "warning",
         "source": "comparison"
       },
@@ -126,7 +129,7 @@
         "certainty": "certain",
         "id": "x8fe8383469f8f61b",
         "kind": "index_extra",
-        "label": "tenant_b.orders.orders_total_idx",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.orders.orders_total_idx",
         "message": "Only in the target",
         "severity": "warning",
         "source": "comparison"
@@ -135,8 +138,8 @@
         "certainty": "certain",
         "id": "x8baed283f070954f",
         "kind": "index_changed",
-        "label": "tenant_a.orders.orders_user_id_idx",
-        "message": "name differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.orders.orders_user_id_idx",
+        "message": "Differs in name",
         "severity": "warning",
         "source": "comparison"
       },
@@ -144,8 +147,8 @@
         "certainty": "certain",
         "id": "x7fcf2cd715cd8d4e",
         "kind": "foreign_key_changed",
-        "label": "tenant_a.orders.orders_user_id_fkey",
-        "message": "onDelete differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.orders.orders_user_id_fkey",
+        "message": "Differs in onDelete",
         "severity": "warning",
         "source": "comparison"
       },
@@ -153,7 +156,7 @@
         "certainty": "certain",
         "id": "x7c5614d39591f580",
         "kind": "foreign_key_missing",
-        "label": "tenant_a.line_items.line_items_product_id_fkey",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.line_items.line_items_product_id_fkey",
         "message": "Only in the baseline",
         "severity": "warning",
         "source": "comparison"
@@ -162,7 +165,7 @@
         "certainty": "certain",
         "id": "x79d16d68eb709003",
         "kind": "column_missing",
-        "label": "tenant_a.line_items.product_id",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.line_items.product_id",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -171,7 +174,7 @@
         "certainty": "certain",
         "id": "x7675c1f7fc75d68d",
         "kind": "table_missing",
-        "label": "tenant_a.products",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.products",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -180,7 +183,7 @@
         "certainty": "certain",
         "id": "x7495099d9aba44a3",
         "kind": "column_extra",
-        "label": "tenant_b.line_items.coupon_id",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.line_items.coupon_id",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -189,7 +192,7 @@
         "certainty": "certain",
         "id": "x6327c1b461f122ed",
         "kind": "table_extra",
-        "label": "tenant_b.refunds",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.refunds",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -198,7 +201,7 @@
         "certainty": "certain",
         "id": "x62b27f513574b3a0",
         "kind": "column_missing",
-        "label": "tenant_a.users.legacy_code",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.users.legacy_code",
         "message": "Only in the baseline",
         "severity": "error",
         "source": "comparison"
@@ -207,7 +210,7 @@
         "certainty": "certain",
         "id": "x616713e4cbe15f07",
         "kind": "index_missing",
-        "label": "tenant_a.orders.orders_placed_at_idx",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.orders.orders_placed_at_idx",
         "message": "Only in the baseline",
         "severity": "warning",
         "source": "comparison"
@@ -216,7 +219,7 @@
         "certainty": "certain",
         "id": "x572bcdbbb296db20",
         "kind": "column_extra",
-        "label": "tenant_b.users.phone",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.users.phone",
         "message": "Only in the target",
         "severity": "error",
         "source": "comparison"
@@ -225,8 +228,8 @@
         "certainty": "certain",
         "id": "x3ae7dedbaee6ab19",
         "kind": "table_changed",
-        "label": "tenant_a.users",
-        "message": "comment differ",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.users",
+        "message": "Differs in comment",
         "severity": "info",
         "source": "comparison"
       },
@@ -234,7 +237,7 @@
         "certainty": "certain",
         "id": "x36c6f80d64c93154",
         "kind": "constraint_missing",
-        "label": "tenant_a.line_items.line_items_qty_check",
+        "label": "app:tenant_a → app:tenant_b · tenant_a.line_items.line_items_qty_check",
         "message": "Only in the baseline",
         "severity": "warning",
         "source": "comparison"
@@ -243,7 +246,7 @@
         "certainty": "certain",
         "id": "x0db6370534429f1b",
         "kind": "foreign_key_extra",
-        "label": "tenant_b.line_items.line_items_coupon_id_fkey",
+        "label": "app:tenant_a → app:tenant_b · tenant_b.line_items.line_items_coupon_id_fkey",
         "message": "Only in the target",
         "severity": "warning",
         "source": "comparison"
@@ -251,6 +254,7 @@
     ],
     "format": "laranex-schema-gate",
     "passed": false,
+    "requested": [],
     "thresholds": {
       "certainty": "certain",
       "severity": "warning"

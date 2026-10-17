@@ -21,7 +21,7 @@ from .ids import by_list, comparison_id, difference_id
 from .shape import CHANGES, OBJECT_TYPES
 
 __all__ = ["COMPARISON_FEATURES", "FIELDS", "SeverityOverride", "compare_scopes", "coverage_gaps", "default_severity",
-           "normalize_sql", "normalize_type", "table_label"]
+           "normalize_sql", "normalize_type", "scope_covered", "table_label"]
 
 # The features a comparison reads; a side whose coverage does not have them all complete makes it incomplete.
 COMPARISON_FEATURES = (
@@ -189,19 +189,28 @@ def _side(document: m.Document, scope: m.Scope) -> _Side:
                  names={t.id: t.name for t in connection.tables}, coverage=coverage)
 
 
+def _gaps(coverage: m.Coverage | None, connection: m.Connection, schema: str | None) -> list[str]:
+    if coverage is None:
+        return ["coverage unknown"]
+    gaps = [f"{f} {coverage.features.get(f, 'unknown')}" for f in COMPARISON_FEATURES
+            if coverage.features.get(f) not in ("complete", "not_applicable")]
+    read = schema if schema is not None else connection.default_schema
+    if read is not None and coverage.schemas is not None and read not in coverage.schemas:
+        gaps.append(f"schema {read} not read")
+    return gaps
+
+
+def scope_covered(coverage: m.Coverage | None, connection: m.Connection, schema: str | None) -> bool:
+    """Whether a side's coverage supports a comparison (scopeCovered): every compared feature complete or not
+    applicable, and the scope's schema read."""
+    return not _gaps(coverage, connection, schema)
+
+
 def coverage_gaps(document: m.Document, scope: m.Scope) -> list[str]:
     """Why a side cannot be compared completely: the features a comparison reads that its coverage does not have
     complete or not applicable, and its schema when the coverage did not read it. Empty when the side is covered."""
     s = _side(document, scope)
-    c = s.coverage
-    if c is None:
-        return ["coverage unknown"]
-    gaps = [f"{f} {c.features.get(f, 'unknown')}" for f in COMPARISON_FEATURES
-            if c.features.get(f) not in ("complete", "not_applicable")]
-    schema = s.scope.schema if s.scope.schema is not None else s.connection.default_schema
-    if schema is not None and c.schemas is not None and schema not in c.schemas:
-        gaps.append(f"schema {schema} not read")
-    return gaps
+    return _gaps(s.coverage, s.connection, s.scope.schema)
 
 
 @dataclass
