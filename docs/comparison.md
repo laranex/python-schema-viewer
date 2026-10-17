@@ -120,4 +120,6 @@ The tests compare real catalogs: PostgreSQL tenant schemas with every kind of pl
 - Features a database does not have are differences: partial indexes and included columns on MySQL and MariaDB, functional key parts on MariaDB.
 - Types across drivers are normalized with the contract's synonyms only; types it does not know (`json` and `jsonb`, `uuid` and `char(36)`) are compared as written.
 
+- The shared contract's validator rejects a difference whose key contains one of the two compared schema names. A table, column or index named exactly like a compared tenant schema (table `billing` in schema `billing`, compared with schema `archive`) therefore makes the document fail strict validation, and `build` or `compare --write` stops without writing. `compare` without `--write` still prints the result.
+
 Comparisons describe the catalogs at build time. Tenant schemas that were not inspected are not compared: list them in `schemas`. MCP pages through stored differences only; those left out by the limit are counted, not listed, so raise the limit and rebuild (or run `compare --write`) to list them.

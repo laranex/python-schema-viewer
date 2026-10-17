@@ -150,7 +150,7 @@ class IntegrationTests(unittest.TestCase):
             )
             async with Client(params, read_timeout_seconds=10) as client:
                 tools = await client.list_tools()
-                self.assertEqual(len(tools.tools), 5)
+                self.assertEqual(len(tools.tools), 6)
                 self.assertTrue(all(t.annotations.read_only_hint for t in tools.tools))
                 result = await client.call_tool("schema_overview", {"limit": 2})
                 self.assertFalse(result.is_error)
@@ -164,6 +164,7 @@ class IntegrationTests(unittest.TestCase):
                     ("schema_get_model", {"model": example_document().models[0].id}),
                     ("schema_get_relationships", {"kind": "foreign_key"}),
                     ("schema_get_relationships", {"kind": "orm"}),
+                    ("schema_compare", {"section": "differences"}),
                 ]:
                     result = await client.call_tool(name, args)
                     self.assertFalse(result.is_error, result)
