@@ -12,7 +12,7 @@ A scope is a connection, by name, and optionally a schema of it, spelled `CONNEC
 | --- | --- |
 | `app:tenant_a` | The tables of schema `tenant_a` of connection `app` (and unqualified tables, if `tenant_a` is the connection's default schema) |
 | `app` | The connection's unqualified tables and those in its default schema (PostgreSQL `public`, the MySQL database) |
-| `app:*` (target only) | One comparison per schema the connection's inspection read (`coverage.schemas`), except the baseline's own scope |
+| `app:*` (target only) | One comparison per schema the connection's inspection read (`coverage.schemas`), except the baseline's own scope (on the same connection, the baseline's schema, or its default schema for an unqualified baseline) |
 
 Tables match by name, so a schema name is never part of a difference: `tenant_a.orders` and `tenant_b.orders` are the same table, and a sequence, index expression or check that names its own schema (`nextval('tenant_a.orders_id_seq')`) compares equal to the other tenant's. Differences are keyed by table, column and entity names only.
 
@@ -28,8 +28,8 @@ baseline = { connection = "app", schema = "tenant_template" }
 target = { connection = "app", schema = "*" }
 limit = 500
 overrides = [
-  { object_type = "index", change = "extra", severity = "info" },
-  { object_type = "column", change = "changed", field = "comment", severity = "warning" },
+  { objectType = "index", change = "extra", severity = "info" },
+  { objectType = "column", change = "changed", field = "comment", severity = "warning" },
 ]
 
 [[tool.laranex-schema-viewer.comparisons]]
@@ -42,11 +42,32 @@ target = { connection = "replica" }
 | `baseline` | `{ connection, schema }`: a connection name and an optional schema |
 | `target` | The same; `schema = "*"` compares the baseline with every schema the target connection's inspection read |
 | `limit` | Differences listed in the document, default **500**; the rest are counted in `summary` and `omitted`, and the comparison is incomplete. `0` keeps only the counts |
-| `overrides` | Severities for `(object_type, change)`, or for one `field` of a `changed` difference. A field override wins over a general one, and a changed difference takes its most severe field |
+| `overrides` | The contract's [severity overrides](https://laranex.github.io/schema-viewer-ui/contract#the-comparison-algorithm): severities for `(objectType, change)`, or for one `field` of a `changed` difference. A field override wins over a general one, and a changed difference takes its most severe field |
 
-`object_type` is `table`, `column`, `primaryKey`, `index`, `foreignKey` or `constraint`; `change` is `missing` (in the baseline only), `extra` (in the target only) or `changed`; `severity` is `error`, `warning` or `info`. The fields each object type can list are the contract's: `comment` (table); `type`, `nullable`, `default`, `collation`, `enum`, `generated`, `comment` (column); `columns` (primary key); `name`, `unique`, `parts`, `method`, `predicate`, `included` (index); `name`, `columns`, `foreignTable`, `foreignColumns`, `onDelete`, `onUpdate`, `deferrable`, `initially` (foreign key); `name`, `columns`, `expression` (constraint).
+`objectType` is `table`, `column`, `primaryKey`, `index`, `foreignKey` or `constraint`; `change` is `missing` (in the baseline only), `extra` (in the target only) or `changed`; `severity` is `error`, `warning` or `info`. The fields each object type can list are the contract's: `comment` (table); `type`, `nullable`, `default`, `collation`, `enum`, `generated`, `comment` (column); `columns` (primary key); `name`, `unique`, `parts`, `method`, `predicate`, `included` (index); `name`, `columns`, `foreignTable`, `foreignColumns`, `onDelete`, `onUpdate`, `deferrable`, `initially` (foreign key); `name`, `columns`, `expression` (constraint).
 
-Unknown keys, values and fields are errors. The configuration names connections and schemas only, never URLs. A pair named explicitly takes precedence over the same pair from a `*` expansion; naming one pair twice otherwise is an error.
+Unknown keys, values and fields are errors. The configuration names connections and schemas only, never URLs. Overrides are checked with the shared validator, and each error is its message prefixed with the entry:
+
+| Problem | Error |
+| --- | --- |
+| `overrides` is not an array | `[[tool.laranex-schema-viewer.comparisons]] entry 1 overrides must be an array` |
+| An override is not a table | `... entry 1 overrides[0] must be an object` |
+| A key other than `objectType`, `change`, `field`, `severity` (such as `object_type`) | `... entry 1 overrides[0] has unknown keys: object_type` |
+| An unknown `objectType`, `change` or `severity` | `... entry 1 overrides[0].objectType must be one of table, column, primaryKey, index, foreignKey, constraint` (and likewise) |
+| A `field` on a `missing` or `extra` override | `... entry 1 overrides[0].field applies only to changed differences, not missing` |
+| A field the object type's differences never list | `... entry 1 overrides[0].field must be one of collation, comment, default, enum, generated, nullable, type for objectType column` |
+| The same `(objectType, change, field)` twice | `... entry 1 overrides[2] repeats overrides[0]` |
+
+### Requested comparisons
+
+Configured comparisons, and those named with `--compare` or on the `compare` command line, are requests by connection name, resolved against the document with the shared [`expandComparisonRequests`](https://laranex.github.io/schema-viewer-ui/contract#requested-comparisons). Each resulting pair uses the `limit` and `overrides` of the request that gave it, and a pair named explicitly takes precedence over the same pair from a `*` expansion. Requests that cannot be expanded are configuration errors: the command fails (exit 1), lists every error, and writes nothing.
+
+| Problem | Error |
+| --- | --- |
+| A connection the document does not have | `Requested comparison app → ghost names connection ghost, which the document does not have.` |
+| A `*` target whose inspection lists no schemas (SQLite) | `Requested comparison app → app:* cannot be expanded: the inspection of connection app lists no schemas.` |
+| A `*` target that leaves no schema once the baseline's own scope is out | `Requested comparison app → app:* matches no schema.` |
+| The same comparison listed more than once | `Requested comparison app:tenant_a → app:tenant_b is listed more than once.` |
 
 Default severities:
 
@@ -85,7 +106,7 @@ laranex-schema-viewer compare --write
 | `--snapshot PATH` | Config `output`, else `schema-viewer.json` | The document to read |
 | `--limit N` | `500` | Differences listed per comparison named on the command line |
 | `--json` | Off | Print the comparison objects as laranex-schema JSON instead of the summary |
-| `--write` | Off | Store the comparisons in the document atomically, replacing those of the same scopes (and their diagnostics) and keeping the others |
+| `--write` | Off | Store the comparisons in the document atomically, replacing those of the same scopes and every diagnostic about them, and keeping the others |
 
 `compare` reads the document and `pyproject.toml` only: no database, no application import, no ORM. The summary has one line per comparison and one per listed difference:
 
@@ -108,7 +129,14 @@ Each comparison has `baseline`, `target`, a `summary` counting every difference 
 - **certain**: missing and extra entities, and changed fields compared exactly: same-driver types, nullability, primary keys, index uniqueness and parts, foreign keys and referential actions.
 - **likely**: a changed field compared as normalized text, which can be wrong: types across different drivers (`character varying(255)` and `varchar(255)`, `int4` and `int(11)`, `tinyint(1)` and `boolean`), defaults, generated expressions, index predicates, check expressions and expression index parts.
 
-`complete` is false when differences were omitted, or when either side's coverage of a compared feature is not complete (SQLite's check constraints, for example) or did not read the scope's schema. An incomplete comparison gets a `comparison_incomplete` diagnostic that says why. It is never a passing result.
+`complete` is false when differences were omitted, or when either side has a coverage gap: no coverage, a compared feature not complete (SQLite's check constraints, for example), or the scope's schema not read. An incomplete comparison is stored with one `comparison_incomplete` diagnostic (inspection, warning, certain; subject the comparison, labelled `BASELINE=TARGET`) that says why, exactly as the [contract](https://laranex.github.io/schema-viewer-ui/contract#storing-comparisons) words it:
+
+```text
+Comparison app:tenant_template=app:tenant_initech is incomplete: 6 of 10 differences are left out by the limit of 4
+Comparison primary=replica is incomplete: the baseline primary is not completely covered (checkConstraints partial); the target replica is not completely covered (checkConstraints partial)
+```
+
+A complete comparison has none, and storing a comparison again replaces its diagnostic. An incomplete comparison is never a passing result.
 
 ## Accuracy and limits
 

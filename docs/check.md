@@ -43,7 +43,7 @@ This package writes migration tracks empty, so its own documents have no migrati
 | `check` with configured comparisons | The configured entries, as written (connection names, `*` targets unexpanded) | Only those, which `build` must have stored; others in the document are ignored |
 | `check BASELINE=TARGET ...` | The named comparisons, replacing the configured ones | Only those, computed in memory first |
 
-Requests use connection names; a target schema `*` is expanded by the gate to every schema the target connection's inspection read except the baseline's own scope, exactly as `build` and `compare` expand it. A request that cannot be resolved is a `comparison_not_found` error (exit 2): a configured comparison the build did not store (a declared build stores none), an unknown connection, or a `*` that matches no schema.
+Requests use connection names; a target schema `*` is expanded by the gate to every schema the target connection's inspection read except the baseline's own scope, with the same shared [expansion](./comparison.md#requested-comparisons) as `build` and `compare`. A request that cannot be resolved is a `comparison_not_found` error (exit 2) with the expansion's message: a configured comparison the build did not store (a declared build stores none), an unknown connection, a `*` whose inspection lists no schemas, or a `*` that matches no schema. A comparison configured or named twice is a configuration error (exit 2, no report): `Requested comparison app:tenant_a → app:tenant_b is listed more than once.`
 
 Comparisons named on the command line are computed from the saved document, as [`compare`](./comparison.md#compare-a-saved-document) does (replacing a stored comparison of the same scopes, with `--limit`), and then requested, so the gate checks exactly what was computed. Nothing is written. A named comparison whose connection is unknown, or whose `*` cannot be expanded, is not computed and is reported by the gate as not found; on an invalid document nothing is computed.
 
@@ -70,7 +70,7 @@ Flags take precedence over the configuration. The section accepts only these two
 | --- | --- |
 | `0` | Passed: no error and no qualifying finding (findings below the thresholds are still listed) |
 | `1` | Drift: at least one finding qualifies, and nothing kept the check from completing |
-| `2` | Incomplete or invalid: any error above (it wins over `1`), or, without a report, invalid arguments (including argparse usage errors), invalid configuration, a named comparison given twice, or a failure writing `--output` |
+| `2` | Incomplete or invalid: any error above (it wins over `1`), or, without a report, invalid arguments (including argparse usage errors), invalid configuration, a comparison configured or named twice, or a failure writing `--output` (the previous file is left as it was) |
 
 ## Options
 

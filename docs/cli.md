@@ -84,7 +84,7 @@ Keep the loopback default for local inspection. The server serves allowlisted vi
 laranex-schema-viewer compare app:tenant_template=app:*
 ```
 
-Compares scopes of a saved document without a database or application imports, and prints a summary (`--json`: the comparison objects). `--write` stores them in the document atomically. See [schema comparison](./comparison.md#compare-a-saved-document).
+Compares scopes of a saved document without a database or application imports, and prints a summary (`--json`: the comparison objects). `--write` stores them in the document atomically, with a `comparison_incomplete` diagnostic for each incomplete one; a failed write leaves the document as it was. A request that cannot be expanded (an unknown connection, a `*` target that matches no schema, a comparison listed twice) or an invalid override fails with the shared contract's message and writes nothing. See [schema comparison](./comparison.md#compare-a-saved-document).
 
 | Option | Default |
 | --- | --- |
