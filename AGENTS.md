@@ -15,6 +15,8 @@ Read [architecture](docs/architecture.md), [MCP contracts](docs/mcp.md), and [va
 - `server.py`: loopback viewer over saved snapshots and allowlisted packaged assets.
 - `query.py`, `mcp.py`: bounded read-only snapshot queries and optional MCP stdio transport.
 - `cli.py`: lazy entry points; keep ORM and MCP imports out of unrelated commands.
+- `introspection/`: the database introspection worker (`worker.py`, started by `runner.py` with `python -I` from an empty directory), read-only sessions, privilege checks and the catalog statement allowlist (`readonly.py`), and catalog reading (`catalog.py`). It must never import application code or ORMs other than SQLAlchemy, and it must never receive the URL other than on stdin.
+- `reconcile.py`: combines declared and database laranex-schema documents; `unified.py` converts adapters' version 1 output. Mark heuristic comparisons `likely`.
 - `isolation/`: `runner.py` starts the extraction worker (`worker.py`) at the `process` or `container` level, `env.py` filters its environment, and `guards.py` holds best-effort audit hooks and ORM connect guards. Fail when a level cannot be established; never fall back, and never pass database credentials to the extraction worker. Keep [build security](docs/security.md) and `tests/test_isolation.py` (adversarial fixtures in `tests/fixtures/adversarial/`) in step.
 
 ## Coding conventions
@@ -41,6 +43,7 @@ python -m build && python scripts/check_wheel.py
 ```
 
 - ORM tests skip when that ORM is missing; report skips and untested versions accurately. No type checker is configured.
+- Database tests: `docker compose -f tests/databases/compose.yaml up -d`, then export `LSV_TEST_POSTGRES_URL`, `LSV_TEST_MYSQL_URL` and `LSV_TEST_MARIADB_URL` as shown in `tests/test_introspection.py`. Without them, only SQLite runs. Schemas are synthetic; never point these tests at a real database.
 - `npm run test:browser` runs a real-browser smoke test against a running viewer (Node 22+, Chrome/Chromium).
 - Reference validation: `PYTHONDONTWRITEBYTECODE=1 python scripts/validate_reference.py /absolute/path/to/backend --module app.models`. Keep outputs outside the application; measure actual counts.
 - For schema questions prefer read-only MCP tools, then saved JSON. Saved metadata does not prove deployed schema or freshness.

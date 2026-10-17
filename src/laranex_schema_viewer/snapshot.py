@@ -27,13 +27,31 @@ def read_snapshot(path: str | Path) -> SchemaDocument:
         data = stream.read(MAX_SNAPSHOT_BYTES + 1)
     if len(data) > MAX_SNAPSHOT_BYTES:
         raise ValueError("Snapshot exceeds 32 MiB limit")
+    if b'"laranex-schema"' in data:
+        try:
+            unified = json.loads(data).get("format") == "laranex-schema"
+        except (ValueError, AttributeError):
+            unified = False
+        if unified:
+            raise ValueError(f"{path} is a laranex-schema document; serve and mcp read version 1 snapshots, which "
+                             "build writes with --source declared (the default)")
     return SchemaDocument.model_validate_json(data)
 
 
 def write_snapshot(document: SchemaDocument, path: str | Path) -> None:
     # Validate even programmatically constructed documents before persisting.
     document = SchemaDocument.model_validate_json(document.model_dump_json())
-    data = snapshot_bytes(document)
+    write_atomically(snapshot_bytes(document), path)
+
+
+def write_unified(document: dict, path: str | Path) -> None:
+    """A laranex-schema document, strictly validated, in canonical JSON."""
+    from .contract import assert_document, canonical_json
+
+    write_atomically(canonical_json(assert_document(document, strict=True).to_json()).encode("utf-8"), path)
+
+
+def write_atomically(data: bytes, path: str | Path) -> None:
     if len(data) > MAX_SNAPSHOT_BYTES:
         raise ValueError("Snapshot exceeds 32 MiB limit")
     destination = Path(path)
@@ -47,4 +65,3 @@ def write_snapshot(document: SchemaDocument, path: str | Path) -> None:
         os.replace(temporary, destination)
     finally:
         Path(temporary).unlink(missing_ok=True)
-

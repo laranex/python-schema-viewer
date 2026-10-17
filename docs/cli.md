@@ -44,12 +44,26 @@ laranex-schema-viewer build
 | `--isolation LEVEL` | Config `isolation`, else `process` | Where application code runs: `process` or `container` |
 | `--timeout SECONDS` | Config `timeout`, else `120` | Stop extraction after this long |
 | `--container-image IMAGE` | Config `container_image` | Image for `--isolation container` |
+| `--source SOURCE` | Config `source`, else `declared` | `declared`, `database` or `combined`; see [database introspection](./database.md) |
+| `--format FORMAT` | Config `format`, else `v1` for declared builds | `v1` or `laranex-schema` |
+| `--database-url-env NAME` | Config `database_url_env`, else `LARANEX_SCHEMA_DATABASE_URL` | Environment variable holding the database URL |
+| `--schema NAME` | Config `database_schemas`, else the default schema | Database schema to inspect; repeatable |
+| `--database-connection NAME` | Config `database_connection`, else the only declared connection | Connection the database belongs to |
+| `--allow-write-privileges` | Off | Inspect with a role that could change the database, in read-only sessions |
 
 Application code is imported in a separate extraction worker with a filtered environment: database URLs, passwords and tokens are not passed to it. `env_passthrough`, `[tool.laranex-schema-viewer.env]`, `allow_writes` and `container_runtime` configure it. Operations the worker blocks are printed as warnings. See [build security](./security.md) for what each level guarantees.
 
 When neither options nor configuration select a module, `build` looks up to four directories deep for exactly one `models` package or `models.py` file, skipping hidden, virtual-environment, test, documentation, and build directories. It imports a detected package recursively and prints which module it chose. If it finds none or several, it stops and asks for `--module` or configuration.
 
 Before that, if a `manage.py` in the project root sets `DJANGO_SETTINGS_MODULE`, `build` uses Django with that settings module. See [supported ORMs](./orm-support.md) for how each adapter selects models.
+
+## Convert
+
+```bash
+laranex-schema-viewer convert schema-viewer.json --output schema.json --orm sqlalchemy
+```
+
+Converts a version 1 snapshot to a laranex-schema 1.0 document (declared source) in canonical JSON. `--orm` records which ORM produced it.
 
 ## Serve
 
