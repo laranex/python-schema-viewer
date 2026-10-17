@@ -1,0 +1,41 @@
+{
+  "description": "Two overrides for one (objectType, change, field) are ambiguous, whatever their severities; a field null repeats one without a field",
+  "expected": {
+    "errors": [
+      "overrides[2] repeats overrides[0]",
+      "overrides[3] repeats overrides[1]"
+    ]
+  },
+  "input": {
+    "overrides": [
+      {
+        "change": "changed",
+        "field": "type",
+        "objectType": "column",
+        "severity": "error"
+      },
+      {
+        "change": "missing",
+        "objectType": "table",
+        "severity": "warning"
+      },
+      {
+        "change": "changed",
+        "field": "type",
+        "objectType": "column",
+        "severity": "info"
+      },
+      {
+        "change": "missing",
+        "field": null,
+        "objectType": "table",
+        "severity": "warning"
+      },
+      {
+        "change": "changed",
+        "objectType": "column",
+        "severity": "info"
+      }
+    ]
+  }
+}

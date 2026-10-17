@@ -1,0 +1,639 @@
+{
+  "description": "A stored comparison with the same id is replaced, and every diagnostic about it (any kind) dropped; other comparisons and their diagnostics are kept",
+  "expected": {
+    "document": {
+      "comparisons": [
+        {
+          "baseline": {
+            "connection": "connection:replica",
+            "schema": null
+          },
+          "complete": false,
+          "differences": [
+            {
+              "baseline": {
+                "id": null,
+                "label": "public.users.email",
+                "table": "replica:public.users"
+              },
+              "certainty": "certain",
+              "change": "missing",
+              "fields": [],
+              "id": "x4b94124d9bb3a890",
+              "key": [
+                "users",
+                "email"
+              ],
+              "objectType": "column",
+              "severity": "error",
+              "target": null
+            }
+          ],
+          "id": "c533440e375b96ce2",
+          "omitted": 0,
+          "summary": {
+            "changed": 0,
+            "extra": 0,
+            "missing": 1
+          },
+          "target": {
+            "connection": "connection:primary",
+            "schema": null
+          }
+        },
+        {
+          "baseline": {
+            "connection": "connection:primary",
+            "schema": null
+          },
+          "complete": false,
+          "differences": [],
+          "id": "caa66b93189252d11",
+          "omitted": 1,
+          "summary": {
+            "changed": 0,
+            "extra": 1,
+            "missing": 0
+          },
+          "target": {
+            "connection": "connection:replica",
+            "schema": null
+          }
+        }
+      ],
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "primary:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": false,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "partial",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:replica",
+          "name": "replica",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "email",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "replica:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        }
+      ],
+      "derivedLinks": [],
+      "diagnostics": [
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "n8a372145b89b6cea",
+          "kind": "comparison_incomplete",
+          "message": "Comparison replica=primary is incomplete: the baseline replica is not completely covered (indexes partial)",
+          "severity": "warning",
+          "subject": {
+            "columns": null,
+            "id": "c533440e375b96ce2",
+            "label": "replica=primary",
+            "type": "comparison"
+          }
+        },
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "n858c73a631d0311e",
+          "kind": "comparison_incomplete",
+          "message": "Comparison primary=replica is incomplete: 1 of 1 differences are left out by the limit of 0; the target replica is not completely covered (indexes partial)",
+          "severity": "warning",
+          "subject": {
+            "columns": null,
+            "id": "caa66b93189252d11",
+            "label": "primary=replica",
+            "type": "comparison"
+          }
+        },
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "nd22be0dec093ca30",
+          "kind": "unsupported_metadata",
+          "message": "Index predicates were read from the index SQL.",
+          "severity": "info",
+          "subject": {
+            "columns": null,
+            "id": "connection:primary",
+            "label": "primary",
+            "type": "connection"
+          }
+        }
+      ],
+      "format": "laranex-schema",
+      "generator": {
+        "name": "laranex-schema-viewer",
+        "orm": null
+      },
+      "inferredAssociations": [],
+      "links": [],
+      "migrations": [],
+      "models": [],
+      "note": null,
+      "relationships": [],
+      "source": "database",
+      "version": "2.0"
+    }
+  },
+  "input": {
+    "comparisons": [
+      {
+        "baseline": {
+          "connection": "connection:primary",
+          "schema": null
+        },
+        "complete": false,
+        "differences": [],
+        "id": "caa66b93189252d11",
+        "omitted": 1,
+        "summary": {
+          "changed": 0,
+          "extra": 1,
+          "missing": 0
+        },
+        "target": {
+          "connection": "connection:replica",
+          "schema": null
+        }
+      }
+    ],
+    "document": {
+      "comparisons": [
+        {
+          "baseline": {
+            "connection": "connection:replica",
+            "schema": null
+          },
+          "complete": false,
+          "differences": [
+            {
+              "baseline": {
+                "id": null,
+                "label": "public.users.email",
+                "table": "replica:public.users"
+              },
+              "certainty": "certain",
+              "change": "missing",
+              "fields": [],
+              "id": "x4b94124d9bb3a890",
+              "key": [
+                "users",
+                "email"
+              ],
+              "objectType": "column",
+              "severity": "error",
+              "target": null
+            }
+          ],
+          "id": "c533440e375b96ce2",
+          "omitted": 0,
+          "summary": {
+            "changed": 0,
+            "extra": 0,
+            "missing": 1
+          },
+          "target": {
+            "connection": "connection:primary",
+            "schema": null
+          }
+        },
+        {
+          "baseline": {
+            "connection": "connection:primary",
+            "schema": null
+          },
+          "complete": false,
+          "differences": [
+            {
+              "baseline": null,
+              "certainty": "certain",
+              "change": "extra",
+              "fields": [],
+              "id": "x6c5dd68b395ae683",
+              "key": [
+                "users",
+                "email"
+              ],
+              "objectType": "column",
+              "severity": "error",
+              "target": {
+                "id": null,
+                "label": "public.users.email",
+                "table": "replica:public.users"
+              }
+            }
+          ],
+          "id": "caa66b93189252d11",
+          "omitted": 0,
+          "summary": {
+            "changed": 0,
+            "extra": 1,
+            "missing": 0
+          },
+          "target": {
+            "connection": "connection:replica",
+            "schema": null
+          }
+        }
+      ],
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "primary:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": false,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "partial",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:replica",
+          "name": "replica",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "email",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "replica:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        }
+      ],
+      "derivedLinks": [],
+      "diagnostics": [
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "n8a372145b89b6cea",
+          "kind": "comparison_incomplete",
+          "message": "Comparison replica=primary is incomplete: the baseline replica is not completely covered (indexes partial)",
+          "severity": "warning",
+          "subject": {
+            "columns": null,
+            "id": "c533440e375b96ce2",
+            "label": "replica=primary",
+            "type": "comparison"
+          }
+        },
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "nc9be3061af8f5e55",
+          "kind": "comparison_incomplete",
+          "message": "Written by an older producer.",
+          "severity": "warning",
+          "subject": {
+            "columns": null,
+            "id": "caa66b93189252d11",
+            "label": "primary → replica",
+            "type": "comparison"
+          }
+        },
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "nd22be0dec093ca30",
+          "kind": "unsupported_metadata",
+          "message": "Index predicates were read from the index SQL.",
+          "severity": "info",
+          "subject": {
+            "columns": null,
+            "id": "connection:primary",
+            "label": "primary",
+            "type": "connection"
+          }
+        },
+        {
+          "category": "lint",
+          "certainty": "certain",
+          "id": "nea032848cf2952d0",
+          "kind": "comparison_reviewed",
+          "message": "Reviewed.",
+          "severity": "info",
+          "subject": {
+            "columns": null,
+            "id": "caa66b93189252d11",
+            "label": null,
+            "type": "comparison"
+          }
+        }
+      ],
+      "format": "laranex-schema",
+      "generator": {
+        "name": "laranex-schema-viewer",
+        "orm": null
+      },
+      "inferredAssociations": [],
+      "links": [],
+      "migrations": [],
+      "models": [],
+      "note": null,
+      "relationships": [],
+      "source": "database",
+      "version": "2.0"
+    }
+  }
+}

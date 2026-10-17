@@ -1,0 +1,50 @@
+{
+  "description": "not_applicable is never a gap",
+  "expected": {
+    "covered": true,
+    "gaps": []
+  },
+  "input": {
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "not_applicable",
+                "columnTypes": "not_applicable",
+                "columns": "not_applicable",
+                "comments": "not_applicable",
+                "defaults": "not_applicable",
+                "foreignKeys": "not_applicable",
+                "includedColumns": "not_applicable",
+                "indexExpressions": "not_applicable",
+                "indexPredicates": "not_applicable",
+                "indexes": "not_applicable",
+                "models": "not_applicable",
+                "primaryKeys": "not_applicable",
+                "referentialActions": "not_applicable",
+                "relationships": "not_applicable",
+                "tables": "not_applicable",
+                "uniqueConstraints": "not_applicable"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app",
+          "tables": []
+        }
+      ],
+      "source": "database"
+    },
+    "scope": {
+      "connection": "connection:app",
+      "schema": null
+    }
+  }
+}

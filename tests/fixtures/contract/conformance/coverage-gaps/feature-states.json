@@ -1,0 +1,65 @@
+{
+  "description": "Compared features that are partial, unavailable or left out (unknown) are gaps, in the compared-feature order; features a comparison does not read are never gaps",
+  "expected": {
+    "covered": false,
+    "gaps": [
+      {
+        "feature": "columnTypes",
+        "kind": "feature",
+        "state": "partial"
+      },
+      {
+        "feature": "defaults",
+        "kind": "feature",
+        "state": "unavailable"
+      },
+      {
+        "feature": "comments",
+        "kind": "feature",
+        "state": "unknown"
+      }
+    ]
+  },
+  "input": {
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": false,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "partial",
+                "columns": "complete",
+                "defaults": "unavailable",
+                "foreignKeys": "complete",
+                "includedColumns": "unavailable",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "unavailable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app",
+          "tables": []
+        }
+      ],
+      "source": "database"
+    },
+    "scope": {
+      "connection": "connection:app",
+      "schema": null
+    }
+  }
+}

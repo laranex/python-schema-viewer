@@ -1,0 +1,82 @@
+{
+  "description": "In a declared document a * target expands over the declared coverage's schemas",
+  "expected": {
+    "errors": [],
+    "pairs": [
+      {
+        "baseline": {
+          "connection": "connection:orm",
+          "schema": "main"
+        },
+        "request": {
+          "baseline": {
+            "connection": "orm",
+            "schema": "main"
+          },
+          "target": {
+            "connection": "orm",
+            "schema": "*"
+          }
+        },
+        "target": {
+          "connection": "connection:orm",
+          "schema": "reporting"
+        }
+      }
+    ]
+  },
+  "input": {
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": null,
+            "declared": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "reporting",
+                "main"
+              ]
+            }
+          },
+          "defaultSchema": "main",
+          "driver": null,
+          "id": "connection:orm",
+          "name": "orm",
+          "tables": []
+        }
+      ],
+      "source": "declared"
+    },
+    "requests": [
+      {
+        "baseline": {
+          "connection": "orm",
+          "schema": "main"
+        },
+        "target": {
+          "connection": "orm",
+          "schema": "*"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,516 @@
+{
+  "description": "A comparison that is now complete replaces an incomplete one and leaves no comparison_incomplete diagnostic",
+  "expected": {
+    "document": {
+      "comparisons": [
+        {
+          "baseline": {
+            "connection": "connection:primary",
+            "schema": null
+          },
+          "complete": true,
+          "differences": [
+            {
+              "baseline": null,
+              "certainty": "certain",
+              "change": "extra",
+              "fields": [],
+              "id": "x6c5dd68b395ae683",
+              "key": [
+                "users",
+                "email"
+              ],
+              "objectType": "column",
+              "severity": "error",
+              "target": {
+                "id": null,
+                "label": "public.users.email",
+                "table": "replica:public.users"
+              }
+            }
+          ],
+          "id": "caa66b93189252d11",
+          "omitted": 0,
+          "summary": {
+            "changed": 0,
+            "extra": 1,
+            "missing": 0
+          },
+          "target": {
+            "connection": "connection:replica",
+            "schema": null
+          }
+        }
+      ],
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "primary:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:replica",
+          "name": "replica",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "email",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "replica:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        }
+      ],
+      "derivedLinks": [],
+      "diagnostics": [],
+      "format": "laranex-schema",
+      "generator": {
+        "name": "laranex-schema-viewer",
+        "orm": null
+      },
+      "inferredAssociations": [],
+      "links": [],
+      "migrations": [],
+      "models": [],
+      "note": null,
+      "relationships": [],
+      "source": "database",
+      "version": "2.0"
+    }
+  },
+  "input": {
+    "comparisons": [
+      {
+        "baseline": {
+          "connection": "connection:primary",
+          "schema": null
+        },
+        "complete": true,
+        "differences": [
+          {
+            "baseline": null,
+            "certainty": "certain",
+            "change": "extra",
+            "fields": [],
+            "id": "x6c5dd68b395ae683",
+            "key": [
+              "users",
+              "email"
+            ],
+            "objectType": "column",
+            "severity": "error",
+            "target": {
+              "id": null,
+              "label": "public.users.email",
+              "table": "replica:public.users"
+            }
+          }
+        ],
+        "id": "caa66b93189252d11",
+        "omitted": 0,
+        "summary": {
+          "changed": 0,
+          "extra": 1,
+          "missing": 0
+        },
+        "target": {
+          "connection": "connection:replica",
+          "schema": null
+        }
+      }
+    ],
+    "document": {
+      "comparisons": [
+        {
+          "baseline": {
+            "connection": "connection:primary",
+            "schema": null
+          },
+          "complete": false,
+          "differences": [
+            {
+              "baseline": null,
+              "certainty": "certain",
+              "change": "extra",
+              "fields": [],
+              "id": "x6c5dd68b395ae683",
+              "key": [
+                "users",
+                "email"
+              ],
+              "objectType": "column",
+              "severity": "error",
+              "target": {
+                "id": null,
+                "label": "public.users.email",
+                "table": "replica:public.users"
+              }
+            }
+          ],
+          "id": "caa66b93189252d11",
+          "omitted": 0,
+          "summary": {
+            "changed": 0,
+            "extra": 1,
+            "missing": 0
+          },
+          "target": {
+            "connection": "connection:replica",
+            "schema": null
+          }
+        }
+      ],
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:primary",
+          "name": "primary",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "primary:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "public"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:replica",
+          "name": "replica",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "email",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "replica:public.users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [
+                "id"
+              ],
+              "provenance": [
+                "database"
+              ],
+              "schema": "public"
+            }
+          ]
+        }
+      ],
+      "derivedLinks": [],
+      "diagnostics": [
+        {
+          "category": "inspection",
+          "certainty": "certain",
+          "id": "nd37d065bf3984efa",
+          "kind": "comparison_incomplete",
+          "message": "Comparison primary=replica is incomplete: the target replica is not completely covered (indexes partial)",
+          "severity": "warning",
+          "subject": {
+            "columns": null,
+            "id": "caa66b93189252d11",
+            "label": "primary=replica",
+            "type": "comparison"
+          }
+        }
+      ],
+      "format": "laranex-schema",
+      "generator": {
+        "name": "laranex-schema-viewer",
+        "orm": null
+      },
+      "inferredAssociations": [],
+      "links": [],
+      "migrations": [],
+      "models": [],
+      "note": null,
+      "relationships": [],
+      "source": "database",
+      "version": "2.0"
+    }
+  }
+}

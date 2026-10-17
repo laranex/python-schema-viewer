@@ -1,0 +1,15 @@
+{
+  "description": "Overrides that are not an array",
+  "expected": {
+    "errors": [
+      "overrides must be an array"
+    ]
+  },
+  "input": {
+    "overrides": {
+      "change": "missing",
+      "objectType": "table",
+      "severity": "error"
+    }
+  }
+}

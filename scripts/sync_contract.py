@@ -4,7 +4,8 @@
 
 Copies contract/schema.json and contract/gate-report.schema.json, the valid and invalid documents
 (contract/fixtures/{valid,invalid}), the valid and invalid gate reports (contract/fixtures/gate/{valid,invalid}) and the
-conformance cases (contract/conformance/{graph,comparison,migrations,inference,gate}) into tests/fixtures/contract/,
+conformance cases (contract/conformance/{graph,comparison,requests,coverage-gaps,overrides,comparison-diagnostics,
+store,migrations,inference,gate}) into tests/fixtures/contract/,
 replacing what was there, and records the source commit, the UI version and the SHA-256 of every file in
 manifest.json. The package's distributed schemas (src/laranex_schema_viewer/contract/schema.json and
 gate-report.schema.json) are the same files. tests/test_contract.py fails when a vendored file no longer matches the
@@ -25,8 +26,9 @@ TARGET = ROOT / "tests/fixtures/contract"
 PACKAGE = ROOT / "src/laranex_schema_viewer/contract"
 SCHEMAS = ("schema.json", "gate-report.schema.json")
 DIRECTORIES = ("fixtures/valid", "fixtures/invalid", "fixtures/gate/valid", "fixtures/gate/invalid",
-               "conformance/graph", "conformance/comparison", "conformance/migrations", "conformance/inference",
-               "conformance/gate")
+               "conformance/graph", "conformance/comparison", "conformance/requests", "conformance/coverage-gaps",
+               "conformance/overrides", "conformance/comparison-diagnostics", "conformance/store",
+               "conformance/migrations", "conformance/inference", "conformance/gate")
 
 
 def git(ui: Path, *args: str) -> str:

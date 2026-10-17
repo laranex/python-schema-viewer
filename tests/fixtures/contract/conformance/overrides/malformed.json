@@ -1,0 +1,37 @@
+{
+  "description": "Entries that are not objects, unknown keys (sorted), a missing severity, and a field that is not a string",
+  "expected": {
+    "errors": [
+      "overrides[0] must be an object",
+      "overrides[1] must be an object",
+      "overrides[2] must be an object",
+      "overrides[3] has unknown keys: extra, object_type",
+      "overrides[4].severity must be one of error, warning, info",
+      "overrides[5].field must be a string or null"
+    ]
+  },
+  "input": {
+    "overrides": [
+      null,
+      "column",
+      [],
+      {
+        "change": "missing",
+        "extra": true,
+        "objectType": "table",
+        "object_type": "table",
+        "severity": "error"
+      },
+      {
+        "change": "extra",
+        "objectType": "table"
+      },
+      {
+        "change": "changed",
+        "field": 3,
+        "objectType": "table",
+        "severity": "info"
+      }
+    ]
+  }
+}

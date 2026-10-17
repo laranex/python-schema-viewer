@@ -1,0 +1,180 @@
+{
+  "description": "A * target cannot be expanded when the target connection has no coverage or its coverage lists no schemas",
+  "expected": {
+    "errors": [
+      {
+        "kind": "no_schemas",
+        "message": "Requested comparison app → flat:* cannot be expanded: the inspection of connection flat lists no schemas.",
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": null
+          },
+          "target": {
+            "connection": "flat",
+            "schema": "*"
+          }
+        }
+      },
+      {
+        "kind": "no_schemas",
+        "message": "Requested comparison app → legacy:* cannot be expanded: the inspection of connection legacy lists no schemas.",
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": null
+          },
+          "target": {
+            "connection": "legacy",
+            "schema": "*"
+          }
+        }
+      }
+    ],
+    "pairs": []
+  },
+  "input": {
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "tenant_c",
+                "tenant_a",
+                "public",
+                "tenant_b",
+                "tenant_a"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app",
+          "tables": []
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "shop"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:replica",
+          "name": "replica",
+          "tables": []
+        },
+        {
+          "coverage": {
+            "database": null,
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:legacy",
+          "name": "legacy",
+          "tables": []
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:flat",
+          "name": "flat",
+          "tables": []
+        }
+      ],
+      "source": "database"
+    },
+    "requests": [
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": null
+        },
+        "target": {
+          "connection": "legacy",
+          "schema": "*"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": null
+        },
+        "target": {
+          "connection": "flat",
+          "schema": "*"
+        }
+      }
+    ]
+  }
+}
