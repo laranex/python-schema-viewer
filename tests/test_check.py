@@ -298,3 +298,72 @@ class Command(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.strip().splitlines()[-1], "1 []")
         self.assertEqual(self.snapshot.read_bytes(), before)
+
+
+class CIEndToEnd(unittest.TestCase):
+    """A CI job: build a disposable PostgreSQL multi-tenant database with --source database and comparisons, then gate
+    the saved document. tenant_b equals tenant_a; tenant_c has planted drift."""
+
+    @classmethod
+    def setUpClass(cls):
+        from tests.test_comparison_databases import HAS_SQLALCHEMY, TENANTS, Disposable, template
+
+        url = os.environ.get("LSV_TEST_POSTGRES_URL")
+        if not (url and HAS_SQLALCHEMY):
+            raise unittest.SkipTest("set LSV_TEST_POSTGRES_URL to run these tests")
+        cls.database = type("GateDatabase", (Disposable,), {})
+        try:
+            cls.database.create({"pg": url})
+            statements = []
+            for tenant in TENANTS:
+                statements += [f'CREATE SCHEMA "{tenant}"', *template(tenant, drift=tenant == "tenant_c")]
+            statements += [f'GRANT USAGE ON SCHEMA "{s}" TO "{cls.database.role}"' for s in TENANTS]
+            cls.database.execute("pg", statements)
+        except Exception:
+            cls.database.drop()
+            raise
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.root = Path(cls.tmp.name).resolve()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+        cls.database.drop()
+
+    def build(self, target: str) -> subprocess.CompletedProcess:
+        (self.root / "pyproject.toml").write_text(
+            "[tool.laranex-schema-viewer]\noutput = 'schema-viewer.json'\nsource = 'database'\n"
+            "[tool.laranex-schema-viewer.databases.app]\nurl_env = 'APP_DATABASE_URL'\n"
+            "schemas = ['tenant_a', 'tenant_b', 'tenant_c']\n"
+            "[[tool.laranex-schema-viewer.comparisons]]\n"
+            f"baseline = {{ connection = 'app', schema = 'tenant_a' }}\ntarget = {{ connection = 'app', schema = '{target}' }}\n")
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(ROOT / "src"),
+                           APP_DATABASE_URL=self.database.urls["pg"])
+        return subprocess.run([sys.executable, "-m", "laranex_schema_viewer", "build"], cwd=self.root,
+                              env=environment, capture_output=True, text=True, timeout=180)
+
+    def test_build_then_check(self):
+        result = self.build("tenant_b")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        result = run_cli(self.root, "check")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Checked 1 comparisons, 0 migration tracks and 0 diagnostics", result.stdout)
+
+        result = self.build("*")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        result = run_cli(self.root, "check", "--json", "--output", "gate.json")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(validate_gate_report(report, strict=True)[1], [])
+        self.assertEqual((self.root / "gate.json").read_text(), result.stdout)
+        kinds = {(f["kind"], f["label"]) for f in report["findings"] if f["severity"] != "info"}
+        self.assertIn(("table_missing", "tenant_a.audit_log"), kinds)
+        self.assertIn(("column_changed", "tenant_a.orders.total"), kinds)
+        self.assertNotIn(self.database.password, result.stdout + result.stderr)
+        # Only certain errors: the missing and extra tables.
+        result = run_cli(self.root, "check", "--severity", "error", "--json")
+        self.assertEqual(json.loads(result.stdout)["counts"]["qualifying"], 2)
+        # Two runs of the gate give identical bytes, and the document is never rewritten.
+        before = (self.root / "schema-viewer.json").read_bytes()
+        self.assertEqual(run_cli(self.root, "check").stdout, run_cli(self.root, "check").stdout)
+        self.assertEqual((self.root / "schema-viewer.json").read_bytes(), before)
