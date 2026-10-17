@@ -10,6 +10,7 @@ import secrets
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from laranex_schema_viewer.contract import validate_document
@@ -116,7 +117,8 @@ class SQLiteReconciliation(Reconciliation, unittest.TestCase):
 
     def path(self):
         path = Path(tempfile.mkdtemp(prefix="lsv-drift-")) / "other.db"
-        sqlite3.connect(path).executescript("CREATE TABLE t (id INTEGER PRIMARY KEY);")
+        with closing(sqlite3.connect(path)) as connection:
+            connection.executescript("CREATE TABLE t (id INTEGER PRIMARY KEY);")
         return path
 
 

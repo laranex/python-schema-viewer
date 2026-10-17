@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from laranex_schema_viewer.contract import canonical_json, validate_document
@@ -40,10 +41,11 @@ class DatabaseBuilds(unittest.TestCase):
         (self.root / "app" / "__init__.py").write_text("")
         (self.root / "app" / "models.py").write_text(MODEL)
         self.database = self.root / "app.db"
-        sqlite3.connect(self.database).executescript(
-            "CREATE TABLE teams (id INTEGER PRIMARY KEY);"
-            "CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(320) NOT NULL,"
-            " team_id INTEGER REFERENCES teams (id), legacy INTEGER);")
+        with closing(sqlite3.connect(self.database)) as connection:
+            connection.executescript(
+                "CREATE TABLE teams (id INTEGER PRIMARY KEY);"
+                "CREATE TABLE users (id INTEGER PRIMARY KEY, email VARCHAR(320) NOT NULL,"
+                " team_id INTEGER REFERENCES teams (id), legacy INTEGER);")
 
     def run_cli(self, *args, url=True, env=None):
         environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(ROOT / "src"), **(env or {}))

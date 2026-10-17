@@ -18,6 +18,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 from unittest import mock
 
@@ -133,7 +134,8 @@ class Separation(unittest.TestCase):
         for name in ("sqlalchemy.py", "sitecustomize.py", "usercustomize.py", "laranex_schema_viewer.py"):
             (project / name).write_text(hostile)
         database = project / "app.db"
-        sqlite3.connect(database).executescript("CREATE TABLE t (id INTEGER PRIMARY KEY);")
+        with closing(sqlite3.connect(database)) as connection:
+            connection.executescript("CREATE TABLE t (id INTEGER PRIMARY KEY);")
         cwd = os.getcwd()
         os.chdir(project)
         try:
