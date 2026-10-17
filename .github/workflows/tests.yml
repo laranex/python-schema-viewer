@@ -50,6 +50,8 @@ jobs:
       - run: pip install -e '.[dev]'
       - run: python -m unittest tests.test_introspection tests.test_reconcile tests.test_cli_database -v
   viewer:
+    # The vendored shared viewer in headless Chrome (preinstalled on ubuntu-latest) for declared, database and
+    # combined documents.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -60,11 +62,7 @@ jobs:
         with:
           node-version: '22'
       - run: pip install -e '.[dev]'
-      - run: npm install
-      - run: npm test
-      - run: |
-          python -m laranex_schema_viewer build --module tests.fixtures.sqlalchemy_models --output .validation/example.json
-          python -m laranex_schema_viewer serve --snapshot .validation/example.json > /tmp/viewer.log 2>&1 &
-          for i in $(seq 1 30); do curl --fail -s http://127.0.0.1:8765/ > /dev/null && break; sleep 1; done
-          EXPECTED_TABLES=6 npm run test:browser
-
+      - run: python -m unittest tests.test_browser -v
+        env:
+          LSV_BROWSER: '1'
+          CHROME_BIN: google-chrome
