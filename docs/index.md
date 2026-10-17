@@ -5,6 +5,13 @@ aside: false
 
 <PackageIntroduction />
 
+## See it in 30 seconds
+
+<div class="lx-video">
+  <div class="lx-demo-bar"><span><i></i><i></i><i></i><b>HOW IT WORKS</b></span><span>0:30 · build → snapshot → explore → ask</span></div>
+  <iframe src="https://www.youtube-nocookie.com/embed/fps-Q-wDpeA?rel=0" title="Laranex Schema Viewer: how it works in 30 seconds" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
 ## Your schema, made visible
 
 <div class="lx-feature-grid">

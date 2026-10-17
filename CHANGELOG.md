@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+
+- New monochrome and navy color theme for the viewer and documentation site. The viewer follows the system light or dark preference and remembers the theme you pick.
+- The documentation site opens in dark mode by default, and its landing page includes a 30-second "how it works" video.
+- Viewer usability: selecting a table highlights its connections and fades unrelated tables, `/` focuses search, `Esc` clears search, selection, and focus, empty states are clearer, and the details panel shows a legend and keyboard shortcuts.
+
 ## [0.3.0] - 2026-10-17
 
 ### Added

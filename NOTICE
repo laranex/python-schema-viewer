@@ -1,8 +1,9 @@
 Laranex Schema Viewer is licensed under the MIT License.
 
-The light/dark CSS design tokens at the beginning of static/styles.css are
-adapted from Laranex Laravel Schema Viewer, ui/src/styles.css, inspected at
-commit 62b056a (https://github.com/laranex/laravel-schema-viewer).
+The viewer layout in static/styles.css was originally adapted from Laranex
+Laravel Schema Viewer, ui/src/styles.css, inspected at commit 62b056a
+(https://github.com/laranex/laravel-schema-viewer). Its color tokens have
+since been replaced.
 Copyright (c) Laranex. Used under the MIT License reproduced in LICENSE.
 
 The Python implementation and HTML/SVG viewer are maintained independently.

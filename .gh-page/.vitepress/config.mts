@@ -12,7 +12,7 @@ export default defineConfig({
   lang: 'en-US',
   base,
   cleanUrls: false,
-  appearance: true,
+  appearance: 'dark',
   srcDir: '../docs',
   srcExclude: ['README.md', 'architecture.md', 'validation.md', 'agent-skills-validation.md'],
   vite: {
@@ -27,7 +27,7 @@ export default defineConfig({
   sitemap: { hostname: 'https://laranex.github.io/python-schema-viewer/' },
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}logo.svg` }],
-    ['meta', { name: 'theme-color', content: '#0b7f6b' }],
+    ['meta', { name: 'theme-color', content: '#09090b' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Laranex Schema Viewer' }],
   ],
@@ -38,7 +38,7 @@ export default defineConfig({
     nav: [
       { text: 'Python Schema Viewer', link: '/introduction' },
       { text: 'Live demo', link: '/demo' },
-      { text: 'Laranex projects ↗', link: 'https://laranex.vercel.app/' },
+      { text: 'Laranex projects', link: 'https://laranex.vercel.app/' },
     ],
     sidebar: [
       { text: 'GET STARTED', items: [

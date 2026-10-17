@@ -17,6 +17,13 @@ const state = {doc: null, edges: [], visible: [], positions: new Map(), heights:
 const pretty = value => JSON.stringify(value, null, 2);
 const label = table => `${table.schema_name ? table.schema_name + '.' : ''}${table.name}`;
 const tableById = id => state.doc.tables.find(t => t.id === id);
+const guide = [...$('details').childNodes].map(node => node.cloneNode(true));
+
+function related() {
+    if (state.selected) return neighbors(state.selected, visibleEdges());
+    const edge = state.edges.find(e => e.id === state.edge);
+    return new Set(edge ? [edge.source, edge.target] : []);
+}
 
 function shownColumns(table) {
     if ($('columns').checked) return table.columns;
@@ -66,9 +73,9 @@ function zoom(factor, x = $('canvas').clientWidth / 2, y = $('canvas').clientHei
 
 function refresh(rearrange = false) {
     const scope = $('namespace').value;
-    const nearby = state.focus ? neighbors(state.focus, state.edges) : null;
+    const focused = state.focus ? neighbors(state.focus, state.edges) : null;
     state.visible = state.doc.tables.filter(t => (!scope || t.namespace === scope)
-        && matchesTable(t, $('search').value, state.doc.models) && (!nearby || nearby.has(t.id)));
+        && matchesTable(t, $('search').value, state.doc.models) && (!focused || focused.has(t.id)));
     for (const table of state.doc.tables) {
         const count = shownColumns(table).length;
         state.heights.set(table.id, 54 + count * 27 + (count < table.columns.length ? 30 : 0));
@@ -80,13 +87,17 @@ function refresh(rearrange = false) {
     $('unfocus').hidden = !state.focus;
     $('table-count').textContent = state.visible.length;
     $('table-list').replaceChildren();
+    if (!state.visible.length) $('table-list').append(el('p', 'No tables match.', 'list-empty'));
     $('tables').replaceChildren();
+    const nearby = related();
+    $('world').classList.toggle('has-selection', nearby.size > 0);
     for (const table of state.visible) {
         const item = el('button', label(table), table.id === state.selected ? 'selected' : '');
         item.append(el('small', `${table.columns.length} columns · ${table.foreign_keys.length} foreign keys`));
         item.onclick = () => selectTable(table.id, true);
         $('table-list').append(item);
-        const card = el('article', undefined, `table-card${table.id === state.selected ? ' selected' : ''}`);
+        const card = el('article', undefined, `table-card${table.id === state.selected ? ' selected'
+            : nearby.has(table.id) ? ' related' : ''}`);
         card.dataset.tableId = table.id;
         const position = state.positions.get(table.id);
         card.style.left = `${position.x}px`; card.style.top = `${position.y}px`;
@@ -107,7 +118,8 @@ function refresh(rearrange = false) {
             const row = el('div', undefined, 'column');
             row.dataset.column = column.name;
             const isFK = table.foreign_keys.some(f => f.columns.includes(column.name));
-            row.append(el('span', column.primary_key ? 'PK' : isFK ? 'FK' : '', 'key'),
+            row.append(el('span', column.primary_key ? 'PK' : isFK ? 'FK' : '',
+                `key${column.primary_key ? ' pk' : ''}`),
                 el('span', column.name, 'column-name'), el('span', column.type, 'type'));
             row.title = `${column.name}: ${column.type}${column.nullable ? ' · nullable' : ' · required'}`;
             card.append(row);
@@ -146,7 +158,8 @@ function drawEdges() {
         const end = endpoint(edge.target, edge.targetColumn, self ? 'right' : 'left', offset + (self ? 20 : 0));
         const d = edgePath(start, end, lane, self);
         const selected = edge.id === state.edge;
-        const line = svg('path', {d, class: `edge ${edge.kind === 'orm' ? 'orm' : 'fk'}${selected ? ' selected' : ''}`,
+        const near = state.selected && (edge.source === state.selected || edge.target === state.selected);
+        const line = svg('path', {d, class: `edge ${edge.kind === 'orm' ? 'orm' : 'fk'}${selected ? ' selected' : ''}${near ? ' related' : ''}`,
             'data-kind': edge.kind, 'marker-end': `url(#arrow-${edge.kind})`});
         const title = svg('title', {}); title.textContent = edge.label; line.append(title);
         const hit = svg('path', {d, class: 'edge-hit', tabindex: '0', role: 'button',
@@ -157,7 +170,8 @@ function drawEdges() {
         root.append(line, hit);
         if (edge.kind === 'orm' || selected) {
             const text = svg('text', {x: (start.x + end.x) / 2,
-                y: (start.y + end.y) / 2 - 8 - lane * 13, class: 'edge-label', 'text-anchor': 'middle'});
+                y: (start.y + end.y) / 2 - 8 - lane * 13, class: `edge-label${edge.kind === 'orm' ? '' : ' fk'}`,
+                'text-anchor': 'middle'});
             text.textContent = edge.label; root.append(text);
         }
     }
@@ -168,7 +182,8 @@ function drawEdges() {
 
 function collection(title, values) {
     const section = el('details');
-    section.append(el('summary', `${title} (${values.length})`), el('pre', pretty(values)));
+    const summary = el('summary', title); summary.append(el('span', `${values.length}`, 'count'));
+    section.append(summary, values.length ? el('pre', pretty(values)) : el('p', 'None declared', 'muted'));
     return section;
 }
 
@@ -177,7 +192,10 @@ function selectTable(id, center = false) {
     const panel = $('details'); panel.replaceChildren(el('span', 'TABLE', 'tag'), el('h2', label(table)));
     const focus = el('button', 'Focus on neighbors');
     focus.onclick = () => { state.focus = id; $('search').value = ''; refresh(); fit(); };
-    panel.append(focus);
+    const clear = el('button', 'Clear');
+    clear.onclick = clearSelection;
+    const actions = el('div', undefined, 'detail-actions'); actions.append(focus, clear);
+    panel.append(actions);
     const dl = el('dl');
     for (const [name, value] of [['Namespace', table.namespace], ['Schema', table.schema_name || 'Unqualified'],
         ['Primary key', table.primary_key.join(', ') || 'None'], ['Comment', table.comment || '—']]) {
@@ -189,7 +207,7 @@ function selectTable(id, center = false) {
     panel.append(collection('Models', modelValues));
     for (const [kind, title] of [['foreign_key', 'Foreign keys'], ['orm', 'ORM relationships']]) {
         const links = state.edges.filter(e => e.kind === kind && (e.source === id || e.target === id));
-        panel.append(el('h3', `${title} (${links.length})`));
+        panel.append(el('h3', `${title} · ${links.length}`));
         if (!links.length) panel.append(el('p', 'None declared', 'muted'));
         for (const edge of links) {
             const button = el('button', edge.label, 'detail-link');
@@ -203,6 +221,13 @@ function selectTable(id, center = false) {
         state.x = $('canvas').clientWidth / 2 - (position.x + 150) * state.scale;
         state.y = 70 - position.y * state.scale; transform();
     }
+}
+
+function clearSelection() {
+    state.selected = null; state.edge = null;
+    $('details').replaceChildren(...guide.map(node => node.cloneNode(true)));
+    if (state.doc.diagnostics.length) $('details').append(collection('Build diagnostics', state.doc.diagnostics));
+    refresh();
 }
 
 function selectEdge(edge) {
@@ -262,9 +287,32 @@ $('search').oninput = () => { refresh(); fit(); };
 $('namespace').onchange = () => { state.focus = null; refresh(); fit(); };
 for (const id of ['fk', 'orm']) $(id).onchange = () => drawEdges();
 $('columns').onchange = () => { refresh(true); fit(); };
+function currentTheme() {
+    return document.documentElement.dataset.theme
+        || (globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
+function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    $('theme').setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
+}
 $('theme').onclick = () => {
-    document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    const theme = currentTheme() === 'dark' ? 'light' : 'dark';
+    applyTheme(theme);
+    try { localStorage.setItem('laranex-schema-viewer-theme', theme); } catch { /* Storage may be unavailable. */ }
 };
+try {
+    const saved = localStorage.getItem('laranex-schema-viewer-theme');
+    if (saved === 'dark' || saved === 'light') applyTheme(saved);
+} catch { /* Storage may be unavailable. */ }
+document.addEventListener('keydown', event => {
+    const typing = event.target.closest?.('input, select, textarea');
+    if (event.key === '/' && !typing) { event.preventDefault(); $('search').focus(); }
+    else if (event.key === 'Escape' && state.doc) {
+        if (event.target === $('search') && $('search').value) { $('search').value = ''; refresh(); fit(); return; }
+        if (state.focus) { state.focus = null; refresh(); fit(); }
+        if (state.selected || state.edge) clearSelection();
+    }
+});
 
 try {
     const response = await fetch('/snapshot.json');
