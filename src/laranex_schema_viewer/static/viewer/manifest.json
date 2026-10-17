@@ -1,6 +1,6 @@
 {
   "name": "laranex-schema-viewer-ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "contract": {
     "format": "laranex-schema",
     "major": 1
@@ -13,13 +13,13 @@
   "files": [
     {
       "path": "app.css",
-      "size": 40644,
-      "sha256": "798c4074bcd39a659aa76364f1353a8d379b91a654bbdd61ea3a74d7aceb495b"
+      "size": 42197,
+      "sha256": "fadde6bf6977189cca8c7b018f9a293ccef8a01c679386e0999272e14819c7db"
     },
     {
       "path": "app.js",
-      "size": 499142,
-      "sha256": "39bac2df35055b7a43f3d3c91322fd2a8f4a37ab2dfc62229225c709882532aa"
+      "size": 507017,
+      "sha256": "3d8c3a706ceb705379a6dfc68bd21ce382a90c1d69ae5e974f0d7c2010469fad"
     },
     {
       "path": "assets/elk.bundled-Cijv1EqA.js",
@@ -102,9 +102,19 @@
       "sha256": "c7d5a9b5d4023712538018b5b2ca9c285054e9b3ad27dc9f9189d24e73ce8395"
     },
     {
+      "path": "favicon.ico",
+      "size": 313,
+      "sha256": "db1023f82fbfd7f2bd3386ca63df865ed1aaa3d5a5bc11a225f0f394587fc254"
+    },
+    {
+      "path": "favicon.svg",
+      "size": 219,
+      "sha256": "f70188c81b513906ad506d8cae1ab788ae088d9738ad1f2eba6c73e8933b20ee"
+    },
+    {
       "path": "index.html",
-      "size": 477,
-      "sha256": "11253b02b1889cb104755c4a3934258ab83b4379e615af90bef0474925343d40"
+      "size": 590,
+      "sha256": "15069efc37dfbbbc2e7d06cf16c542ef94cc9f427c8c34759fd1ecffadf46e7d"
     }
   ]
 }
