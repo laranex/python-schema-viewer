@@ -7,8 +7,10 @@ from pathlib import Path
 
 from laranex_schema_viewer.config import (
     DEFAULT_SNAPSHOT,
+    DatabaseConfig,
     add_config,
     config_section,
+    database_option,
     detect_model_module,
     load_config,
     resolve_snapshot,
@@ -68,6 +70,42 @@ class ConfigTests(unittest.TestCase):
                 self.write_pyproject(f"[tool.laranex-schema-viewer]\n{body}\n")
                 with self.assertRaises(ValueError):
                     load_config(self.root)
+
+    def test_database_connections_are_read_and_validated(self):
+        self.write_pyproject(
+            "[tool.laranex-schema-viewer.databases.default]\nurl_env = 'APP_DATABASE_URL'\n"
+            "schemas = ['public', 'billing']\n"
+            "[tool.laranex-schema-viewer.databases.analytics]\nurl_env = 'ANALYTICS_DATABASE_URL'\n"
+            "namespace = 'models'\n")
+        databases = load_config(self.root).databases
+        self.assertEqual(databases["default"], DatabaseConfig("default", "APP_DATABASE_URL", ("public", "billing")))
+        self.assertEqual(databases["analytics"],
+                         DatabaseConfig("analytics", "ANALYTICS_DATABASE_URL", (), namespace="models"))
+        for body, message in [
+            ("[tool.laranex-schema-viewer.databases.default]\nurl = 'sqlite:///x'\n", "must not contain a database URL"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\ndatabase_url = 'y'\n",
+             "must not contain a database URL"),
+            ("[tool.laranex-schema-viewer.databases.default]\nschemas = ['public']\n", "needs url_env"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'postgresql://x'\n", "needs url_env"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\nschema = 'public'\n", "Unknown"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\nschemas = 'public'\n", "list of strings"),
+            ("[tool.laranex-schema-viewer.databases.default]\nurl_env = 'X'\nnamespace = ''\n", "non-empty"),
+            ("[tool.laranex-schema-viewer.databases.'bad name']\nurl_env = 'X'\n", "connection names"),
+            ("[tool.laranex-schema-viewer]\ndatabases = ['default']\n", "one table per connection"),
+            ("[tool.laranex-schema-viewer]\ndatabase_url_env = 'X'\n[tool.laranex-schema-viewer.databases.default]\n"
+             "url_env = 'Y'\n", "sets both"),
+        ]:
+            with self.subTest(body=body):
+                self.write_pyproject(body)
+                with self.assertRaisesRegex(ValueError, message):
+                    load_config(self.root)
+
+    def test_database_options(self):
+        self.assertEqual(database_option("analytics=ANALYTICS_URL"), ("analytics", "ANALYTICS_URL"))
+        for value in ("analytics", "=X", "a=", "a=postgresql://u:secret@h/db", "postgresql://u:secret@h/db?x=1"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "NAME=ENV_VAR") as raised:
+                database_option(value)
+            self.assertNotIn("secret", str(raised.exception))
 
     def test_detects_single_package_or_module_and_skips_environments(self):
         package(self.root, "src.infrastructure.models")

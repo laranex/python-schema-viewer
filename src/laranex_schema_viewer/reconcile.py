@@ -1,6 +1,8 @@
 """Reconciliation: a declared and a database laranex-schema document as one combined document with drift.
 
-Tables match by (schema, name), treating the database's default schema as unqualified; columns by name; foreign keys
+Each database connection is reconciled with one declared connection (by name, or an explicit namespace mapping);
+nothing is compared across connections, so an ORM relationship between connections never calls for a foreign key.
+Within a connection, tables match by (schema, name), treating the database's default schema as unqualified; columns by name; foreign keys
 by their column mapping, then by name; indexes by name, then by key parts; constraints by name, then by columns or
 expression. Where both sides describe something the database's facts win, the declared side keeps what only it knows
 (ORM defaults, notes, models and relationships), and differences become drift entries plus diagnostics.
@@ -16,7 +18,8 @@ import re
 from typing import Any
 
 from .contract import assert_document, build_graph
-from .unified import sort_diagnostics
+from .contract.models import FEATURES
+from .unified import connection_id, sort_diagnostics
 
 TYPE_SYNONYMS = {
     "int": "integer", "int4": "integer", "integer": "integer", "mediumint": "integer", "serial": "integer",
@@ -69,12 +72,17 @@ def normalize_action(value: str | None, dialect: str | None) -> str:
 
 
 class Reconciler:
-    def __init__(self, declared: dict[str, Any], database: dict[str, Any], connection: str) -> None:
-        self.declared, self.database = declared, database
-        self.name = connection
-        self.db_connection = database["connections"][0]
-        self.dialect = self.db_connection["driver"]
-        self.default = self.db_connection["defaultSchema"]
+    """Reconciles one database connection with the declared connection it belongs to."""
+
+    def __init__(self, declared: dict[str, Any], db_connection: dict[str, Any], declared_connection: dict[str, Any],
+                 name: str, ambiguous: frozenset[str] | set[str] = frozenset()) -> None:
+        self.declared = declared
+        self.db_connection, self.declared_connection = db_connection, declared_connection
+        self.name = name
+        self.dialect = db_connection["driver"]
+        self.default = db_connection["defaultSchema"]
+        # Table names that occur in more than one connection: their diagnostics name this connection.
+        self.ambiguous, self.scope = ambiguous, None
         self.diagnostics: list[dict[str, Any]] = []
         self.ids: dict[str, str] = {}  # database table id -> combined table id
 
@@ -84,15 +92,14 @@ class Reconciler:
 
     def report(self, kind: str, category: str, severity: str, certainty: str, subject: dict[str, Any],
                message: str) -> None:
+        if self.scope in self.ambiguous:
+            message = f"Connection {self.name}: {message}"
         self.diagnostics.append({"kind": kind, "category": category, "severity": severity, "certainty": certainty,
                                  "subject": subject, "message": message})
 
     def combine(self) -> dict[str, Any]:
-        declared_connection = next((c for c in self.declared["connections"] if c["name"] == self.name), None)
-        if declared_connection is None:
-            names = ", ".join(c["name"] for c in self.declared["connections"]) or "none"
-            raise ValueError(f"The models declare no connection named {self.name!r} (found: {names}); choose one "
-                             "with --database-connection")
+        """The combined connection; its diagnostics are left in self.diagnostics."""
+        declared_connection = self.declared_connection
         declared_tables = {self.key(t): t for t in declared_connection["tables"]}
         database_tables = {self.key(t): t for t in self.db_connection["tables"]}
         for key, table in database_tables.items():
@@ -100,6 +107,7 @@ class Reconciler:
         mapped = {tid for m in self.declared["models"] for tid in m["tables"]}
         tables = []
         for key, table in declared_tables.items():
+            self.scope = table["name"]
             if key in database_tables:
                 tables.append(self.table(table, database_tables[key]))
                 continue
@@ -115,29 +123,20 @@ class Reconciler:
         for key, table in database_tables.items():
             if key in declared_tables:
                 continue
+            self.scope = table["name"]
             tables.append(self.remap(copy.deepcopy(table), table["id"]))
             if table["owner"]["kind"] == "application" and table["id"] not in mapped:
                 label = ".".join(filter(None, [table["schema"], table["name"]]))
                 self.report("table_without_model", "reconciliation", "info", "certain", self.table_subject(table),
                             f"No model maps {label}.")
-        connection = {
+        return {
             **{k: v for k, v in declared_connection.items() if k != "tables"},
+            "id": connection_id(self.name), "name": self.name,
             "driver": self.db_connection["driver"], "defaultSchema": self.default,
             "coverage": {"database": self.db_connection["coverage"]["database"],
                          "declared": declared_connection["coverage"]["declared"]},
             "tables": sorted(tables, key=lambda t: t["id"]),
         }
-        doc = {
-            **{k: copy.deepcopy(v) for k, v in self.declared.items() if k not in ("links", "derivedLinks")},
-            "source": "combined",
-            "connections": sorted([connection if c["name"] == self.name else copy.deepcopy(c)
-                                   for c in self.declared["connections"]], key=lambda c: c["name"]),
-            "diagnostics": sort_diagnostics([*self.declared["diagnostics"], *self.database["diagnostics"],
-                                             *self.diagnostics]),
-            "links": [], "derivedLinks": [],
-        }
-        doc.update(build_graph(doc))
-        return assert_document(doc, strict=True).to_json()
 
     def table_subject(self, table: dict[str, Any]) -> dict[str, Any]:
         return {"type": "table", "id": self.ids.get(table["id"], table["id"]), "columns": None, "label": table["name"]}
@@ -398,10 +397,108 @@ class Reconciler:
         return sorted(out, key=lambda i: i["id"])
 
 
-def combine(declared: dict[str, Any], database: dict[str, Any], *, connection: str | None = None) -> dict[str, Any]:
-    """A combined laranex-schema document. ``connection`` names the declared connection the database belongs to;
-    by default the database document's connection name."""
+def unavailable() -> dict[str, Any]:
+    """Coverage of a source that was not read for a connection."""
+    return {"complete": False, "schemas": None, "features": {f: "unavailable" for f in FEATURES}}
+
+
+def connection_subject(name: str) -> dict[str, Any]:
+    return {"type": "connection", "id": connection_id(name), "columns": None, "label": name}
+
+
+def combine(declared: dict[str, Any], database: dict[str, Any], *, connection: str | None = None,
+            namespaces: dict[str, str] | None = None) -> dict[str, Any]:
+    """A combined laranex-schema document.
+
+    Each database connection is reconciled with the declared connection of the same name, or with the declared
+    namespace ``namespaces`` maps its name to; the combined connection takes the database connection's name. A
+    database connection the models do not declare stays database-only, and a declared connection no database was
+    inspected for stays declared-only; each gets a connection diagnostic, and the side that was not read has
+    ``unavailable`` coverage. A single database connection belongs to the only declared namespace, whatever their
+    names; when no database connection matches any declared namespace, this fails and lists them. ``connection`` is
+    the single-database form: it names the declared connection the
+    document's only database connection belongs to, and fails when the models do not declare it.
+    """
     if declared["source"] != "declared" or database["source"] != "database":
         raise ValueError("combine() takes a declared document and a database document")
-    name = connection or database["connections"][0]["name"]
-    return Reconciler(declared, database, name).combine()
+    declared_by_name = {c["name"]: c for c in declared["connections"]}
+    found = ", ".join(declared_by_name) or "none"
+    if connection is not None:
+        if len(database["connections"]) != 1:
+            raise ValueError("connection= applies to a database document with one connection; use namespaces=")
+        if connection not in declared_by_name:
+            raise ValueError(f"The models declare no connection named {connection!r} (found: {found}); choose one "
+                             "with --database-connection")
+        pairs = [(database["connections"][0], connection, connection)]
+    else:
+        namespaces = dict(namespaces or {})
+        only = database["connections"][0]["name"] if len(database["connections"]) == 1 else None
+        if only and only not in namespaces and only not in declared_by_name and len(declared_by_name) == 1:
+            namespaces[only] = next(iter(declared_by_name))  # One database, one declared namespace: they belong.
+        pairs = []
+        for db in database["connections"]:
+            target = namespaces.get(db["name"], db["name"])
+            if db["name"] in namespaces and target not in declared_by_name:
+                raise ValueError(f"Connection {db['name']} maps to the declared namespace {target!r}, which the "
+                                 f"models do not declare (found: {found})")
+            pairs.append((db, target if target in declared_by_name else None, db["name"]))
+    if declared_by_name and pairs and all(target is None for _, target, _ in pairs):
+        raise ValueError(f"No database connection ({', '.join(db['name'] for db, _, _ in pairs)}) matches a declared "
+                         f"namespace (found: {found}); map each connection to one with namespace in "
+                         "[tool.laranex-schema-viewer.databases.NAME]")
+    targets: dict[str, str] = {}
+    for db, target, name in pairs:
+        if target is None:
+            continue
+        if target in targets:
+            raise ValueError(f"Connections {targets[target]} and {name} both map to the declared namespace "
+                             f"{target!r}")
+        targets[target] = name
+        if target != name and name in declared_by_name:
+            raise ValueError(f"Connection {name} maps to the declared namespace {target!r}, but the models also "
+                             f"declare a namespace named {name!r}; give the connection another name")
+    names: dict[str, set[str]] = {}
+    for db, target, name in pairs:
+        names[name] = {t["name"] for t in db["tables"]} | (
+            {t["name"] for t in declared_by_name[target]["tables"]} if target else set())
+    for name, c in declared_by_name.items():
+        if name not in targets:
+            names[name] = {t["name"] for t in c["tables"]}
+    counts: dict[str, int] = {}
+    for tables in names.values():
+        for table in tables:
+            counts[table] = counts.get(table, 0) + 1
+    ambiguous = {table for table, n in counts.items() if n > 1}
+
+    connections, diagnostics = [], []
+    for db, target, name in pairs:
+        if target is None:
+            connections.append({**copy.deepcopy(db), "coverage": {"database": db["coverage"]["database"],
+                                                                  "declared": unavailable()}})
+            diagnostics.append({
+                "kind": "database_only", "category": "reconciliation", "severity": "info", "certainty": "certain",
+                "subject": connection_subject(name),
+                "message": f"The models declare no connection named {name} (found: {found}); its tables come from "
+                           "the database only. Map it to a declared namespace to reconcile it."})
+            continue
+        reconciler = Reconciler(declared, db, declared_by_name[target], name, ambiguous)
+        connections.append(reconciler.combine())
+        diagnostics += reconciler.diagnostics
+    for name, c in declared_by_name.items():
+        if name in targets:
+            continue
+        connections.append({**copy.deepcopy(c), "coverage": {"database": unavailable(),
+                                                             "declared": c["coverage"]["declared"]}})
+        diagnostics.append({
+            "kind": "inspection_unavailable", "category": "inspection", "severity": "info", "certainty": "certain",
+            "subject": connection_subject(name),
+            "message": f"No database was inspected for connection {name}; its tables come from the models only."})
+    doc = {
+        **{k: copy.deepcopy(v) for k, v in declared.items() if k not in ("links", "derivedLinks")},
+        "source": "combined",
+        "connections": sorted(connections, key=lambda c: c["name"]),
+        "diagnostics": sort_diagnostics([*declared["diagnostics"], *database["diagnostics"], *diagnostics]),
+        "links": [], "derivedLinks": [],
+    }
+    doc.update(build_graph(doc))
+    return assert_document(doc, strict=True).to_json()

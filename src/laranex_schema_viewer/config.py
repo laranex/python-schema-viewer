@@ -20,6 +20,19 @@ MODULE_NAME = re.compile(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)*")
 DJANGO_SETTINGS = re.compile(r"""DJANGO_SETTINGS_MODULE["']\s*,\s*["']([A-Za-z_][\w.]*)["']""")
 SKIPPED_DIRECTORIES = {"build", "dist", "docs", "node_modules", "site-packages", "test", "tests",
                        "venv", "__pycache__"}
+CONNECTION_NAME = re.compile(r"[A-Za-z0-9_][\w.-]*")
+ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+@dataclass(frozen=True)
+class DatabaseConfig:
+    """One named database connection: the variable holding its URL, never the URL itself."""
+
+    name: str
+    url_env: str
+    schemas: tuple[str, ...] = ()
+    # The declared namespace this connection reconciles with; None means the connection's own name.
+    namespace: str | None = None
 
 
 @dataclass(frozen=True)
@@ -42,11 +55,13 @@ class ProjectConfig:
     database_url_env: str | None = None
     database_schemas: list[str] = field(default_factory=list)
     database_connection: str | None = None
+    databases: dict[str, DatabaseConfig] = field(default_factory=dict)
 
 
 SOURCES = ("declared", "database", "combined")
 FORMATS = ("v1", "laranex-schema")
-DATABASE_KEYS = {"source", "format", "database_url_env", "database_schemas", "database_connection"}
+DATABASE_KEYS = {"source", "format", "database_url_env", "database_schemas", "database_connection", "databases"}
+SINGLE_DATABASE_KEYS = ("database_url_env", "database_schemas", "database_connection")
 ISOLATION_KEYS = {"isolation", "timeout", "env_passthrough", "env", "allow_writes", "container_image",
                   "container_runtime"}
 
@@ -90,6 +105,11 @@ def load_config(project_root: Path) -> ProjectConfig:
     env = section.get("env", {})
     if not isinstance(env, dict) or not all(isinstance(v, str) for v in env.values()):
         raise ValueError(f"[tool.{SECTION}.env] values must be strings")
+    databases = database_section(section.get("databases", {}))
+    if databases and any(key in section for key in SINGLE_DATABASE_KEYS):
+        raise ValueError(f"[tool.{SECTION}] sets both [tool.{SECTION}.databases] and "
+                         f"{', '.join(k for k in SINGLE_DATABASE_KEYS if k in section)}; configure every connection "
+                         f"under [tool.{SECTION}.databases.NAME]")
     return ProjectConfig(
         modules=section.get("modules", []), targets=section.get("targets", []),
         recursive=section.get("recursive", False),
@@ -100,7 +120,47 @@ def load_config(project_root: Path) -> ProjectConfig:
         container_image=section.get("container_image"), container_runtime=section.get("container_runtime"),
         source=section.get("source"), format=section.get("format"), database_url_env=section.get("database_url_env"),
         database_schemas=section.get("database_schemas", []), database_connection=section.get("database_connection"),
+        databases=databases,
     )
+
+
+def database_section(value: object) -> dict[str, DatabaseConfig]:
+    """[tool.laranex-schema-viewer.databases.NAME] tables: url_env (required), schemas, namespace."""
+    where = f"[tool.{SECTION}.databases]"
+    if not isinstance(value, dict) or not all(isinstance(v, dict) for v in value.values()):
+        raise ValueError(f"{where} must contain one table per connection, such as [tool.{SECTION}.databases.default]")
+    databases = {}
+    for name, entry in value.items():
+        table = f"[tool.{SECTION}.databases.{name}]"
+        if not CONNECTION_NAME.fullmatch(name):
+            raise ValueError(f"{table}: connection names use letters, digits, '_', '.' and '-'")
+        if "url" in entry or "database_url" in entry:
+            raise ValueError(f"{table} must not contain a database URL; name the environment variable that holds it "
+                             "with url_env")
+        unknown = set(entry) - {"url_env", "schemas", "namespace"}
+        if unknown:
+            raise ValueError(f"Unknown {table} keys: {', '.join(sorted(unknown))}")
+        url_env = entry.get("url_env")
+        if not isinstance(url_env, str) or not ENV_NAME.fullmatch(url_env):
+            raise ValueError(f"{table} needs url_env, the name of the environment variable holding its URL")
+        schemas = entry.get("schemas", [])
+        if not isinstance(schemas, list) or not all(isinstance(item, str) and item for item in schemas):
+            raise ValueError(f"{table} schemas must be a list of strings")
+        namespace = entry.get("namespace")
+        if namespace is not None and (not isinstance(namespace, str) or not namespace):
+            raise ValueError(f"{table} namespace must be a non-empty string")
+        databases[name] = DatabaseConfig(name=name, url_env=url_env, schemas=tuple(schemas), namespace=namespace)
+    return databases
+
+
+def database_option(value: str) -> tuple[str, str]:
+    """``--database NAME=ENV_VAR`` as (name, variable)."""
+    name, separator, url_env = value.partition("=")
+    if not separator or not CONNECTION_NAME.fullmatch(name) or not ENV_NAME.fullmatch(url_env):
+        # Never echo the value: a URL passed by mistake would end up in the error output.
+        raise ValueError("--database takes NAME=ENV_VAR: the connection name and the environment variable holding its "
+                         "URL; URLs are never accepted as arguments")
+    return name, url_env
 
 
 def detect_model_module(project_root: Path) -> str:

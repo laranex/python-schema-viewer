@@ -49,6 +49,7 @@ laranex-schema-viewer build
 | `--database-url-env NAME` | Config `database_url_env`, else `LARANEX_SCHEMA_DATABASE_URL` | Environment variable holding the database URL |
 | `--schema NAME` | Config `database_schemas`, else the default schema | Database schema to inspect; repeatable |
 | `--database-connection NAME` | Config `database_connection`, else the only declared connection | Connection the database belongs to |
+| `--database NAME=ENV_VAR` | Config `[tool.laranex-schema-viewer.databases.NAME]` | Inspect connection `NAME`, whose URL is in `ENV_VAR`; repeatable. Replaces the three options above; see [several connections](./database.md#several-connections) |
 | `--allow-write-privileges` | Off | Inspect with a role that could change the database, in read-only sessions |
 
 Application code is imported in a separate extraction worker with a filtered environment: database URLs, passwords and tokens are not passed to it. `env_passthrough`, `[tool.laranex-schema-viewer.env]`, `allow_writes` and `container_runtime` configure it. Operations the worker blocks are printed as warnings. See [build security](./security.md) for what each level guarantees.
