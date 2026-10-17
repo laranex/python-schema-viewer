@@ -4,6 +4,7 @@ The algorithm itself is checked against the shared conformance cases in test_con
 valid fixtures and SQLite; tests/test_comparison_databases.py runs PostgreSQL, MySQL and MariaDB.
 """
 
+import importlib.util
 import json
 import os
 import sqlite3
@@ -24,6 +25,29 @@ from laranex_schema_viewer.contract.comparison import normalize_sql, normalize_t
 
 ROOT = Path(__file__).resolve().parents[1]
 VALID = ROOT / "tests/fixtures/contract/fixtures/valid"
+HAS_SQLALCHEMY = importlib.util.find_spec("sqlalchemy") is not None
+
+
+def large_document(tables: int = 400) -> m.Document:
+    """Two PostgreSQL connections with many wide tables: the replica lacks every tenth table, has a wider type in
+    every table and an extra column in every other one, so the comparison finds several differences per table."""
+    def table(connection: str, n: int, drift: bool) -> m.Table:
+        columns = [m.Column(name=f"c{k:02d}", type="integer", nullable=True, provenance=m.DATABASE) for k in range(12)]
+        if drift:
+            columns[3] = m.replace(columns[3], type="bigint")
+            if n % 2:
+                columns.append(m.Column(name="extra_column_with_a_long_name", type="text", nullable=True,
+                                        provenance=m.DATABASE))
+        return m.Table(id=f"{connection}:t{n:04d}", name=f"table_{n:04d}", schema="public", provenance=m.DATABASE,
+                       columns=tuple(columns))
+
+    features = {f: "complete" for f in m.FEATURES}
+    connections = tuple(m.Connection(
+        id=f"connection:{name}", name=name, driver="postgresql", default_schema="public",
+        coverage=m.ConnectionCoverage(database=m.coverage(features, ("public",))),
+        tables=tuple(table(name, n, name == "replica") for n in range(tables) if name == "primary" or n % 10))
+        for name in ("primary", "replica"))
+    return m.Document(source="database", generator=m.Generator(name="python-schema-viewer"), connections=connections)
 
 
 def fixture(name: str) -> m.Document:
@@ -223,6 +247,56 @@ class Results(unittest.TestCase):
         self.assertEqual(normalize_sql("nextval('\"Tenant_A\".seq'::regclass)", "Tenant_A"), "nextval'seq'")
         self.assertEqual(normalize_sql("OCTET_LENGTH(`tenant_a`.a)", "tenant_a", "mariadb"), "lengtha")
         self.assertEqual(normalize_sql("mytenant_a.x + tenant_a.y", "tenant_a"), "mytenant_a.x+y")
+
+
+class LargeSchemas(unittest.TestCase):
+    def test_the_default_limit_bounds_a_large_comparison(self):
+        document = large_document()
+        [comparison], [diagnostic] = compute(document, [comparison_option("primary=replica")])
+        total = comparison.summary.missing + comparison.summary.extra + comparison.summary.changed
+        self.assertEqual((comparison.summary.missing, comparison.summary.extra, comparison.summary.changed),
+                         (40, 200, 360))
+        self.assertEqual((len(comparison.differences), comparison.omitted), (DEFAULT_COMPARISON_LIMIT,
+                                                                            total - DEFAULT_COMPARISON_LIMIT))
+        self.assertIn(f"left out by the limit of {DEFAULT_COMPARISON_LIMIT}", diagnostic.message)
+        data = document_to_json(store(document, [comparison], [diagnostic]))
+        self.assertEqual(validate_document(data, strict=True)[1], [])
+
+
+@unittest.skipUnless(HAS_SQLALCHEMY, "SQLAlchemy is not installed")
+class CombinedDocuments(unittest.TestCase):
+    """Only what the database reported is compared: a table only the ORM declares never shows up."""
+
+    def test_declared_only_entities_are_left_out(self):
+        from laranex_schema_viewer.introspection import DatabaseRequest
+        from laranex_schema_viewer.introspection.runner import introspect_all
+        from laranex_schema_viewer.reconcile import combine
+        from tests.fixtures import multiconnection_models as models
+        from tests.test_multiconnection import declared
+
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = {"default": Path(tmp) / "default.db", "analytics": Path(tmp) / "analytics.db"}
+            # The analytics database lacks the events table its models declare.
+            for name, sql in (("default", models.DEFAULT_SQL), ("analytics", models.ANALYTICS_SQL.split(";")[0])):
+                with closing(sqlite3.connect(paths[name])) as connection:
+                    connection.executescript(sql)
+            database = introspect_all([DatabaseRequest(url=f"sqlite:///{path}", connection=name)
+                                       for name, path in paths.items()])
+        document = combine(declared(), database)
+        analytics = next(c for c in document.connections if c.name == "analytics")
+        events = next(t for t in analytics.tables if t.name == "events")
+        self.assertEqual(events.provenance, ("declared",))
+        [comparison], _ = compute(document, [comparison_option("analytics=default")])
+        self.assertFalse(any(d.key[0] == "events" for d in comparison.differences))
+        self.assertEqual({(d.object_type, d.change, d.key) for d in comparison.differences}, {
+            ("table", "extra", ("teams",)),
+            ("column", "missing", ("users", "legacy")), ("column", "missing", ("users", "segment")),
+            ("column", "missing", ("users", "user_id")), ("column", "extra", ("users", "email")),
+            ("column", "extra", ("users", "team_id")),
+            ("foreignKey", "extra", ("users", "references", "team_id->teams(id)")),
+        })
+        data = document_to_json(store(document, [comparison], []))
+        self.assertEqual(validate_document(data, strict=True)[1], [])
 
 
 class Command(unittest.TestCase):
