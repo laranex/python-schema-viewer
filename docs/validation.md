@@ -7,12 +7,11 @@ This page summarizes what the automated checks cover and what they cannot establ
 | Check | Command | Covers |
 | --- | --- | --- |
 | Python tests | `python -m unittest discover -s tests -v` | Extraction, snapshots, queries, CLI, HTTP server, MCP stdio, skills |
-| Graph and DOM tests | `npm test` | FK/ORM edge layers, search, focus, layout, rendering a saved snapshot |
-| Browser smoke test | `npm run test:browser` | Real Chromium rendering, layer toggles, selection, pointer dragging |
+| Browser tests | `LSV_BROWSER=1 python -m unittest tests.test_browser -v` | The served shared viewer in headless Chrome for declared (version 1 and laranex-schema), database and combined documents: every table as a node, edges, source badge, coverage, diagnostics, a table's indexes, relationships, drift and provenance badges, theme, phone layout; no exceptions, console errors, CSP violations or external requests |
 | Lint | `ruff check .` | Python errors and undefined names |
 | Packaging | `python -m build` and `python scripts/check_wheel.py` | Wheel assets, JSON Schema, type marker, CLI entry point, isolated import |
 
-CI runs the Python checks on Python 3.10 through 3.15, and the viewer checks against a snapshot built from `tests.fixtures.sqlalchemy_models`.
+CI runs the Python checks on Python 3.10 through 3.15, and the browser tests in headless Chrome against snapshots built from `tests.fixtures.sqlalchemy_models`, `tests.fixtures.drift_models` and `tests/databases/drift-sqlite.sql`.
 
 ## Fixture coverage
 
@@ -22,7 +21,7 @@ The Django fixture app covers forward, reverse, one-to-one, and many-to-many rel
 
 Snapshot tests cover atomic writes, deterministic output, JSON Schema conformance, older-version compatibility, size limits, and reference validation. Query tests cover exact IDs, bounded pagination, pinned revisions, and response size limits.
 
-Viewer tests cover independent FK/ORM visibility, search, selection, focus, edge details, column expansion, zoom, dragging, theme, and rendering schema strings as text.
+The viewer itself is tested in the laranex-schema-viewer-ui repository. This repository's browser tests check that the vendored build works as served by `serve` for each document source.
 
 ## Validating your application
 

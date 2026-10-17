@@ -12,7 +12,7 @@ Tables have metadata namespace, schema, and name identities. Namespaces come fro
 
 Foreign keys belong to their source table and preserve ordered source/target columns. Relationships are separate top-level declarations, including both directions of a back-populated pair. The graph builder does not merge or infer them. Many-to-many relationships retain their secondary table and join expressions. Scalar/collection behavior is not treated as proof of database uniqueness. Primary keys, unique constraints, and partial uniqueness remain separately inspectable.
 
-Snapshot version 1 is specific to this Python package; it is not wire-compatible with the Laravel snapshot. The UI reuses the Laravel visual design rather than populating Eloquent-specific fields with fake values. A compact HTML/SVG implementation avoids shipping React/ELK dependencies and frontend build tooling for this MVP. Its pure graph module is replaceable independently of extraction and querying.
+Snapshot version 1 is specific to this Python package; it is not wire-compatible with the Laravel snapshot. The viewer is the shared laranex-schema-viewer-ui, which reads laranex-schema documents only; `serve` converts a version 1 snapshot with `unified.from_v1` on each request. Its prebuilt bundle is vendored in `static/viewer/` by `scripts/sync_viewer.py` (checked against the build's manifest), so the package ships no Node.js runtime or build step and the viewer stays independent of extraction and querying.
 
 Only source paths inside an explicitly selected project root are recorded, as relative paths. Callable defaults are represented by qualified names. SQL expressions are descriptive text, never evaluated by snapshot consumers. Unsupported secondary selectables and unresolved foreign keys produce diagnostics. Broken mapper configuration aborts extraction instead of silently dropping relationships.
 
@@ -20,7 +20,7 @@ The writer validates before an atomic replacement, sorts unordered metadata coll
 
 ## Serving and isolation
 
-The HTTP server is a local development server bound to `127.0.0.1` by default. It serves only explicitly allowlisted packaged assets and the configured snapshot; there is no project-directory file serving. It reloads and validates the snapshot on each request. Responses use a content security policy, prohibit framing, and do not enable CORS. Binding another interface is explicit; the MVP does not provide authentication or production hosting.
+The HTTP server is a local development server bound to `127.0.0.1` by default. It serves only the packaged viewer files its manifest lists and the configured snapshot; there is no project-directory file serving. It reloads and validates the snapshot on each request. Responses use a content security policy, prohibit framing, and do not enable CORS. Binding another interface is explicit; the MVP does not provide authentication or production hosting.
 
 MCP runs over stdio using the official SDK 2.x, with read-only tool annotations. Its query service owns one validated saved snapshot. Tool callers cannot select filesystem paths, refresh models, rebuild, run SQL, or mutate the document. A restart loads a newly built snapshot. Stdio stdout is reserved for protocol messages; the SDK uses stderr for logging.
 
@@ -34,7 +34,6 @@ MCP runs over stdio using the official SDK 2.x, with read-only tool annotations.
 - Django types come from the configured backend's `db_type()`, Tortoise types from its field SQL types for the configured or generic dialect, and Peewee types from the model database's DDL context. Django connections are blocked during extraction.
 - Column SQL types are rendered through SQLAlchemy's generic compiler, with an explicit optional timezone flag because generic date/time strings omit it. Some dialect/custom types may need a future type serializer. Generated defaults identify their kind/expression, without every dialect-specific identity option.
 - Index expressions, order, uniqueness, predicates, INCLUDE columns, and methods are captured; dialect operator classes and storage options are not yet normalized.
-- The ERD uses a deterministic neighborhood-oriented grid, rather than ELK routing. Large dense graphs can have crossing edges. Composite FK details retain all pairs; the graph anchors its edge to the first pair.
-- No layout persistence, diagram image exports, schema diff, hint engine, ASGI mounting, or custom framework integrations yet.
+- No layout persistence, schema diff, hint engine, ASGI mounting, or custom framework integrations yet.
 - Python 3.10+ is the intended package range; only the locally available Python 3.15 runtime was executed in this session. CI defines the broader matrix.
 

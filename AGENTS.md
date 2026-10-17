@@ -11,8 +11,8 @@ Read [architecture](docs/architecture.md), [MCP contracts](docs/mcp.md), and [va
 - `build.py`: application imports, opt-in recursive discovery, and ORM detection (`--orm` when modules mix ORMs). Only builds may load application code.
 - `config.py`: `[tool.laranex-schema-viewer]` defaults, the `init` writer, and filesystem-only detection (including Django `manage.py`). Never imports application code.
 - `snapshot.py`: bounded validation, deterministic serialization, revision hashes, atomic writes.
-- `static/graph.js`, `static/app.js`: separate FK and ORM graph layers in a vanilla HTML/SVG ERD; no frontend build or CDNs.
-- `server.py`: loopback viewer over saved snapshots and allowlisted packaged assets.
+- `static/viewer/`: the prebuilt shared viewer (laranex-schema-viewer-ui), vendored with `python scripts/sync_viewer.py /path/to/schema-viewer-ui` from that repository's `dist/viewer` build. Never edit it by hand; change the UI repository, rebuild, and sync.
+- `server.py`: loopback viewer serving only the files `static/viewer/manifest.json` lists, plus the snapshot as a laranex-schema document at `/snapshot.json` (version 1 snapshots converted with `unified.from_v1`).
 - `query.py`, `mcp.py`: bounded read-only snapshot queries and optional MCP stdio transport.
 - `cli.py`: lazy entry points; keep ORM and MCP imports out of unrelated commands.
 - `introspection/`: the database introspection worker (`worker.py`, started by `runner.py` with `python -I` from an empty directory), read-only sessions, privilege checks and the catalog statement allowlist (`readonly.py`), and catalog reading (`catalog.py`). It must never import application code or ORMs other than SQLAlchemy, and it must never receive the URL other than on stdin.
@@ -35,16 +35,15 @@ Make the smallest complete change with regression coverage, run focused tests fi
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev]'    # includes all ORMs and MCP
-npm install
 python -m unittest discover -s tests -v    # or tests.test_django, test_tortoise, test_peewee, test_extraction, ...
-npm test
+LSV_BROWSER=1 python -m unittest tests.test_browser -v    # Node 22+ and Chrome/Chromium
 ruff check .
 python -m build && python scripts/check_wheel.py
 ```
 
 - ORM tests skip when that ORM is missing; report skips and untested versions accurately. No type checker is configured.
 - Database tests: `docker compose -f tests/databases/compose.yaml up -d`, then export `LSV_TEST_POSTGRES_URL`, `LSV_TEST_MYSQL_URL` and `LSV_TEST_MARIADB_URL` as shown in `tests/test_introspection.py`. Without them, only SQLite runs. Schemas are synthetic; never point these tests at a real database.
-- `npm run test:browser` runs a real-browser smoke test against a running viewer (Node 22+, Chrome/Chromium).
+- Browser tests (`tests/test_browser.py`, skipped unless `LSV_BROWSER=1`) build declared (version 1 and laranex-schema), database and combined documents from synthetic fixtures, serve each, and run `scripts/browser-smoke.mjs` in headless Chrome over the DevTools Protocol (no Playwright/Puppeteer). Set `CHROME_BIN` if Chrome is not found. Against a viewer you started yourself: `VIEWER_URL=http://127.0.0.1:8765/ EXPECT='{"source":"declared"}' npm run test:browser`.
 - Reference validation: `PYTHONDONTWRITEBYTECODE=1 python scripts/validate_reference.py /absolute/path/to/backend --module app.models`. Keep outputs outside the application; measure actual counts.
 - For schema questions prefer read-only MCP tools, then saved JSON. Saved metadata does not prove deployed schema or freshness.
 
