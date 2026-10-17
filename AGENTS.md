@@ -43,7 +43,7 @@ python -m build && python scripts/check_wheel.py
 
 - ORM tests skip when that ORM is missing; report skips and untested versions accurately. No type checker is configured.
 - Database tests: `docker compose -f tests/databases/compose.yaml up -d`, then export `LSV_TEST_POSTGRES_URL`, `LSV_TEST_MYSQL_URL` and `LSV_TEST_MARIADB_URL` as shown in `tests/test_introspection.py`. Without them, only SQLite runs. Schemas are synthetic; never point these tests at a real database.
-- Browser tests (`tests/test_browser.py`, skipped unless `LSV_BROWSER=1`) build declared (version 1 and laranex-schema), database and combined documents from synthetic fixtures, serve each, and run `scripts/browser-smoke.mjs` in headless Chrome over the DevTools Protocol (no Playwright/Puppeteer). Set `CHROME_BIN` if Chrome is not found. Against a viewer you started yourself: `VIEWER_URL=http://127.0.0.1:8765/ EXPECT='{"source":"declared"}' npm run test:browser`.
+- Browser tests (`tests/test_browser.py`, skipped unless `LSV_BROWSER=1`) build declared (version 1 and laranex-schema), database, combined and two-connection combined documents from synthetic fixtures, serve each, and run `scripts/browser-smoke.mjs` in headless Chrome over the DevTools Protocol (no Playwright/Puppeteer). Set `CHROME_BIN` if Chrome is not found. Against a viewer you started yourself: `VIEWER_URL=http://127.0.0.1:8765/ EXPECT='{"source":"declared"}' npm run test:browser`.
 - Reference validation: `PYTHONDONTWRITEBYTECODE=1 python scripts/validate_reference.py /absolute/path/to/backend --module app.models`. Keep outputs outside the application; measure actual counts.
 - For schema questions prefer read-only MCP tools, then saved JSON. Saved metadata does not prove deployed schema or freshness.
 

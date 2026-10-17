@@ -9,6 +9,11 @@
 //   coverage       coverage kinds shown per connection, e.g. ["database", "declared"]
 //   diagnostics    exact Diagnostics tab count; the tab must list as many cards
 //   table          {name, indexes: [...], relationships: [...], drift: [...columns], provenance: {column: badge text}}
+//   multiConnection {regions: {connection name: driver}, duplicate: table name on several connections,
+//                  drift: {connection name: [...drifted columns of the duplicate there]}}: frames, connection-qualified
+//                  labels, the connection select and ] key, reference nodes and cross-connection (ORM-only) edges for
+//                  every link between connections in /snapshot.json, #connection= and #table= deep links, search, per-
+//                  connection diagnostics, drift and coverage, and the duplicate's connection at phone width
 // Fails on any uncaught exception, console error, CSP violation or request outside the viewer's origin.
 // SCREENSHOT=path writes a desktop screenshot.
 import {spawn} from 'node:child_process';
@@ -23,6 +28,7 @@ const executable = process.env.CHROME_BIN || (process.platform === 'darwin'
     ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : 'google-chrome');
 const snapshot = await (await fetch(new URL('snapshot.json', url))).json();
 const tableIds = snapshot.connections.flatMap(c => c.tables.map(t => t.id)).sort();
+const connectionOf = new Map(snapshot.connections.flatMap(c => c.tables.map(t => [t.id, c])));
 
 const profile = await mkdtemp(join(tmpdir(), 'laranex-browser-'));
 const browser = spawn(executable, ['--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
@@ -95,9 +101,11 @@ try {
         }
         throw new Error(`Timed out waiting for ${what}: ${expression} -> ${JSON.stringify(value)}`);
     }
-    async function open(width, height, mobile) {
+    async function open(width, height, mobile, hash = '') {
         await page('Emulation.setDeviceMetricsOverride', {width, height, deviceScaleFactor: 1, mobile});
-        await page('Page.navigate', {url: url.href});
+        // Through about:blank, so a URL that differs only in its hash still loads the viewer afresh.
+        await page('Page.navigate', {url: 'about:blank'});
+        await page('Page.navigate', {url: url.href + hash});
         await until(`document.querySelector('.lsv')?.dataset.loaded === 'true'
             || (document.querySelector('.lsv')?.dataset.loaded === 'error' && document.body.innerText)`, 'the viewer');
         assert.equal(await evaluate(`document.querySelector('.lsv').dataset.loaded`), 'true',
@@ -110,7 +118,7 @@ try {
 
     // Desktop: the diagram.
     await open(1440, 950, false);
-    const nodes = await until(`(() => { const ids = [...document.querySelectorAll('.react-flow__node[data-id]')]
+    const nodes = await until(`(() => { const ids = [...document.querySelectorAll('.react-flow__node-table[data-id]')]
         .map(n => n.dataset.id); return ids.length >= ${tableIds.length} && ids; })()`, 'every table node');
     assert.deepEqual([...nodes].sort(), tableIds, 'every table renders as one node');
     if (expect.tables !== undefined) assert.equal(nodes.length, expect.tables);
@@ -177,6 +185,152 @@ try {
         result.table = details;
     }
 
+    // Several connections: frames, qualified labels, one-connection views with reference nodes, deep links, search,
+    // and diagnostics, drift and coverage that stay on their own connection.
+    const multi = expect.multiConnection;
+    const q = JSON.stringify;
+    const node = id => `[...document.querySelectorAll('.react-flow__node')].find(n => n.dataset.id === ${q(id)})`;
+    const select = `document.querySelector('select[aria-label="Connection"]')`;
+    const hashOf = (key, value) => `#${key}=${encodeURIComponent(value)}`;
+    const duplicates = multi && Object.fromEntries(snapshot.connections.flatMap(c => c.tables
+        .filter(t => t.name === multi.duplicate).map(t => [c.name, t.id])));
+    async function view() {
+        return evaluate(`({
+            connection: ${select}.value,
+            regions: [...document.querySelectorAll('.region-node')].map(r => [
+                r.querySelector('.region-node__name').textContent.trim(), r.querySelector('.region-node__meta').textContent.trim()]),
+            tables: [...document.querySelectorAll('.react-flow__node-table[data-id]')].map(n => n.dataset.id).sort(),
+            externals: [...document.querySelectorAll('.react-flow__node-external')].map(n => [n.dataset.id,
+                n.querySelector('.external-node__label').textContent, n.querySelector('.external-node__name').textContent]),
+            cross: [...document.querySelectorAll('.react-flow__edge-path.cross-connection')].map(p => [...p.classList]),
+            hash: decodeURIComponent(location.hash)})`);
+    }
+    // The links between connections a view must draw: those with an end on a table it shows.
+    function crossEdges(state, links) {
+        const shown = new Set(state.tables);
+        const expected = links.filter(l => shown.has(l.from.table) || shown.has(l.to.table));
+        assert.equal(state.cross.length, expected.length, `cross-connection edges ${q(state.cross)}`);
+        for (const classes of state.cross) {
+            assert.ok(classes.includes('edge--relationship'), `cross-connection edge is ORM-only: ${classes}`);
+            assert.ok(!classes.includes('edge--foreign_key') && !classes.includes('edge--both'), `no FK styling: ${classes}`);
+        }
+        return expected;
+    }
+    async function details() {
+        await until(`${panel}.querySelector('.details__title')`, 'table details');
+        return evaluate(`({title: ${panel}.querySelector('.details__title').textContent.trim(),
+            subtitle: ${panel}.querySelector('.details__subtitle').textContent.trim(),
+            drift: [...${panel}.querySelectorAll('.columns-table tr.drift th')].map(t => t.firstChild.textContent.trim())})`);
+    }
+    const labelOf = (name, table) => `${name} · ${table}`;
+    if (multi) {
+        const names = Object.keys(multi.regions);
+        const cross = snapshot.links.filter(l => connectionOf.get(l.from.table) !== connectionOf.get(l.to.table));
+        assert.ok(cross.length > 0, 'the document links two connections');
+        assert.ok(cross.every(l => l.foreignKey === null), 'no foreign key crosses connections');
+        assert.deepEqual(Object.keys(duplicates).sort(), [...names].sort(), `${multi.duplicate} on every connection`);
+        const report = {};
+
+        // All connections: one frame per connection, both duplicates as distinct, qualified cards.
+        await open(1440, 950, false);
+        await until(`document.querySelectorAll('.region-node').length === ${names.length}`, 'a frame per connection');
+        let state = await view();
+        assert.equal(state.connection, '', 'all connections by default');
+        assert.deepEqual(state.regions.map(([name]) => name).sort(), [...names].sort(), 'frame names');
+        for (const [name, meta] of state.regions) {
+            assert.ok(meta.startsWith(`${multi.regions[name]} · `), `frame ${name} shows its driver: ${meta}`);
+        }
+        for (const [name, id] of Object.entries(duplicates)) {
+            assert.equal(await evaluate(`${node(id)}.querySelector('.table-title button').title`),
+                labelOf(name, multi.duplicate));
+            assert.equal(await evaluate(`${node(id)}.querySelector('.table-connection').textContent.trim()`), `${name} ·`);
+        }
+        crossEdges(state, cross);
+        report.regions = state.regions;
+
+        // One connection, from the select: the other end of each cross-connection link is a reference node.
+        const link = cross[0];
+        const home = connectionOf.get(link.to.table), away = connectionOf.get(link.from.table);
+        await evaluate(`(s => (s.value = ${q(home.id)}, s.dispatchEvent(new Event('change', {bubbles: true}))))(${select})`);
+        await until(`document.querySelectorAll('.region-node').length === 0 && ${node(link.from.table)}`, 'the reference node');
+        state = await view();
+        assert.equal(state.connection, home.id);
+        assert.ok(state.hash.includes(`connection=${home.id}`), `hash ${state.hash}`);
+        assert.deepEqual(state.tables, home.tables.map(t => t.id).sort(), `only ${home.name} tables as cards`);
+        const reference = state.externals.find(([id]) => id === link.from.table);
+        assert.ok(reference && reference[1] === `On connection ${away.name} · ${away.driver}`
+            && reference[2] === away.tables.find(t => t.id === link.from.table).name, `reference ${q(state.externals)}`);
+        crossEdges(state, cross);
+        report.reference = reference.slice(1);
+
+        // Clicking the reference opens its table on its own connection.
+        await evaluate(`${node(link.from.table)}.querySelector('button').click()`);
+        await until(`${select}.value === ${q(away.id)}`, 'the reference to open its connection');
+        const opened = await details();
+        assert.ok(opened.title.startsWith(labelOf(away.name, connectionOf.get(link.from.table).tables
+            .find(t => t.id === link.from.table).name)), `opened ${opened.title}`);
+        await until(`${node(link.to.table)}?.classList.contains('react-flow__node-external')`, 'the way back as a reference');
+
+        // ] steps to the next connection (all connections come first, then each in document order).
+        const order = ['', ...snapshot.connections.map(c => c.id)];
+        const next = order[(order.indexOf(away.id) + 1) % order.length];
+        await evaluate(`document.body.dispatchEvent(new KeyboardEvent('keydown', {key: ']', bubbles: true}))`);
+        await until(`${select}.value === ${q(next)}`, 'the ] key to step connections');
+        report.step = [away.id, next];
+
+        // Deep links.
+        for (const c of snapshot.connections) {
+            await open(1440, 950, false, hashOf('connection', c.id));
+            await until(`${node(c.tables[0].id)}`, `#connection=${c.id}`);
+            state = await view();
+            assert.equal(state.connection, c.id);
+            assert.deepEqual(state.tables, c.tables.map(t => t.id).sort());
+            assert.equal(state.regions.length, 0);
+        }
+        for (const [name, id] of Object.entries(duplicates)) {
+            await open(1440, 950, false, hashOf('table', id));
+            const shown = await details();
+            assert.ok(shown.title.startsWith(labelOf(name, multi.duplicate)), `#table=${id} opened ${shown.title}`);
+            assert.ok(shown.subtitle.startsWith(name), `subtitle ${shown.subtitle}`);
+            assert.deepEqual(shown.drift, multi.drift?.[name] ?? [], `drift on ${name} ${multi.duplicate}`);
+        }
+        await open(1440, 950, false, hashOf('connection', 'connection:no-such-connection'));
+        await until(`document.querySelectorAll('.region-node').length === ${names.length}`, 'every connection');
+        assert.equal((await view()).connection, '', 'an unknown connection opens every connection');
+
+        // Search finds every duplicate, each labelled and described with its connection.
+        await evaluate(`(i => { i.focus(); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set
+            .call(i, ${q(multi.duplicate)}); i.dispatchEvent(new Event('input', {bubbles: true})); })(
+            document.querySelector('input[aria-label="Search the schema"]'))`);
+        await until(`document.querySelector('.search__result')`, 'search results');
+        const found = await evaluate(`[...document.querySelectorAll('.search__result')]
+            .filter(r => r.querySelector('.search__kind').textContent === 'Table')
+            .map(r => [r.querySelector('.search__label').textContent, r.querySelector('small').textContent])`);
+        for (const name of names) {
+            const hit = found.find(([label]) => label === labelOf(name, multi.duplicate));
+            assert.ok(hit && hit[1].startsWith(`${name} (${multi.regions[name]})`), `search ${q(found)}`);
+        }
+        report.search = found;
+
+        // Diagnostics name only the drifted connections; coverage is listed per connection.
+        const drifted = Object.keys(multi.drift ?? {});
+        await evaluate(`${tab('Diagnostics')}.click()`);
+        const cards = await evaluate(`[...${panel}.querySelectorAll('.cards > li')].map(c => c.innerText)`);
+        for (const card of cards) {
+            assert.ok(drifted.some(name => card.includes(`${name} · `) || card.includes(`Connection ${name}:`)), card);
+            for (const name of names.filter(n => !drifted.includes(n))) {
+                assert.ok(!card.includes(`${name} · `) && !card.includes(`Connection ${name}:`), `${name} in ${card}`);
+            }
+        }
+        await evaluate(`${tab('Details')}.click()`);
+        await until(`${panel}.querySelector('.connection-coverage')`, 'coverage');
+        const coverage = await evaluate(`[...${panel}.querySelectorAll('.connection-coverage')].map(c =>
+            [c.querySelector('strong').textContent, c.querySelector('.muted').textContent])`);
+        assert.deepEqual(coverage, snapshot.connections.map(c => [c.name, c.driver]), 'coverage per connection');
+        report.diagnostics = cards.length;
+        result.multiConnection = report;
+    }
+
     // Theme toggle, remembered across a reload.
     const before = await evaluate(`document.querySelector('.lsv').dataset.theme`);
     await evaluate(`document.querySelector('button[aria-label^="Switch to"]').click()`);
@@ -197,9 +351,20 @@ try {
         'no horizontal scroll');
     await evaluate(`document.querySelector('.sheet-bar__action').click()`);
     await until(`document.querySelector('aside.sheet.open [role=tab]')`, 'the side panel sheet');
-    await until(`(row => row && (row.click(), true))(document.querySelector('aside.sheet.open button.browse__row'))`,
-        'a browse row');
-    await until(`document.querySelector('aside.sheet.open .details__title')`, 'table details in the sheet');
+    if (multi) {
+        // A duplicate-named table's details in the sheet name its connection.
+        const [name] = Object.keys(duplicates).sort();
+        await until(`(row => row && (row.click(), true))([...document.querySelectorAll('aside.sheet.open button.browse__row')]
+            .find(b => b.querySelector('.browse__title').firstChild.textContent.trim() === ${q(labelOf(name, multi.duplicate))}))`,
+        `the ${name} ${multi.duplicate} browse row`);
+        await until(`document.querySelector('aside.sheet.open .details__title')?.textContent.startsWith(
+            ${q(labelOf(name, multi.duplicate))}) && document.querySelector('aside.sheet.open .details__subtitle')
+            .textContent.startsWith(${q(name)})`, 'the duplicate and its connection in the sheet');
+    } else {
+        await until(`(row => row && (row.click(), true))(document.querySelector('aside.sheet.open button.browse__row'))`,
+            'a browse row');
+        await until(`document.querySelector('aside.sheet.open .details__title')`, 'table details in the sheet');
+    }
     result.phone = 'sheet';
 
     const csp = await evaluate('window.__csp');

@@ -1,4 +1,4 @@
-"""The served shared viewer in a real browser, for declared, database and combined documents.
+"""The served shared viewer in a real browser, for declared, database, combined and multi-connection documents.
 
 Opt in with LSV_BROWSER=1; needs Node.js 22+ and Chrome or Chromium (CHROME_BIN, else found on PATH or in the usual
 macOS location). scripts/browser-smoke.mjs drives the browser over the DevTools Protocol and fails on uncaught
@@ -53,11 +53,12 @@ class ServedViewer(unittest.TestCase):
     def tearDownClass(cls):
         cls.tmp.cleanup()
 
-    def build(self, name, *args, database=False):
+    def build(self, name, *args, database=False, env=None):
         environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(ROOT / "src"))
         environment.pop("LARANEX_SCHEMA_DATABASE_URL", None)
         if database:
             environment["LARANEX_SCHEMA_DATABASE_URL"] = f"sqlite:///{self.database}"
+        environment.update(env or {})
         output = self.root / name
         result = subprocess.run([sys.executable, "-m", "laranex_schema_viewer", "build", *args, "--output", str(output)],
                                 cwd=ROOT, env=environment, capture_output=True, text=True, timeout=180)
@@ -113,6 +114,38 @@ class ServedViewer(unittest.TestCase):
                                 "provenance": {"nickname": "declared only", "legacy_flag": "database only"}})
         self.assertGreater(report["edges"], 0)
         self.assertEqual(sorted(report["certainty"]), ["fact", "heuristic"])
+
+    def test_multiconnection_document(self):
+        # Two SQLite connections from tests/fixtures/multiconnection_models.py: users on both, a relationship between
+        # them without a foreign key, and drift on analytics only. The models are copied into a project of their own,
+        # whose configuration maps each connection to its declared base.
+        project = self.root / "multiconnection"
+        project.mkdir()
+        fixture = ROOT / "tests/fixtures/multiconnection_models.py"
+        shutil.copy(fixture, project / "models.py")
+        from tests.fixtures import multiconnection_models as models
+
+        urls = {}
+        for name, variable, sql in (("app", "APP_DATABASE_URL", models.DEFAULT_SQL),
+                                    ("analytics", "ANALYTICS_DATABASE_URL", models.ANALYTICS_SQL)):
+            connection = sqlite3.connect(project / f"{name}.db")
+            connection.executescript(sql)
+            connection.close()
+            urls[variable] = f"sqlite:///{project / name}.db"
+        (project / "pyproject.toml").write_text(
+            "[tool.laranex-schema-viewer]\ntargets = ['models:Base', 'models:AnalyticsBase']\n"
+            "[tool.laranex-schema-viewer.databases.default]\nurl_env = 'APP_DATABASE_URL'\nnamespace = 'models:Base'\n"
+            "[tool.laranex-schema-viewer.databases.analytics]\nurl_env = 'ANALYTICS_DATABASE_URL'\n"
+            "namespace = 'models:AnalyticsBase'\n")
+        snapshot = self.build("multiconnection.json", "--project-root", str(project), "--source", "combined", env=urls)
+        report = self.check(snapshot, source="combined", tables=4, connections=2, coverage=["database", "declared"],
+                            diagnostics=2, multiConnection={
+                                "regions": {"analytics": "sqlite", "default": "sqlite"}, "duplicate": "users",
+                                "drift": {"analytics": ["segment"]}})
+        multi = report["multiConnection"]
+        self.assertEqual(multi["reference"], ["On connection analytics · sqlite", "users"])
+        self.assertEqual([label for label, _ in multi["search"]], ["analytics · users", "default · users"])
+        self.assertEqual(multi["diagnostics"], 2)
 
 
 if __name__ == "__main__":
