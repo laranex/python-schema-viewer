@@ -1,0 +1,29 @@
+{
+  "counts": {
+    "error": 0,
+    "findings": 1,
+    "info": 1,
+    "qualifying": 0,
+    "warning": 0
+  },
+  "errors": [],
+  "exitCode": 0,
+  "findings": [
+    {
+      "certainty": "certain",
+      "id": "x3ae7dedbaee6ab19",
+      "kind": "table_changed",
+      "label": "tenant_a.users",
+      "message": "comment differ",
+      "severity": "info",
+      "source": "comparison"
+    }
+  ],
+  "format": "laranex-schema-gate",
+  "passed": true,
+  "thresholds": {
+    "certainty": "certain",
+    "severity": "warning"
+  },
+  "version": "1.0"
+}

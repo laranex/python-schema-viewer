@@ -16,6 +16,7 @@ from laranex_schema_viewer import model as m
 from laranex_schema_viewer.contract import (assert_document, build_graph, canonical_json, document_to_json,
                                             finalize, from_json, revision, to_json, validate_document)
 from laranex_schema_viewer.contract.comparison import SeverityOverride, compare_scopes
+from laranex_schema_viewer.contract.gate import gate_json_schema, validate_gate_report
 from laranex_schema_viewer.contract.migration import migration_history, migration_state
 from laranex_schema_viewer.contract.shape import json_schema
 from laranex_schema_viewer.contract.validate import InvalidDocumentError, UnsupportedDocumentError
@@ -172,6 +173,45 @@ class Conformance(unittest.TestCase):
                 self.assertEqual({"history": to_json(history), "status": state.status,
                                   "pending": to_json(state.pending),
                                   "unknownRevisions": list(state.unknown_revisions)}, case["expected"])
+
+
+class GateReports(unittest.TestCase):
+    """laranex-schema-gate 1.0: the shared JSON Schema and the valid and invalid reports. tests/test_check.py
+    reproduces the valid reports from the documents they were made from."""
+
+    def test_the_python_shape_describes_the_shared_schema(self):
+        self.assertEqual(gate_json_schema(), load(CONTRACT / "gate-report.schema.json"))
+        package = ROOT / "src" / "laranex_schema_viewer" / "contract" / "gate-report.schema.json"
+        self.assertEqual(package.read_bytes(), (CONTRACT / "gate-report.schema.json").read_bytes())
+
+    def test_valid_reports(self):
+        paths = cases("fixtures/gate/valid")
+        self.assertEqual([p.name for p in paths], ["drift.json", "incomplete.json", "passed.json"])
+        for path in paths:
+            with self.subTest(path.name):
+                report, errors = validate_gate_report(load(path), strict=True)
+                self.assertEqual(errors, [])
+                self.assertEqual(canonical_json(report), path.read_text(encoding="utf-8"))
+
+    def test_invalid_reports_fail_with_the_expected_rule(self):
+        paths = cases("fixtures/gate/invalid")
+        self.assertEqual(len(paths), 7)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                report, errors = validate_gate_report(case["report"], strict=True)
+                self.assertIsNone(report)
+                for expected in case["errors"]:
+                    self.assertTrue(any(expected in e for e in errors), f"{expected!r} not in {errors}")
+
+    def test_versions_and_shape(self):
+        report = load(CONTRACT / "fixtures" / "gate" / "valid" / "passed.json")
+        self.assertEqual(validate_gate_report({**report, "version": "1.3"})[1], [])
+        self.assertIn('$.version: strict validation is for version 1.0, got "1.3"',
+                      validate_gate_report({**report, "version": "1.3"}, strict=True)[1])
+        self.assertIn("$: unknown property extra", validate_gate_report({**report, "extra": 1}, strict=True)[1])
+        self.assertEqual(validate_gate_report({**report, "extra": 1})[1], [])
+        self.assertIn("$.exitCode: expected 0, 1 or 2, got true", validate_gate_report({**report, "exitCode": True})[1])
 
 
 class Serialization(unittest.TestCase):
