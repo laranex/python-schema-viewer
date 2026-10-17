@@ -1,0 +1,283 @@
+{
+  "description": "Overrides apply per (objectType, change, field), then per (objectType, change); a changed difference takes its most severe field",
+  "expected": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "complete": true,
+    "differences": [
+      {
+        "baseline": {
+          "id": null,
+          "label": "gone",
+          "table": "a:gone"
+        },
+        "certainty": "certain",
+        "change": "missing",
+        "fields": [],
+        "id": "x6e4d794a89e90187",
+        "key": [
+          "gone"
+        ],
+        "objectType": "table",
+        "severity": "warning",
+        "target": null
+      },
+      {
+        "baseline": {
+          "id": null,
+          "label": "t.a",
+          "table": "a:t"
+        },
+        "certainty": "certain",
+        "change": "changed",
+        "fields": [
+          {
+            "baseline": "x",
+            "field": "comment",
+            "target": "y"
+          },
+          {
+            "baseline": "integer",
+            "field": "type",
+            "target": "bigint"
+          }
+        ],
+        "id": "xc5699821fa708866",
+        "key": [
+          "t",
+          "a"
+        ],
+        "objectType": "column",
+        "severity": "error",
+        "target": {
+          "id": null,
+          "label": "t.a",
+          "table": "b:t"
+        }
+      }
+    ],
+    "id": "ccd30999b0df19108",
+    "omitted": 0,
+    "summary": {
+      "changed": 1,
+      "extra": 0,
+      "missing": 1
+    },
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  },
+  "input": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:a",
+          "name": "a",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": "x",
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "a",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "integer",
+                  "typeName": "integer"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "a:t",
+              "indexes": [],
+              "name": "t",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            },
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "a:gone",
+              "indexes": [],
+              "name": "gone",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:b",
+          "name": "b",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": "y",
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "a",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "b:t",
+              "indexes": [],
+              "name": "t",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        }
+      ],
+      "source": "database"
+    },
+    "limit": null,
+    "overrides": [
+      {
+        "change": "missing",
+        "objectType": "table",
+        "severity": "warning"
+      },
+      {
+        "change": "changed",
+        "field": "type",
+        "objectType": "column",
+        "severity": "error"
+      },
+      {
+        "change": "changed",
+        "objectType": "column",
+        "severity": "info"
+      }
+    ],
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  }
+}

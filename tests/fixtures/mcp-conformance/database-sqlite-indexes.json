@@ -1,0 +1,1423 @@
+{
+  "calls": [
+    {
+      "arguments": {
+        "limit": 100
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "partial",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": null
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:main",
+            "name": "main",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 4,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 2,
+          "derivedLinks": 0,
+          "diagnostics": 1,
+          "drift": 0,
+          "foreignKeys": 0,
+          "indexes": 4,
+          "inferredAssociations": 0,
+          "links": 0,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 1
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 1,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 1,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:main",
+            "counts": {
+              "columns": 4,
+              "constraints": 2,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 4
+            },
+            "id": "sqlite:main.notes",
+            "name": "notes",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "source": "database",
+        "total": 1,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "partial",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": null
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:main",
+            "name": "main",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 4,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 2,
+          "derivedLinks": 0,
+          "diagnostics": 1,
+          "drift": 0,
+          "foreignKeys": 0,
+          "indexes": 4,
+          "inferredAssociations": 0,
+          "links": 0,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 1
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 1,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 1,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:main",
+            "counts": {
+              "columns": 4,
+              "constraints": 2,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 4
+            },
+            "id": "sqlite:main.notes",
+            "name": "notes",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "source": "database",
+        "total": 1,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 1
+      },
+      "result": {
+        "connections": [
+          {
+            "coverage": {
+              "database": {
+                "complete": false,
+                "features": {
+                  "checkConstraints": "partial",
+                  "columnTypes": "complete",
+                  "columns": "complete",
+                  "comments": "not_applicable",
+                  "defaults": "complete",
+                  "foreignKeys": "complete",
+                  "includedColumns": "not_applicable",
+                  "indexExpressions": "complete",
+                  "indexPredicates": "complete",
+                  "indexes": "complete",
+                  "models": "not_applicable",
+                  "primaryKeys": "complete",
+                  "referentialActions": "complete",
+                  "relationships": "not_applicable",
+                  "tables": "complete",
+                  "uniqueConstraints": "complete"
+                },
+                "schemas": null
+              },
+              "declared": null
+            },
+            "defaultSchema": null,
+            "driver": "sqlite",
+            "id": "connection:main",
+            "name": "main",
+            "tables": 1
+          }
+        ],
+        "counts": {
+          "columns": 4,
+          "comparisons": 0,
+          "connections": 1,
+          "constraints": 2,
+          "derivedLinks": 0,
+          "diagnostics": 1,
+          "drift": 0,
+          "foreignKeys": 0,
+          "indexes": 4,
+          "inferredAssociations": 0,
+          "links": 0,
+          "migrations": 0,
+          "models": 0,
+          "relationships": 0,
+          "tables": 1
+        },
+        "diagnosticCounts": {
+          "category": {
+            "drift": 0,
+            "extraction": 0,
+            "inspection": 1,
+            "lint": 0,
+            "reconciliation": 0
+          },
+          "certainty": {
+            "certain": 1,
+            "likely": 0
+          },
+          "severity": {
+            "error": 0,
+            "info": 1,
+            "warning": 0
+          }
+        },
+        "generator": {
+          "name": "contract-fixtures",
+          "orm": null
+        },
+        "items": [
+          {
+            "connection": "connection:main",
+            "counts": {
+              "columns": 4,
+              "constraints": 2,
+              "diagnostics": 0,
+              "drift": 0,
+              "foreignKeys": 0,
+              "indexes": 4
+            },
+            "id": "sqlite:main.notes",
+            "name": "notes",
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ],
+        "limit": 1,
+        "nextOffset": null,
+        "note": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "source": "database",
+        "total": 1,
+        "version": "2.0"
+      },
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "id"
+      },
+      "result": {
+        "items": [
+          {
+            "id": null,
+            "kind": "column",
+            "name": "id",
+            "table": "sqlite:main.notes"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "id",
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "total": 1
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "USER"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "USER",
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "_at"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "_at",
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "query_text": "zzz-no-match"
+      },
+      "result": {
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "query": "zzz-no-match",
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "total": 0
+      },
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "columns",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": "NOCASE",
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "title",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "TEXT",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "slug",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "TEXT",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "0"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "archived",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "indexes",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "backs": {
+              "constraint": "sqlite:main.notes:constraint:notes_slug",
+              "kind": "unique_constraint"
+            },
+            "expression": false,
+            "id": "sqlite:main.notes:index:sqlite_autoindex_notes_1",
+            "included": [],
+            "method": null,
+            "name": "sqlite_autoindex_notes_1",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": "slug",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": true
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "sqlite:main.notes:index:notes_active_title",
+            "included": [],
+            "method": null,
+            "name": "notes_active_title",
+            "partial": true,
+            "parts": [
+              {
+                "collation": null,
+                "column": "title",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": "archived = 0",
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": true,
+            "id": "sqlite:main.notes:index:notes_lower_title",
+            "included": [],
+            "method": null,
+            "name": "notes_lower_title",
+            "partial": false,
+            "parts": [
+              {
+                "collation": null,
+                "column": null,
+                "expression": "lower(title)",
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": null
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          },
+          {
+            "backs": null,
+            "expression": false,
+            "id": "sqlite:main.notes:index:notes_title_nocase",
+            "included": [],
+            "method": null,
+            "name": "notes_title_nocase",
+            "partial": false,
+            "parts": [
+              {
+                "collation": "NOCASE",
+                "column": "title",
+                "expression": null,
+                "length": null,
+                "nulls": null,
+                "opclass": null,
+                "order": "desc"
+              }
+            ],
+            "predicate": null,
+            "provenance": [
+              "database"
+            ],
+            "unique": false
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "indexes",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "foreign_keys",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "foreign_keys",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "constraints",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "columns": [
+              "slug"
+            ],
+            "expression": null,
+            "id": "sqlite:main.notes:constraint:notes_slug",
+            "kind": "unique",
+            "name": "notes_slug",
+            "provenance": [
+              "database"
+            ]
+          },
+          {
+            "columns": [
+              "archived"
+            ],
+            "expression": "archived IN (0, 1)",
+            "id": "sqlite:main.notes:constraint:notes_archived_flag",
+            "kind": "check",
+            "name": "notes_archived_flag",
+            "provenance": [
+              "database"
+            ]
+          }
+        ],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "constraints",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 2
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "models",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "models",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "relationships",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "relationships",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "links",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "links",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "derived_links",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "derived_links",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 100,
+        "section": "diagnostics",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [],
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "diagnostics",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 0
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100,
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "table": "sqlite:main.notes",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100,
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "items": [],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "table": "sqlite:main.notes",
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": true,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "id",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          },
+          {
+            "autoIncrement": false,
+            "collation": "NOCASE",
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "title",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "TEXT",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "slug",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "TEXT",
+            "typeName": "text"
+          },
+          {
+            "autoIncrement": false,
+            "collation": null,
+            "comment": null,
+            "default": {
+              "kind": "literal",
+              "value": "0"
+            },
+            "enum": null,
+            "generated": null,
+            "name": "archived",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "INTEGER",
+            "typeName": "integer"
+          }
+        ],
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "limit": 1,
+        "offset": 1,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "columns",
+        "table": "sqlite:main.notes"
+      },
+      "result": {
+        "connection": {
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:main",
+          "name": "main"
+        },
+        "counts": {
+          "columns": 4,
+          "constraints": 2,
+          "derived_links": 0,
+          "diagnostics": 0,
+          "foreign_keys": 0,
+          "indexes": 4,
+          "links": 0,
+          "models": 0,
+          "relationships": 0
+        },
+        "items": [
+          {
+            "autoIncrement": false,
+            "collation": "NOCASE",
+            "comment": null,
+            "default": null,
+            "enum": null,
+            "generated": null,
+            "name": "title",
+            "note": null,
+            "nullable": false,
+            "ormDefault": null,
+            "provenance": [
+              "database"
+            ],
+            "timezone": null,
+            "type": "TEXT",
+            "typeName": "text"
+          }
+        ],
+        "limit": 1,
+        "nextOffset": 2,
+        "offset": 1,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "section": "columns",
+        "table": {
+          "comment": null,
+          "id": "sqlite:main.notes",
+          "name": "notes",
+          "note": null,
+          "owner": {
+            "kind": "application",
+            "package": null
+          },
+          "primaryKey": [
+            "id"
+          ],
+          "provenance": [
+            "database"
+          ],
+          "schema": null
+        },
+        "total": 4
+      },
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "limit": 100
+      },
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "foreign_key",
+        "limit": 100
+      },
+      "result": {
+        "items": [],
+        "kind": "foreign_key",
+        "limit": 100,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {},
+      "result": {
+        "items": [],
+        "kind": "orm",
+        "limit": 25,
+        "nextOffset": null,
+        "offset": 0,
+        "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f",
+        "table": null,
+        "total": 0
+      },
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "limit": 0
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "limit": 101
+      },
+      "error": "limit must be an integer from 1 to 100",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "offset": -1
+      },
+      "error": "offset must be a nonnegative integer",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "revision": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "error": "Document revision differs; restart pagination without revision",
+      "tool": "schema_overview"
+    },
+    {
+      "arguments": {
+        "query_text": ""
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "query_text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "error": "query must contain 1 to 200 characters",
+      "tool": "schema_search"
+    },
+    {
+      "arguments": {
+        "table": "../../.env"
+      },
+      "error": "Unknown table ID; use schema_overview or schema_search",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "section": "rows",
+        "table": "sqlite:main.notes"
+      },
+      "error": "Unknown table section: rows",
+      "tool": "schema_get_table"
+    },
+    {
+      "arguments": {
+        "model": "missing"
+      },
+      "error": "Unknown model ID; use schema_search",
+      "tool": "schema_get_model"
+    },
+    {
+      "arguments": {
+        "kind": "orm",
+        "table": "missing"
+      },
+      "error": "Unknown table ID",
+      "tool": "schema_get_relationships"
+    },
+    {
+      "arguments": {
+        "kind": "sql"
+      },
+      "error": "kind must be orm or foreign_key",
+      "tool": "schema_get_relationships"
+    }
+  ],
+  "document": "tests/fixtures/contract/fixtures/valid/database-sqlite-indexes.json",
+  "revision": "f61a153f159990f0f067b0ba2fd86447c6b31e9d4866af2997686a56cfa9904f"
+}

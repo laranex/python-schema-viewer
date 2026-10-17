@@ -1,4 +1,6 @@
-"""MCP SDK stdio transport. Only the configured snapshot is accessible."""
+"""MCP SDK stdio transport over one saved laranex-schema 2.x document. Only that document is accessible.
+
+The responses are query.py's; docs/mcp.md specifies them."""
 
 from __future__ import annotations
 
@@ -31,27 +33,28 @@ def create_server(path: str | Path):
 
     @server.tool(annotations=annotations)
     def schema_overview(limit: Limit = 25, offset: Offset = 0, revision: str | None = None) -> dict:
-        """Schema counts and paginated table IDs. Reads a pinned saved snapshot only."""
+        """Document source, connections with coverage, counts, and paginated table summaries with opaque IDs."""
         return invoke(query.overview, limit=limit, offset=offset, revision=revision)
 
     @server.tool(annotations=annotations)
     def schema_search(query_text: str, limit: Limit = 25, offset: Offset = 0,
                       revision: str | None = None) -> dict:
-        """Literal substring search of table, column, model and declared relationship names."""
+        """Literal case-insensitive search of table, column, index, foreign key, constraint, model and relationship
+        names; returns hits with opaque IDs."""
         return invoke(query.search, query_text, limit=limit, offset=offset, revision=revision)
 
     @server.tool(annotations=annotations)
     def schema_get_table(table: str,
-                         section: Literal["columns", "indexes", "foreign_keys", "constraints",
-                                          "models", "relationships"] = "columns",
+                         section: Literal["columns", "indexes", "foreign_keys", "constraints", "models",
+                                          "relationships", "links", "derived_links", "diagnostics"] = "columns",
                          limit: Limit = 25, offset: Offset = 0, revision: str | None = None) -> dict:
-        """Read a table section using its exact opaque ID from overview/search."""
+        """Read one section of a table, as the document's own objects, by the table's exact opaque ID."""
         return invoke(query.get_table, table, section, limit=limit, offset=offset, revision=revision)
 
     @server.tool(annotations=annotations)
     def schema_get_model(model: str, limit: Limit = 25, offset: Offset = 0,
                          revision: str | None = None) -> dict:
-        """Read model metadata and its paginated declared ORM relationships by exact model ID."""
+        """Read a model and the ORM relationships it declares, by exact model ID."""
         return invoke(query.get_model, model, limit=limit, offset=offset, revision=revision)
 
     @server.tool(annotations=annotations)
@@ -59,7 +62,7 @@ def create_server(path: str | Path):
                                  kind: Literal["orm", "foreign_key"] = "orm",
                                  limit: Limit = 25, offset: Offset = 0,
                                  revision: str | None = None) -> dict:
-        """Read declared ORM relationships or physical foreign keys as separate collections."""
+        """Read declared ORM relationships (kind orm) or physical foreign keys (kind foreign_key), never mixed."""
         return invoke(query.relationships, table, kind, limit=limit, offset=offset, revision=revision)
 
     return server

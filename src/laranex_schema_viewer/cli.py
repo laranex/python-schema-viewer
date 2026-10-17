@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .config import (DEFAULT_SNAPSHOT, FORMATS, SOURCES, DatabaseConfig, ProjectConfig, add_config, config_section,
+from .config import (DEFAULT_SNAPSHOT, SOURCES, DatabaseConfig, ProjectConfig, add_config, config_section,
                      database_option, detect_django_settings, detect_model_module, load_config, resolve_snapshot)
 
 DATABASE_URL_ENV = "LARANEX_SCHEMA_DATABASE_URL"
@@ -20,7 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     init = commands.add_parser("init", help="Add build defaults to pyproject.toml interactively")
     init.add_argument("--project-root", type=Path, default=Path.cwd())
     init.add_argument("--yes", action="store_true", help="Accept detected defaults without prompting")
-    build = commands.add_parser("build", help="Import ORM definitions and save a JSON snapshot")
+    build = commands.add_parser("build", help="Save the schema as a laranex-schema 2.0 document")
     build.add_argument("--project-root", type=Path, default=Path.cwd())
     build.add_argument("--module", action="append", default=[],
                        help="Default: pyproject.toml config, else the detected models package")
@@ -36,8 +36,6 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--container-image", help="Image for --isolation container")
     build.add_argument("--source", choices=SOURCES,
                        help="declared (models), database (live catalogs), or combined; default: config, else declared")
-    build.add_argument("--format", choices=FORMATS,
-                       help="v1 (read by serve and mcp) or laranex-schema; default: v1 for declared sources")
     build.add_argument("--database-url-env", metavar="NAME",
                        help=f"Environment variable holding the database URL; default: config, else {DATABASE_URL_ENV}")
     build.add_argument("--schema", action="append", default=[], help="Database schema to inspect; repeatable")
@@ -48,15 +46,11 @@ def main(argv: list[str] | None = None) -> int:
                             "database options and [tool.laranex-schema-viewer.databases]")
     build.add_argument("--allow-write-privileges", action="store_true",
                        help="Inspect with a role that can change the database (sessions stay read-only)")
-    convert = commands.add_parser("convert", help="Convert a version 1 snapshot to a laranex-schema 1.0 document")
-    convert.add_argument("snapshot", type=Path)
-    convert.add_argument("--output", type=Path, required=True)
-    convert.add_argument("--orm", help="The ORM the snapshot was built from, recorded in the document")
-    serve = commands.add_parser("serve", help="Serve the viewer from a saved snapshot only")
+    serve = commands.add_parser("serve", help="Serve the viewer for a saved laranex-schema 2.0 document")
     serve.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8765)
-    mcp = commands.add_parser("mcp", help="Run read-only snapshot MCP tools over stdio")
+    mcp = commands.add_parser("mcp", help="Run read-only MCP tools over a saved document, on stdio")
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
     try:
@@ -87,12 +81,6 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
         elif args.command == "build":
             run_build(args)
-        elif args.command == "convert":
-            from .snapshot import read_snapshot, write_unified
-            from .unified import from_v1
-
-            write_unified(from_v1(read_snapshot(args.snapshot), orm=args.orm), args.output)
-            print(f"Saved {args.snapshot} as laranex-schema 1.0 to {args.output}")
         elif args.command == "serve":
             from .server import create_server
 
@@ -120,17 +108,12 @@ def run_build(args: argparse.Namespace) -> None:
     """Extract declared metadata in the isolated worker, inspect the database in its own worker, or both."""
     import os
 
-    from .document import SchemaDocument
     from .isolation import ExtractRequest, IsolationConfig
     from .isolation.runner import extract
-    from .snapshot import write_snapshot, write_unified
+    from .snapshot import write_document
 
     config = load_config(args.project_root)
     source = args.source or config.source or "declared"
-    output_format = args.format or config.format or ("v1" if source == "declared" else "laranex-schema")
-    if source != "declared" and output_format == "v1":
-        raise ValueError(f"--source {source} writes laranex-schema documents; version 1 snapshots cannot hold "
-                         "database metadata")
     output = args.output or config.output or DEFAULT_SNAPSHOT
     timeout = args.timeout or config.timeout or IsolationConfig.timeout
     databases = database_connections(args, config)
@@ -151,7 +134,7 @@ def run_build(args: argparse.Namespace) -> None:
                 raise ValueError(f"Set {url_env} to a read-only database URL (see docs/database.md); URLs are never "
                                  "read from arguments or configuration")
 
-    v1 = None
+    declared = None
     orm = args.orm or config.orm or "auto"
     if source != "database":
         settings = args.settings or config.settings
@@ -180,16 +163,8 @@ def run_build(args: argparse.Namespace) -> None:
         print(f"Extracted with {isolation.level} isolation; {result.withheld} environment variables withheld")
         for blocked in result.blocked:
             print(f"Warning: blocked {blocked['event']} during extraction ({blocked['detail']})", file=sys.stderr)
-        v1 = SchemaDocument.model_validate(result.document)
-        if output_format == "v1":
-            write_snapshot(v1, output)
-            print(f"Saved {len(v1.tables)} tables, {len(v1.models)} models, "
-                  f"{len(v1.relationships)} ORM relationships, {len(v1.diagnostics)} diagnostics to {output}")
-            return
+        declared = result.document
 
-    from .unified import from_v1
-
-    declared = from_v1(v1, orm=None if orm == "auto" else orm) if v1 is not None else None
     document = declared
     if source != "declared" and databases:
         from .introspection import DatabaseRequest
@@ -199,8 +174,8 @@ def run_build(args: argparse.Namespace) -> None:
             url=urls[d.name], schemas=d.schemas, connection=d.name,
             allow_write_privileges=args.allow_write_privileges, timeout=timeout,
         ) for d in databases], project_roots=[str(Path(args.project_root).resolve())])
-        for connection in database["connections"]:
-            print(f"Inspected connection {connection['name']} read-only ({connection['driver']})")
+        for connection in database.connections:
+            print(f"Inspected connection {connection.name} read-only ({connection.driver})")
         if declared is None:
             document = database
         else:
@@ -211,27 +186,28 @@ def run_build(args: argparse.Namespace) -> None:
         from .introspection import DatabaseRequest
         from .introspection.runner import introspect
 
-        names = [c["name"] for c in declared["connections"]] if declared else []
+        names = [c.name for c in declared.connections] if declared else []
         connection = args.database_connection or config.database_connection or (
             names[0] if len(names) == 1 else "default")
         database = introspect(DatabaseRequest(
             url=url, schemas=tuple(args.schema or config.database_schemas), connection=connection,
             allow_write_privileges=args.allow_write_privileges, timeout=timeout,
         ), project_roots=[str(Path(args.project_root).resolve())])
-        print(f"Inspected the database read-only ({database['connections'][0]['driver']})")
+        print(f"Inspected the database read-only ({database.connections[0].driver})")
         if declared is None:
             document = database
         else:
             from .reconcile import combine
 
             document = combine(declared, database, connection=connection)
-    write_unified(document, output)
-    counts = {}
-    for diagnostic in document["diagnostics"]:
-        counts[diagnostic["category"]] = counts.get(diagnostic["category"], 0) + 1
+    write_document(document, output)
+    counts: dict[str, int] = {}
+    for diagnostic in document.diagnostics:
+        counts[diagnostic.category] = counts.get(diagnostic.category, 0) + 1
     summary = ", ".join(f"{n} {category}" for category, n in sorted(counts.items())) or "no"
-    tables = sum(len(c["tables"]) for c in document["connections"])
-    print(f"Saved laranex-schema 1.0 ({document['source']}): {tables} tables, {summary} diagnostics, to {output}")
+    print(f"Saved laranex-schema 2.0 ({document.source}): {len(document.tables())} tables, "
+          f"{len(document.models)} models, {len(document.relationships)} ORM relationships, {summary} diagnostics, "
+          f"to {output}")
 
 
 def database_connections(args: argparse.Namespace, config: ProjectConfig) -> list[DatabaseConfig]:

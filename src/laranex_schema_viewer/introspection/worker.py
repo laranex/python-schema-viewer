@@ -49,6 +49,10 @@ def scrub(message: str, url: str) -> str:
 
 
 def run(request: dict[str, Any]) -> dict[str, Any]:
+    """The database as laranex-schema 2.0 JSON (source: database)."""
+    from .. import model as m
+    from ..adapters import connection_id
+    from ..contract import document_to_json
     from . import IntrospectionError
     from .catalog import inspect_database
     from .readonly import create_engine, privilege_problems, read_only
@@ -63,25 +67,24 @@ def run(request: dict[str, Any]) -> dict[str, Any]:
 
                 schemas = [connection.execute(text("SELECT current_schema()")).scalar()]
             problems = privilege_problems(connection, schemas)
-            diagnostics: list[dict[str, Any]] = []
+            diagnostics: list[m.Diagnostic] = []
             if problems and not request.get("allow_write_privileges"):
                 raise IntrospectionError(
                     "The database role can change the schema or data: " + "; ".join(problems) + ". Inspect with a "
                     "read-only role (see docs/database.md), or pass --allow-write-privileges to inspect anyway inside "
                     "read-only transactions.")
             if problems:
-                diagnostics.append({
-                    "kind": "write_privileges", "category": "inspection", "severity": "warning",
-                    "certainty": "certain",
-                    "subject": {"type": "connection", "id": f"connection:{request['connection']}", "columns": None,
-                                "label": request["connection"]},
-                    "message": "Inspected with a role that can change the schema or data (" + "; ".join(problems) +
-                               "); the session was read-only."})
+                diagnostics.append(m.Diagnostic(
+                    kind="write_privileges", category="inspection", severity="warning", certainty="certain",
+                    subject=m.Subject(type="connection", id=connection_id(request["connection"]),
+                                      label=request["connection"]),
+                    message="Inspected with a role that can change the schema or data (" + "; ".join(problems) +
+                            "); the session was read-only."))
             document = inspect_database(connection, name=request["connection"], schemas=schemas,
                                         diagnostics=diagnostics)
     finally:
         engine.dispose()
-    return document
+    return document_to_json(document)
 
 
 def main() -> None:

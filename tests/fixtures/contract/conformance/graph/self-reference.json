@@ -35,7 +35,7 @@
           "declared": null
         },
         "defaultSchema": null,
-        "driver": "pgsql",
+        "driver": "postgresql",
         "id": "connection:c",
         "name": "c",
         "tables": [

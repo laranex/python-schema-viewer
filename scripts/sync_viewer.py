@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / "src/laranex_schema_viewer/static/viewer"
-CONTRACT_MAJOR = 1
+CONTRACT_MAJOR = 2
 
 
 def verify(build: Path) -> dict:
@@ -25,7 +25,7 @@ def verify(build: Path) -> dict:
     if manifest.get("name") != "laranex-schema-viewer-ui":
         raise SystemExit(f"{build} is not a laranex-schema-viewer-ui build")
     if manifest.get("contract", {}).get("major") != CONTRACT_MAJOR:
-        raise SystemExit(f"The build reads laranex-schema {manifest.get('contract')}; this package writes 1.x")
+        raise SystemExit(f"The build reads laranex-schema {manifest.get('contract')}; this package writes 2.x")
     for entry in manifest["files"]:
         path = (build / entry["path"]).resolve()
         if build.resolve() not in path.parents:

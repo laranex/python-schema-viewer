@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from laranex_schema_viewer.contract import canonical_json, validate_document
+from laranex_schema_viewer.contract import canonical_json, document_to_json, validate_document
 
 ROOT = Path(__file__).resolve().parents[1]
 HAS_SQLALCHEMY = importlib.util.find_spec("sqlalchemy") is not None
@@ -26,8 +26,7 @@ if HAS_SQLALCHEMY:
     from laranex_schema_viewer.build import build_document
     from laranex_schema_viewer.introspection import DatabaseRequest
     from laranex_schema_viewer.introspection.runner import introspect_all
-    from laranex_schema_viewer.reconcile import combine
-    from laranex_schema_viewer.unified import from_v1
+    from laranex_schema_viewer.reconcile import combine as combine_documents
     from tests.fixtures import multiconnection_models as models
 
 DEFAULT_USERS = '["default",null,"users"]'
@@ -41,9 +40,13 @@ EXPECTED = {
 
 def declared():
     """Both metadata objects under the connection names, as a project that names its namespaces would have them."""
-    v1 = SQLAlchemyAdapter({"default": models.Base.metadata, "analytics": models.AnalyticsBase.metadata},
-                           [models.Team, models.User, models.AnalyticsUser, models.Event]).extract()
-    return from_v1(v1, orm="sqlalchemy")
+    return SQLAlchemyAdapter({"default": models.Base.metadata, "analytics": models.AnalyticsBase.metadata},
+                             [models.Team, models.User, models.AnalyticsUser, models.Event]).extract()
+
+
+def combine(declared_document, database_document, **kwargs):
+    """The combined document as the laranex-schema 2.0 JSON a build writes."""
+    return document_to_json(combine_documents(declared_document, database_document, **kwargs))
 
 
 def sqlite_databases(directory):
@@ -121,8 +124,8 @@ class SQLiteMultiConnection(MultiConnection, unittest.TestCase):
         cls.tmp.cleanup()
 
     def test_database_document_has_one_connection_per_name(self):
-        self.assertEqual(validate_document(self.database, strict=True)[1], [])
-        self.assertEqual([(c["name"], c["driver"]) for c in self.database["connections"]],
+        self.assertEqual(validate_document(document_to_json(self.database), strict=True)[1], [])
+        self.assertEqual([(c.name, c.driver) for c in self.database.connections],
                          [("analytics", "sqlite"), ("default", "sqlite")])
         with self.assertRaisesRegex(Exception, "distinct name"):
             introspect_all([DatabaseRequest(url=self.urls["default"]), DatabaseRequest(url=self.urls["analytics"])])
@@ -154,8 +157,8 @@ class SQLiteMultiConnection(MultiConnection, unittest.TestCase):
         # Discovered by importing the module, each namespace is named after the first attribute (in sorted order)
         # holding that metadata: here mapped classes, not the bases.
         names = {"default": f"{MODULE}:Team", "analytics": f"{MODULE}:AnalyticsUser"}
-        found = from_v1(build_document([MODULE], project_root=ROOT), orm="sqlalchemy")
-        self.assertEqual(sorted(c["name"] for c in found["connections"]), sorted(names.values()))
+        found = build_document([MODULE], project_root=ROOT)
+        self.assertEqual(sorted(c.name for c in found.connections), sorted(names.values()))
         with self.assertRaisesRegex(ValueError, f"matches a declared namespace \\(found: {MODULE}:AnalyticsUser, "):
             combine(found, self.database)
         doc = combine(found, self.database, namespaces=names)
@@ -178,8 +181,8 @@ class SQLiteMultiConnection(MultiConnection, unittest.TestCase):
             combine(self.declared, self.database, connection="default")
 
     def test_one_database_belongs_to_the_only_declared_namespace(self):
-        single = from_v1(SQLAlchemyAdapter({f"{MODULE}:AnalyticsBase": models.AnalyticsBase.metadata},
-                                           [models.AnalyticsUser, models.Event]).extract())
+        single = SQLAlchemyAdapter({f"{MODULE}:AnalyticsBase": models.AnalyticsBase.metadata},
+                                   [models.AnalyticsUser, models.Event]).extract()
         database = introspect_all([DatabaseRequest(url=self.urls["analytics"], connection="analytics")])
         doc = combine(single, database)
         self.assertEqual([c["name"] for c in doc["connections"]], ["analytics"])
@@ -187,21 +190,22 @@ class SQLiteMultiConnection(MultiConnection, unittest.TestCase):
 
     def test_queries_tell_duplicate_tables_apart(self):
         from laranex_schema_viewer.query import SnapshotQuery
-        from laranex_schema_viewer.snapshot import write_unified
+        from laranex_schema_viewer.contract import document_from_json
+        from laranex_schema_viewer.snapshot import write_document
 
         path = Path(self.tmp.name) / "combined.json"
-        write_unified(self.doc, path)
+        write_document(document_from_json(self.doc), path)
         query = SnapshotQuery(path)
         found = [i for i in query.search("users")["items"] if i["kind"] == "table"]
         self.assertEqual(sorted(i["id"] for i in found), [ANALYTICS_USERS, DEFAULT_USERS])
         overview = query.overview(limit=100)
-        self.assertEqual({(t["namespace"], t["name"]) for t in overview["items"] if t["name"] == "users"},
-                         {("default", "users"), ("analytics", "users")})
+        self.assertEqual({(t["connection"], t["name"]) for t in overview["items"] if t["name"] == "users"},
+                         {("connection:default", "users"), ("connection:analytics", "users")})
         self.assertEqual([c["driver"] for c in overview["connections"]], ["sqlite", "sqlite"])
-        self.assertEqual(query.get_table(ANALYTICS_USERS)["table"]["namespace"], "analytics")
+        self.assertEqual(query.get_table(ANALYTICS_USERS)["connection"]["name"], "analytics")
         orm = query.relationships(ANALYTICS_USERS)["items"]
         self.assertEqual([r["name"] for r in orm], ["analytics_profile"])
-        self.assertEqual([fk["source_table"] for fk in query.relationships(ANALYTICS_USERS, "foreign_key")["items"]],
+        self.assertEqual([fk["table"] for fk in query.relationships(ANALYTICS_USERS, "foreign_key")["items"]],
                          ['["analytics",null,"events"]'])
 
 
@@ -275,7 +279,7 @@ class MixedDrivers(MultiConnection, unittest.TestCase):
             with mock.patch("laranex_schema_viewer.introspection.runner.subprocess.Popen", cls.popen):
                 database = introspect_all([DatabaseRequest(url=url, connection=name)
                                            for name, url in cls.urls.items()])
-            cls.drivers = {c["name"]: c["driver"] for c in database["connections"]}
+            cls.drivers = {c.name: c.driver for c in database.connections}
             cls.doc = combine(declared(), database)
         except Exception:
             cls.drop()
@@ -297,7 +301,7 @@ class MixedDrivers(MultiConnection, unittest.TestCase):
         cls.drop()
 
     def test_each_connection_keeps_its_driver(self):
-        self.assertEqual(self.drivers, {"default": "pgsql", "analytics": "mysql"})
+        self.assertEqual(self.drivers, {"default": "postgresql", "analytics": "mysql"})
 
     def test_each_worker_received_only_its_own_url_on_stdin(self):
         self.assertEqual(len(self.popen.calls), 2)

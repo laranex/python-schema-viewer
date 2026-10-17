@@ -46,7 +46,16 @@ def _read_result(path: Path, output: str) -> ExtractResult:
     result = json.loads(path.read_bytes())
     if not result.get("ok"):
         raise IsolationError(f"Extraction failed in the isolated worker: {result.get('error')}{_tail(output)}")
-    return ExtractResult(document=result["document"], blocked=list(result.get("blocked", [])))
+    from ..contract import assert_document
+
+    try:
+        # Strictly: the worker runs application code, so its document is checked like any producer's output.
+        document = assert_document(result["document"], strict=True)
+    except ValueError as error:
+        raise IsolationError(f"The extraction worker returned an invalid document: {error}") from None
+    if document.source != "declared":
+        raise IsolationError("The extraction worker returned a document that is not declared metadata")
+    return ExtractResult(document=document, blocked=list(result.get("blocked", [])))
 
 
 def _log_tail(path: Path) -> str:

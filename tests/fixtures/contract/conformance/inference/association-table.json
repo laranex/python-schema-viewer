@@ -1,0 +1,314 @@
+{
+  "description": "An unmapped table whose primary key is exactly the columns of two uncovered foreign keys is a many-to-many between the tables they reference",
+  "expected": {
+    "inferredAssociations": [
+      {
+        "ambiguities": [],
+        "cardinality": "many-to-many",
+        "confidence": "high",
+        "evidence": [
+          {
+            "confirmed": true,
+            "id": "t:post_tags:fk:pt_post_fk",
+            "kind": "foreign_key"
+          },
+          {
+            "confirmed": true,
+            "id": "t:post_tags:fk:pt_tag_fk",
+            "kind": "foreign_key"
+          },
+          {
+            "confirmed": true,
+            "id": "m:Post",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "m:Tag",
+            "kind": "model_mapping"
+          },
+          {
+            "confirmed": true,
+            "id": "t:post_tags",
+            "kind": "primary_key"
+          }
+        ],
+        "foreignKeys": [
+          "t:post_tags:fk:pt_post_fk",
+          "t:post_tags:fk:pt_tag_fk"
+        ],
+        "id": "if36beebc8d8c6cba",
+        "kind": "association_table",
+        "links": [
+          "lee05d08ffdf196a5",
+          "lfb2f06993fb463b1"
+        ],
+        "model": "m:Post",
+        "relatedModel": "m:Tag",
+        "relatedTable": "t:tags",
+        "table": "t:posts",
+        "via": "t:post_tags"
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "postgresql",
+        "id": "connection:c",
+        "name": "c",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "post_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "tag_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [
+              {
+                "columns": [
+                  "post_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:posts",
+                "id": "t:post_tags:fk:pt_post_fk",
+                "initially": null,
+                "name": "pt_post_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              },
+              {
+                "columns": [
+                  "tag_id"
+                ],
+                "deferrable": null,
+                "foreignColumns": [
+                  "id"
+                ],
+                "foreignTable": "t:tags",
+                "id": "t:post_tags:fk:pt_tag_fk",
+                "initially": null,
+                "name": "pt_tag_fk",
+                "onDelete": null,
+                "onUpdate": null,
+                "provenance": [
+                  "database"
+                ]
+              }
+            ],
+            "id": "t:post_tags",
+            "indexes": [],
+            "name": "post_tags",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "post_id",
+              "tag_id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:posts",
+            "indexes": [],
+            "name": "posts",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          },
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "t:tags",
+            "indexes": [],
+            "name": "tags",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "foreignKey": "t:post_tags:fk:pt_tag_fk",
+        "from": {
+          "columns": [
+            "tag_id"
+          ],
+          "table": "t:post_tags"
+        },
+        "id": "lee05d08ffdf196a5",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [],
+        "state": "foreign_key",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:tags"
+        }
+      },
+      {
+        "foreignKey": "t:post_tags:fk:pt_post_fk",
+        "from": {
+          "columns": [
+            "post_id"
+          ],
+          "table": "t:post_tags"
+        },
+        "id": "lfb2f06993fb463b1",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [],
+        "state": "foreign_key",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "t:posts"
+        }
+      }
+    ],
+    "models": [
+      {
+        "className": "Post",
+        "id": "m:Post",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:posts"
+        ]
+      },
+      {
+        "className": "Tag",
+        "id": "m:Tag",
+        "primaryKey": [
+          "id"
+        ],
+        "source": null,
+        "tables": [
+          "t:tags"
+        ]
+      }
+    ],
+    "relationships": [],
+    "source": "combined"
+  }
+}

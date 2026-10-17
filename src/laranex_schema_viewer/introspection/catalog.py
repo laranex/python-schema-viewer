@@ -1,4 +1,4 @@
-"""A database's catalogs as a laranex-schema 1.0 document (source: database).
+"""A database's catalogs as the schema model (a database document).
 
 SQLAlchemy's Inspector reads columns, keys, constraints and comments. Native type names and the index details it
 misses come from catalog queries: pg_index for methods and key collations; information_schema.STATISTICS for MySQL and
@@ -11,10 +11,9 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from ..adapters import identifier
-from ..contract import VERSION, assert_document, build_graph
-from ..contract.models import FEATURES
-from ..unified import GENERATOR, action, connection_id, sort_diagnostics
+from .. import model as m
+from ..adapters import GENERATOR, connection_id, identifier, referential_action
+from ..contract import finalize
 
 LITERAL = re.compile(r"^(?:'(?:[^']|'')*'(?:::[\w .\[\]\"]+)?|\(?-?\d+(?:\.\d+)?\)?(?:::[\w .\"]+)?|true|false|null)$",
                      re.IGNORECASE)
@@ -26,8 +25,8 @@ OWNERS = {"alembic_version": ("package", "alembic"), "django_migrations": ("fram
 IDENTIFIER = re.compile(r"[A-Za-z_][\w$]*|`[^`]+`|\"[^\"]+\"")
 
 
-def inspect_database(connection: Any, *, name: str, schemas: list[str], diagnostics: list[dict[str, Any]]
-                     ) -> dict[str, Any]:
+def inspect_database(connection: Any, *, name: str, schemas: list[str], diagnostics: list[m.Diagnostic]
+                     ) -> m.Document:
     from sqlalchemy import inspect
 
     inspector = inspect(connection)
@@ -37,25 +36,22 @@ def inspect_database(connection: Any, *, name: str, schemas: list[str], diagnost
     reader = Reader(connection, inspector, name=name, default=default, diagnostics=diagnostics)
     selected = [None] if dialect == "sqlite" else (schemas or [default])
     tables = [t for schema in selected for t in reader.schema_tables(schema)]
-    driver = "mariadb" if mariadb else {"postgresql": "pgsql"}.get(dialect, dialect)
-    connection_entry = {
-        "id": connection_id(name), "name": name, "driver": driver, "defaultSchema": default,
-        "coverage": {"database": coverage(dialect, mariadb, connection, None if dialect == "sqlite" else selected,
-                                          reader.unavailable), "declared": None},
-        "tables": sorted(tables, key=lambda t: t["id"]),
-    }
-    doc: dict[str, Any] = {
-        "format": "laranex-schema", "version": VERSION, "source": "database",
-        "generator": {"name": GENERATOR, "orm": None}, "note": None, "connections": [connection_entry],
-        "models": [], "relationships": [], "links": [], "derivedLinks": [], "diagnostics": sort_diagnostics(diagnostics),
-    }
-    doc.update(build_graph(doc))
-    return assert_document(doc, strict=True).to_json()
+    # SQLAlchemy's dialect names are the contract's canonical drivers; MariaDB is told apart from MySQL.
+    driver = "mariadb" if mariadb else dialect
+    entry = m.Connection(
+        id=connection_id(name), name=name, driver=driver, default_schema=default,
+        coverage=m.ConnectionCoverage(database=coverage(dialect, mariadb, connection,
+                                                        None if dialect == "sqlite" else selected,
+                                                        reader.unavailable)),
+        tables=tuple(tables),
+    )
+    return finalize(m.Document(source="database", generator=m.Generator(name=GENERATOR), connections=(entry,),
+                               diagnostics=tuple(diagnostics)))
 
 
 def coverage(dialect: str, mariadb: bool, connection: Any, schemas: list[str] | None,
-             unavailable: set[str]) -> dict[str, Any]:
-    features = {f: "complete" for f in FEATURES}
+             unavailable: set[str]) -> m.Coverage:
+    features = {f: "complete" for f in m.FEATURES}
     features.update(models="not_applicable", relationships="not_applicable")
     if dialect == "mysql":
         features.update(includedColumns="not_applicable", indexPredicates="not_applicable")
@@ -68,8 +64,7 @@ def coverage(dialect: str, mariadb: bool, connection: Any, schemas: list[str] | 
         features.update(comments="not_applicable", includedColumns="not_applicable", checkConstraints="partial")
     for feature in unavailable:
         features[feature] = "unavailable"
-    complete = all(v in ("complete", "not_applicable") for v in features.values())
-    return {"complete": complete, "schemas": schemas, "features": features}
+    return m.coverage(features, None if schemas is None else tuple(schemas))
 
 
 def type_name(native: str, sa_type: Any) -> str:
@@ -80,38 +75,34 @@ def type_name(native: str, sa_type: Any) -> str:
     return TYPE_NAMES.get(base, base)
 
 
-def default_value(text: str | None) -> dict[str, str] | None:
+def default_value(text: str | None) -> m.DefaultValue | None:
     if text is None:
         return None
     value = str(text).strip()
     if value.lower().startswith("nextval("):
-        return {"kind": "sequence", "value": value}
-    return {"kind": "literal" if LITERAL.fullmatch(value) else "expression", "value": value}
+        return m.DefaultValue(kind="sequence", value=value)
+    return m.DefaultValue(kind="literal" if LITERAL.fullmatch(value) else "expression", value=value)
 
 
-def owner(table: str) -> dict[str, Any]:
+def owner(table: str) -> m.Owner:
     kind, package = OWNERS.get(table, ("application", None))
-    return {"kind": kind, "package": package}
+    return m.Owner(kind=kind, package=package)
 
 
-def part(column: str | None = None, expression: str | None = None, **kw: Any) -> dict[str, Any]:
-    return {"column": column, "expression": expression, "order": kw.get("order"), "nulls": kw.get("nulls"),
-            "length": kw.get("length"), "collation": kw.get("collation"), "opclass": kw.get("opclass")}
+def part(column: str | None = None, expression: str | None = None, **kw: Any) -> m.IndexPart:
+    return m.IndexPart(column=column, expression=expression, order=kw.get("order"), nulls=kw.get("nulls"),
+                       length=kw.get("length"), collation=kw.get("collation"), opclass=kw.get("opclass"))
 
 
-def index_entry(tid: str, name: str, parts: list[dict[str, Any]], *, unique: bool, primary: bool = False,
-                backs: dict[str, Any] | None = None, method: str | None = None, predicate: str | None = None,
-                included: list[str] | None = None, options: dict[str, Any] | None = None) -> dict[str, Any]:
-    entry = {
-        "id": f"{tid}:index:{name}", "name": name, "parts": parts,
-        "columns": [p["column"] for p in parts if p["column"] is not None],
-        "expression": any(p["expression"] is not None for p in parts), "unique": unique, "primary": primary,
-        "backs": backs, "method": method, "partial": predicate is not None, "predicate": predicate,
-        "included": included or [], "provenance": ["database"],
-    }
-    if options:
-        entry["dialectOptions"] = options
-    return entry
+def index_entry(tid: str, name: str, parts: list[m.IndexPart], *, unique: bool, backs: m.Backs | None = None,
+                method: str | None = None, predicate: str | None = None, included: list[str] | None = None,
+                options: dict[str, m.IndexOptions] | None = None) -> m.Index:
+    return m.Index(
+        id=f"{tid}:index:{name}", name=name, parts=tuple(parts),
+        expression=any(p.expression is not None for p in parts), unique=unique, backs=backs, method=method,
+        partial=predicate is not None, predicate=predicate, included=tuple(included or ()),
+        dialect_options=options or None, provenance=m.DATABASE,
+    )
 
 
 def referenced_columns(expression: str, columns: list[str]) -> list[str]:
@@ -156,7 +147,7 @@ def sqlite_index_sql(sql: str) -> tuple[list[str], str | None]:
 
 class Reader:
     def __init__(self, connection: Any, inspector: Any, *, name: str, default: str | None,
-                 diagnostics: list[dict[str, Any]]) -> None:
+                 diagnostics: list[m.Diagnostic]) -> None:
         self.connection, self.inspector, self.name, self.default = connection, inspector, name, default
         self.dialect = connection.dialect.name
         self.diagnostics = diagnostics
@@ -165,12 +156,11 @@ class Reader:
     def table_id(self, schema: str | None, table: str) -> str:
         return identifier(self.name, None if schema in (None, self.default) else schema, table)
 
-    def note(self, kind: str, message: str, subject: dict[str, Any] | None = None, severity: str = "warning") -> None:
-        self.diagnostics.append({
-            "kind": kind, "category": "inspection", "severity": severity, "certainty": "certain",
-            "subject": subject or {"type": "connection", "id": connection_id(self.name), "columns": None,
-                                   "label": self.name},
-            "message": message})
+    def note(self, kind: str, message: str, subject: m.Subject | None = None, severity: str = "warning") -> None:
+        self.diagnostics.append(m.Diagnostic(
+            kind=kind, category="inspection", severity=severity, certainty="certain",
+            subject=subject or m.Subject(type="connection", id=connection_id(self.name), label=self.name),
+            message=message))
 
     def multi(self, method: str, schema: str | None, feature: str | None = None) -> dict[Any, Any]:
         try:
@@ -181,7 +171,7 @@ class Reader:
                 self.note("inspection_unavailable", f"{feature} could not be read from this database")
             return {}
 
-    def schema_tables(self, schema: str | None) -> list[dict[str, Any]]:
+    def schema_tables(self, schema: str | None) -> list[m.Table]:
         if self.dialect != "sqlite" and schema not in self.inspector.get_schema_names():
             from . import IntrospectionError
 
@@ -235,7 +225,7 @@ class Reader:
             out.setdefault(table, {})[column] = native
         return out
 
-    def column(self, c: dict[str, Any], native: str | None, tid: str, rowid: bool = False) -> dict[str, Any]:
+    def column(self, c: dict[str, Any], native: str | None, tid: str, rowid: bool = False) -> m.Column:
         # rowid: SQLite's INTEGER PRIMARY KEY aliases the rowid, which the database assigns.
         sa_type = c["type"]
         if native is None or native == "":
@@ -243,27 +233,28 @@ class Reader:
         computed, identity = c.get("computed"), c.get("identity")
         default = None if computed else default_value(c.get("default"))
         if identity:
-            default = {"kind": "identity",
-                       "value": f"GENERATED {'ALWAYS' if identity.get('always') else 'BY DEFAULT'} AS IDENTITY"}
+            default = m.DefaultValue(
+                kind="identity", value=f"GENERATED {'ALWAYS' if identity.get('always') else 'BY DEFAULT'} AS IDENTITY")
         enum = None
         if type(sa_type).__name__.upper() == "ENUM":
-            enum = {"name": getattr(sa_type, "name", None) if self.dialect == "postgresql" else None,
-                    "values": list(sa_type.enums)}
-        return {
-            "name": c["name"], "type": native, "typeName": type_name(native, sa_type),
-            "nullable": bool(c["nullable"]), "autoIncrement": rowid or c.get("autoincrement") is True,
-            "timezone": getattr(sa_type, "timezone", None) if hasattr(sa_type, "timezone") else None,
-            "collation": getattr(sa_type, "collation", None), "enum": enum, "default": default,
-            "ormDefault": None,
-            "generated": {"kind": ("stored" if computed.get("persisted") else "virtual")
-                          if computed.get("persisted") is not None else None,
-                          "expression": str(computed["sqltext"])} if computed else None,
-            "comment": c.get("comment"), "note": None, "provenance": ["database"],
-        }
+            enum = m.EnumType(name=getattr(sa_type, "name", None) if self.dialect == "postgresql" else None,
+                              values=tuple(sa_type.enums))
+        generated = None
+        if computed:
+            persisted = computed.get("persisted")
+            generated = m.Generated(kind=None if persisted is None else "stored" if persisted else "virtual",
+                                    expression=str(computed["sqltext"]))
+        return m.Column(
+            name=c["name"], type=native, type_name=type_name(native, sa_type), nullable=bool(c["nullable"]),
+            auto_increment=rowid or c.get("autoincrement") is True,
+            timezone=getattr(sa_type, "timezone", None) if hasattr(sa_type, "timezone") else None,
+            collation=getattr(sa_type, "collation", None), enum=enum, default=default, generated=generated,
+            comment=c.get("comment"), provenance=m.DATABASE,
+        )
 
     def table(self, schema: str | None, table: str, tid: str, columns: list[dict[str, Any]], pk: dict[str, Any],
               foreign: list[dict[str, Any]], uniques: list[dict[str, Any]], checks: list[dict[str, Any]],
-              comment: str | None, natives: dict[str, str], indexes: list[dict[str, Any]]) -> dict[str, Any]:
+              comment: str | None, natives: dict[str, str], indexes: list[m.Index]) -> m.Table:
         names = [c["name"] for c in columns]
         actions = self.sqlite_actions(table) if self.dialect == "sqlite" else {}
         foreign_keys = []
@@ -271,39 +262,39 @@ class Reader:
             target = self.table_id(fk.get("referred_schema") or schema if self.dialect == "mysql"
                                    else fk.get("referred_schema") or self.default, fk["referred_table"])
             options = {**(fk.get("options") or {}), **actions.get(tuple(fk["constrained_columns"]), {})}
-            on_delete, _ = action(options.get("ondelete") or "NO ACTION")
-            on_update, _ = action(options.get("onupdate") or "NO ACTION")
+            on_delete, _ = referential_action(options.get("ondelete") or "NO ACTION")
+            on_update, _ = referential_action(options.get("onupdate") or "NO ACTION")
             deferrable = None if self.dialect == "mysql" else bool(options.get("deferrable", False))
             initially = None if self.dialect == "mysql" else (options.get("initially") or "IMMEDIATE").upper()
-            foreign_keys.append({
-                "id": identifier("foreign_key", tid, fk["name"], identifier(*fk["constrained_columns"]), target,
-                                 identifier(*fk["referred_columns"])),
-                "name": fk["name"], "columns": fk["constrained_columns"], "foreignTable": target,
-                "foreignColumns": fk["referred_columns"], "onUpdate": on_update, "onDelete": on_delete,
-                "deferrable": deferrable, "initially": initially, "provenance": ["database"],
-            })
+            foreign_keys.append(m.ForeignKey(
+                id=identifier("foreign_key", tid, fk["name"], identifier(*fk["constrained_columns"]), target,
+                              identifier(*fk["referred_columns"])),
+                name=fk["name"], columns=tuple(fk["constrained_columns"]), foreign_table=target,
+                foreign_columns=tuple(fk["referred_columns"]), on_update=on_update, on_delete=on_delete,
+                deferrable=deferrable, initially=initially, provenance=m.DATABASE,
+            ))
         constraints = []
         if self.dialect != "mysql":  # MySQL and MariaDB unique constraints are unique indexes; listed there.
             for n, u in enumerate(uniques):
-                constraints.append({"id": f"{tid}:constraint:{u['name'] if u['name'] else n}", "kind": "unique",
-                                    "name": u["name"], "columns": u["column_names"], "expression": None,
-                                    "provenance": ["database"]})
+                constraints.append(m.Constraint(
+                    id=f"{tid}:constraint:{u['name'] if u['name'] else n}", kind="unique", name=u["name"],
+                    columns=tuple(u["column_names"]), provenance=m.DATABASE))
         for n, ck in enumerate(checks):
             expression = str(ck["sqltext"])
-            constraints.append({"id": f"{tid}:constraint:{ck['name'] if ck.get('name') else f'check{n}'}",
-                                "kind": "check", "name": ck.get("name"),
-                                "columns": referenced_columns(expression, names), "expression": expression,
-                                "provenance": ["database"]})
-        return {
-            "id": tid, "name": table, "schema": schema, "comment": comment, "note": None, "owner": owner(table),
-            "primaryKey": list(pk.get("constrained_columns") or []),
-            "columns": [self.column(c, natives.get(c["name"]), tid, rowid=self.dialect == "sqlite" and
-                                    [c["name"]] == pk.get("constrained_columns") and
-                                    (natives.get(c["name"]) or "").upper() == "INTEGER") for c in columns],
-            "indexes": sorted(indexes, key=lambda i: i["id"]),
-            "foreignKeys": sorted(foreign_keys, key=lambda f: f["id"]),
-            "constraints": sorted(constraints, key=lambda c: c["id"]), "provenance": ["database"],
-        }
+            constraints.append(m.Constraint(
+                id=f"{tid}:constraint:{ck['name'] if ck.get('name') else f'check{n}'}", kind="check",
+                name=ck.get("name"), columns=tuple(referenced_columns(expression, names)), expression=expression,
+                provenance=m.DATABASE))
+        return m.Table(
+            id=tid, name=table, schema=schema, comment=comment, owner=owner(table),
+            primary_key=tuple(pk.get("constrained_columns") or ()),
+            columns=tuple(self.column(c, natives.get(c["name"]), tid, rowid=self.dialect == "sqlite" and
+                                      [c["name"]] == pk.get("constrained_columns") and
+                                      (natives.get(c["name"]) or "").upper() == "INTEGER") for c in columns),
+            indexes=tuple(sorted(indexes, key=lambda i: i.id)),
+            foreign_keys=tuple(sorted(foreign_keys, key=lambda f: f.id)),
+            constraints=tuple(sorted(constraints, key=lambda c: c.id)), provenance=m.DATABASE,
+        )
 
     def sqlite_actions(self, table: str) -> dict[tuple[str, ...], dict[str, str]]:
         """Referential actions from PRAGMA foreign_key_list; the Inspector misses column-level clauses."""
@@ -314,14 +305,14 @@ class Reader:
                 for rows in grouped.values()}
 
     def indexes(self, schema: str | None, names: list[str], primary: dict[Any, Any],
-                uniques: dict[Any, Any]) -> dict[str, list[dict[str, Any]]]:
+                uniques: dict[Any, Any]) -> dict[str, list[m.Index]]:
         if self.dialect == "postgresql":
             return self.postgresql_indexes(schema, primary)
         if self.dialect == "mysql":
             return self.mysql_indexes(schema)
         return {t: self.sqlite_indexes(t, uniques.get((None, t), [])) for t in names}
 
-    def postgresql_indexes(self, schema: str | None, primary: dict[Any, Any]) -> dict[str, list[dict[str, Any]]]:
+    def postgresql_indexes(self, schema: str | None, primary: dict[Any, Any]) -> dict[str, list[m.Index]]:
         from sqlalchemy import text
 
         details: dict[tuple[str, str], dict[str, Any]] = {}
@@ -338,7 +329,7 @@ class Reader:
                 {"schema": schema}):
             entry = details.setdefault((table, index), {"method": method, "collations": [], "primary": is_primary})
             entry["collations"].append(collation)
-        out: dict[str, list[dict[str, Any]]] = {}
+        out: dict[str, list[m.Index]] = {}
         for (key_schema, table), found in self.multi("get_multi_indexes", schema, "indexes").items():
             tid = self.table_id(key_schema, table)
             for ix in found:
@@ -360,21 +351,21 @@ class Reader:
                 constraint = ix.get("duplicates_constraint")
                 out.setdefault(table, []).append(index_entry(
                     tid, ix["name"], parts, unique=bool(ix["unique"]),
-                    backs={"kind": "unique_constraint", "constraint": f"{tid}:constraint:{constraint}"}
+                    backs=m.Backs(kind="unique_constraint", constraint=f"{tid}:constraint:{constraint}")
                     if constraint else None,
                     method=info["method"], predicate=options.get("postgresql_where"),
                     included=list(options.get("postgresql_include") or []),
-                    options={"postgresql": {"options": extra}} if extra else None))
+                    options={"postgresql": m.IndexOptions(options=extra)} if extra else None))
         for (key_schema, table), pk in primary.items():
             if pk and pk.get("name") and pk.get("constrained_columns"):
                 tid = self.table_id(key_schema, table)
                 info = details.get((table, pk["name"]), {"method": "btree"})
                 out.setdefault(table, []).append(index_entry(
-                    tid, pk["name"], [part(c) for c in pk["constrained_columns"]], unique=True, primary=True,
-                    backs={"kind": "primary_key", "constraint": None}, method=info["method"]))
+                    tid, pk["name"], [part(c) for c in pk["constrained_columns"]], unique=True,
+                    backs=m.Backs(kind="primary_key"), method=info["method"]))
         return out
 
-    def mysql_indexes(self, schema: str | None) -> dict[str, list[dict[str, Any]]]:
+    def mysql_indexes(self, schema: str | None) -> dict[str, list[m.Index]]:
         from sqlalchemy import text
 
         columns = set(self.connection.execute(text(
@@ -389,7 +380,7 @@ class Reader:
             f"{visible}, {ignored} FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = :schema "
             "ORDER BY TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX"), {"schema": schema}):
             grouped.setdefault((row[0], row[1]), []).append(row)
-        out: dict[str, list[dict[str, Any]]] = {}
+        out: dict[str, list[m.Index]] = {}
         for (table, name), rows in grouped.items():
             tid = self.table_id(schema, table)
             method = (rows[0][7] or "").lower() or None
@@ -404,12 +395,11 @@ class Reader:
                 options["ignored"] = True
             primary = name == "PRIMARY"
             out.setdefault(table, []).append(index_entry(
-                tid, name, parts, unique=not rows[0][2], primary=primary,
-                backs={"kind": "primary_key", "constraint": None} if primary else None, method=method,
-                options={"mysql": {"options": options}} if options else None))
+                tid, name, parts, unique=not rows[0][2], backs=m.Backs(kind="primary_key") if primary else None,
+                method=method, options={"mysql": m.IndexOptions(options=options)} if options else None))
         return out
 
-    def sqlite_indexes(self, table: str, uniques: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def sqlite_indexes(self, table: str, uniques: list[dict[str, Any]]) -> list[m.Index]:
         tid = self.table_id(None, table)
         unique_by_columns = {tuple(u["column_names"]): u for u in uniques}
         out = []
@@ -438,12 +428,12 @@ class Reader:
                                   collation=shown))
             backs = None
             if origin == "pk":
-                backs = {"kind": "primary_key", "constraint": None}
+                backs = m.Backs(kind="primary_key")
             elif origin == "u":
-                constraint = unique_by_columns.get(tuple(p["column"] for p in parts))
+                constraint = unique_by_columns.get(tuple(p.column for p in parts))
                 if constraint and constraint.get("name"):
-                    backs = {"kind": "unique_constraint", "constraint": f"{tid}:constraint:{constraint['name']}"}
-            out.append(index_entry(tid, name, parts, unique=bool(unique), primary=origin == "pk", backs=backs,
+                    backs = m.Backs(kind="unique_constraint", constraint=f"{tid}:constraint:{constraint['name']}")
+            out.append(index_entry(tid, name, parts, unique=bool(unique), backs=backs,
                                    predicate=predicate if partial else None))
         return out
 

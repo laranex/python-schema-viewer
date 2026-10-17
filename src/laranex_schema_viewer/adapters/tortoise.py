@@ -16,21 +16,12 @@ from typing import Any
 from tortoise import Tortoise
 from tortoise.models import Model as TortoiseModel
 
-from ..document import (
-    Column,
-    Constraint,
-    Default,
-    Diagnostic,
-    Endpoint,
-    ForeignKey,
-    Index,
-    JoinPair,
-    Model,
-    Relationship,
-    SchemaDocument,
-)
-from ..document import Table as DocumentTable
-from . import callable_name, class_source, identifier
+from .. import model as m
+from . import (ConstraintDeclaration, IndexDeclaration, class_source, column_part, declared_document, declared_table,
+               diagnostic, dialect_options, expression_part, foreign_key, identifier, python_default, relationship,
+               sql_default, table_subject)
+
+ORM = "tortoise"
 
 DIALECTS = {"postgres": "postgres", "postgresql": "postgres", "asyncpg": "postgres",
             "psycopg": "postgres", "sqlite": "sqlite", "mysql": "mysql", "mssql": "mssql",
@@ -78,7 +69,7 @@ class TortoiseAdapter:
         self.models = models
         self.dialect = dialect
         self.project_root = project_root
-        self.diagnostics: list[Diagnostic] = []
+        self.diagnostics: list[m.Diagnostic] = []
 
     def table_id(self, model: type, table: str | None = None) -> str:
         meta = model._meta
@@ -100,109 +91,102 @@ class TortoiseAdapter:
             return self.column(target, field.to_field)
         return target._meta.db_pk_column
 
-    def extract(self) -> SchemaDocument:
+    def extract(self) -> m.Document:
         self.diagnostics = []
         model_tables = {(m._meta.app, m._meta.schema, m._meta.db_table) for m in self.models}
         tables, models, relationships = [], [], []
         for model in sorted(self.models, key=self.model_id):
             meta = model._meta
-            tables.append(self.extract_table(model))
+            tables.append((meta.app, self.extract_table(model)))
             for name in sorted(meta.m2m_fields):
                 field = meta.fields_map[name]
                 if not field._generated and (meta.app, meta.schema, field.through) not in model_tables:
-                    tables.append(self.through_table(model, field))
-            models.append(Model(
+                    tables.append((meta.app, self.through_table(model, field)))
+            models.append(m.Model(
                 id=self.model_id(model), class_name=f"{model.__module__}.{model.__qualname__}",
-                table_ids=[self.table_id(model)], primary_key=[meta.db_pk_column],
+                tables=(self.table_id(model),), primary_key=(meta.db_pk_column,),
                 source=class_source(model, self.project_root),
             ))
             relationships.extend(self.relationships(model))
-        return SchemaDocument(
-            tables=sorted(tables, key=lambda t: t.id), models=models,
-            relationships=sorted(relationships, key=lambda r: r.id),
-            diagnostics=sorted(self.diagnostics, key=lambda d: (d.kind, d.subject, d.message)),
-        )
+        return declared_document(sorted(tables, key=lambda t: t[1].id), orm=ORM, models=models,
+                                 relationships=relationships, diagnostics=self.diagnostics)
 
-    def extract_table(self, model: type) -> DocumentTable:
+    def dialect_key(self) -> str:
+        return self.dialect or "tortoise"
+
+    def extract_table(self, model: type) -> m.Table:
         meta = model._meta
         tid = self.table_id(model)
         columns, indexes, constraints, foreign_keys = [], [], [], []
         for name, column in meta.fields_db_projection.items():
             field = meta.fields_map[name]
-            default = None
-            if field.default is not None:
-                default = (Default(kind="callable", value=callable_name(field.default))
-                           if callable(field.default) else Default(kind="scalar", value=str(field.default)))
             db_default = getattr(field, "db_default", None)
-            columns.append(Column(
-                name=column, type=self.sql_type(field), nullable=field.null, primary_key=field.pk,
-                autoincrement=bool(field.generated), default=default,
-                server_default=Default(kind="sql", value=str(db_default)) if db_default is not None else None,
-                comment=field.description,
+            columns.append(m.Column(
+                name=column, type=self.sql_type(field), nullable=field.null, auto_increment=bool(field.generated),
+                orm_default=python_default(field.default) if field.default is not None else None,
+                default=sql_default(str(db_default)) if db_default is not None else None,
+                comment=field.description, provenance=m.DECLARED,
             ))
             if field.unique and not field.pk:
-                constraints.append(Constraint(kind="unique", name=None, columns=[column]))
+                constraints.append(ConstraintDeclaration(kind="unique", name=None, columns=(column,)))
             elif field.index and not field.pk:
-                indexes.append(Index(name=None, columns=[column], expressions=[f"{meta.db_table}.{column}"],
-                                     unique=False))
+                indexes.append(IndexDeclaration(name=None, parts=(column_part(column),), unique=False))
         for names in meta.unique_together:
-            constraints.append(Constraint(kind="unique", name=None,
-                                          columns=[self.column(model, n) for n in names]))
+            constraints.append(ConstraintDeclaration(kind="unique", name=None,
+                                                     columns=tuple(self.column(model, n) for n in names)))
         for index in meta.indexes:
             indexes.append(self.index(model, index))
         for constraint in getattr(meta, "constraints", ()):
             kind = type(constraint).__name__
             if kind == "UniqueConstraint" and getattr(constraint, "condition", None) is None:
-                constraints.append(Constraint(kind="unique", name=constraint.name,
-                                              columns=[self.column(model, n) for n in constraint.fields]))
+                constraints.append(ConstraintDeclaration(
+                    kind="unique", name=constraint.name,
+                    columns=tuple(self.column(model, n) for n in constraint.fields)))
             elif kind == "UniqueConstraint":
-                cols = [self.column(model, n) for n in constraint.fields]
-                indexes.append(Index(
-                    name=constraint.name, columns=cols, unique=True,
-                    expressions=[f"{meta.db_table}.{c}" for c in cols],
-                    predicates={self.dialect or "tortoise": constraint.condition},
+                indexes.append(IndexDeclaration(
+                    name=constraint.name, unique=True,
+                    parts=tuple(column_part(self.column(model, n)) for n in constraint.fields),
+                    dialect_options=dialect_options(predicates={self.dialect_key(): constraint.condition}),
                 ))
             elif kind == "CheckConstraint":
-                constraints.append(Constraint(kind="check", name=constraint.name, expression=constraint.check))
+                constraints.append(ConstraintDeclaration(kind="check", name=constraint.name,
+                                                         expression=constraint.check))
             else:
-                self.diagnostics.append(Diagnostic(
-                    kind="unsupported_constraint", subject=tid,
-                    message=f"{kind} {getattr(constraint, 'name', '')} is not represented",
-                ))
+                self.diagnostics.append(diagnostic(
+                    "unsupported_constraint", table_subject(tid),
+                    f"{kind} {getattr(constraint, 'name', '')} is not represented"))
         for name in sorted(meta.fk_fields | meta.o2o_fields):
             field = meta.fields_map[name]
             if not field.db_constraint:
                 continue
             target = self.table_id(field.related_model)
             source, target_column = field.source_field, self.target_column(field)
-            foreign_keys.append(ForeignKey(
+            foreign_keys.append(foreign_key(
                 id=identifier("foreign_key", tid, None, identifier(source), target, identifier(target_column)),
                 name=None, columns=[source], target_table=target, target_columns=[target_column],
-                on_delete=str(field.on_delete),
+                on_delete=str(field.on_delete), orm=ORM,
             ))
-        return DocumentTable(
-            id=tid, namespace=meta.app, name=meta.db_table, schema_name=meta.schema,
-            comment=meta.table_description or None, columns=columns, primary_key=[meta.db_pk_column],
-            indexes=sorted(indexes, key=lambda i: i.model_dump_json()),
-            foreign_keys=sorted(foreign_keys, key=lambda f: f.id),
-            constraints=sorted(constraints, key=lambda c: c.model_dump_json()),
+        return declared_table(
+            id=tid, name=meta.db_table, schema=meta.schema, comment=meta.table_description or None,
+            columns=columns, primary_key=[meta.db_pk_column], indexes=indexes, foreign_keys=foreign_keys,
+            constraints=constraints,
         )
 
-    def index(self, model: type, index: Any) -> Index:
-        meta = model._meta
+    def index(self, model: type, index: Any) -> IndexDeclaration:
         description = index.describe()
-        columns = [self.column(model, name) for name in description.get("fields") or []]
         extra = (description.get("extra") or "").strip()
         index_type = (description.get("type") or "").strip()
-        key = self.dialect or "tortoise"
-        return Index(
-            name=description.get("name"), columns=columns, unique=False,
-            expressions=[f"{meta.db_table}.{c}" for c in columns] + list(description.get("expressions") or []),
-            predicates={key: extra.removeprefix("WHERE").strip()} if extra.startswith("WHERE") else {},
-            methods={key: index_type.lower()} if index_type else {},
+        key = self.dialect_key()
+        parts = [column_part(self.column(model, name)) for name in description.get("fields") or []]
+        parts += [expression_part(str(e)) for e in description.get("expressions") or []]
+        return IndexDeclaration(
+            name=description.get("name"), parts=tuple(parts), unique=False,
+            dialect_options=dialect_options(
+                predicates={key: extra.removeprefix("WHERE").strip()} if extra.startswith("WHERE") else None,
+                methods={key: index_type.lower()} if index_type else None),
         )
 
-    def through_table(self, model: type, field: Any) -> DocumentTable:
+    def through_table(self, model: type, field: Any) -> m.Table:
         """The join table Tortoise generates for a ManyToManyField without a through model."""
         meta, target = model._meta, field.related_model
         tid = self.table_id(model, field.through)
@@ -213,20 +197,19 @@ class TortoiseAdapter:
             for column, other, other_column in [(field.backward_key, model, meta.db_pk_column),
                                                 (field.forward_key, target, target._meta.db_pk_column)]:
                 other_id = self.table_id(other)
-                foreign_keys.append(ForeignKey(
+                foreign_keys.append(foreign_key(
                     id=identifier("foreign_key", tid, None, identifier(column), other_id, identifier(other_column)),
                     name=None, columns=[column], target_table=other_id, target_columns=[other_column],
-                    on_delete=str(field.on_delete),
+                    on_delete=str(field.on_delete), orm=ORM,
                 ))
-        keys = [field.backward_key, field.forward_key]
-        return DocumentTable(
-            id=tid, namespace=meta.app, name=field.through, schema_name=meta.schema,
-            comment=field.description or None, primary_key=[],
-            columns=[Column(name=field.backward_key, type=source_type, nullable=False),
-                     Column(name=field.forward_key, type=target_type, nullable=False)],
-            indexes=[Index(name=None, columns=keys, unique=True,
-                           expressions=[f"{field.through}.{k}" for k in keys])] if field.unique else [],
-            foreign_keys=sorted(foreign_keys, key=lambda f: f.id),
+        keys = (field.backward_key, field.forward_key)
+        return declared_table(
+            id=tid, name=field.through, schema=meta.schema, comment=field.description or None, primary_key=[],
+            columns=[m.Column(name=field.backward_key, type=source_type, nullable=False, provenance=m.DECLARED),
+                     m.Column(name=field.forward_key, type=target_type, nullable=False, provenance=m.DECLARED)],
+            indexes=[IndexDeclaration(name=None, parts=tuple(column_part(k) for k in keys), unique=True)]
+            if field.unique else [],
+            foreign_keys=foreign_keys,
         )
 
     def through_id(self, owner: type, name: str) -> str:
@@ -236,7 +219,7 @@ class TortoiseAdapter:
                 return self.table_id(model)
         return self.table_id(owner, name)
 
-    def relationships(self, model: type) -> list[Relationship]:
+    def relationships(self, model: type) -> list[m.Relationship]:
         meta = model._meta
         mid = self.model_id(model)
         result = []
@@ -247,14 +230,12 @@ class TortoiseAdapter:
                 return f"{json.loads(table_id)[-1]}.{column}"
 
             joins = [f"{text(a, ac)} = {text(b, bc)}" for a, ac, b, bc in pairs]
-            result.append(Relationship(
+            result.append(relationship(
                 id=identifier("relationship", mid, name), name=name, model=mid,
-                target_model=self.model_id(target), source_table=self.table_id(model),
-                target_table=self.table_id(target), direction=direction, uselist=uselist,
-                viewonly=False, back_populates=back, secondary=secondary,
-                primary_join=joins[0], secondary_join=joins[1] if len(joins) > 1 else None,
-                join_pairs=[JoinPair(local=Endpoint(table=a, column=ac), remote=Endpoint(table=b, column=bc))
-                            for a, ac, b, bc in pairs],
+                related_model=self.model_id(target), table=self.table_id(model),
+                related_table=self.table_id(target), direction=direction, collection=uselist, inverse=back,
+                secondary=secondary, primary_join=joins[0], secondary_join=joins[1] if len(joins) > 1 else None,
+                pairs=[((a, ac), (b, bc)) for a, ac, b, bc in pairs],
             ))
 
         own = self.table_id(model)
@@ -286,7 +267,7 @@ class TortoiseAdapter:
 
 def document_from_modules(
     loaded: dict[str, ModuleType], *, project_root: Path, targets: list[str],
-) -> SchemaDocument:
+) -> m.Document:
     """Initialise models from modules (one app label) or from a TORTOISE_ORM config target."""
     dialect = None
     if targets:

@@ -1,0 +1,192 @@
+{
+  "description": "A relationship from a table in one connection to a table in another is a relationship link; no constraint is implied",
+  "expected": {
+    "derivedLinks": [],
+    "links": [
+      {
+        "foreignKey": null,
+        "from": {
+          "columns": [
+            "user_id"
+          ],
+          "table": "b:sessions"
+        },
+        "id": "lf0820d9a701f3777",
+        "note": null,
+        "polymorphic": false,
+        "relationships": [
+          "r:user"
+        ],
+        "state": "relationship",
+        "to": {
+          "columns": [
+            "id"
+          ],
+          "table": "a:users"
+        }
+      }
+    ]
+  },
+  "input": {
+    "connections": [
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "postgresql",
+        "id": "connection:a",
+        "name": "a",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "a:users",
+            "indexes": [],
+            "name": "users",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      },
+      {
+        "coverage": {
+          "database": null,
+          "declared": null
+        },
+        "defaultSchema": null,
+        "driver": "mysql",
+        "id": "connection:b",
+        "name": "b",
+        "tables": [
+          {
+            "columns": [
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              },
+              {
+                "autoIncrement": false,
+                "collation": null,
+                "comment": null,
+                "default": null,
+                "enum": null,
+                "generated": null,
+                "name": "user_id",
+                "note": null,
+                "nullable": false,
+                "ormDefault": null,
+                "provenance": [
+                  "database"
+                ],
+                "timezone": null,
+                "type": "integer",
+                "typeName": "integer"
+              }
+            ],
+            "comment": null,
+            "constraints": [],
+            "foreignKeys": [],
+            "id": "b:sessions",
+            "indexes": [],
+            "name": "sessions",
+            "note": null,
+            "owner": {
+              "kind": "application",
+              "package": null
+            },
+            "primaryKey": [
+              "id"
+            ],
+            "provenance": [
+              "database"
+            ],
+            "schema": null
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "cardinality": "many-to-one",
+        "collection": false,
+        "constraints": [],
+        "id": "r:user",
+        "inverse": null,
+        "join": null,
+        "keys": {
+          "from": {
+            "columns": [
+              "user_id"
+            ],
+            "table": "b:sessions"
+          },
+          "to": {
+            "columns": [
+              "id"
+            ],
+            "table": "a:users"
+          }
+        },
+        "model": "m",
+        "name": "r:user",
+        "note": null,
+        "pivot": null,
+        "polymorphic": null,
+        "readOnly": false,
+        "relatedModel": null,
+        "relatedTable": "a:users",
+        "source": null,
+        "table": "b:sessions",
+        "through": null,
+        "type": "test"
+      }
+    ]
+  }
+}

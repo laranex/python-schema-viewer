@@ -1,9 +1,9 @@
 {
   "name": "laranex-schema-viewer-ui",
-  "version": "0.2.0",
+  "version": "0.3.0-dev.0",
   "contract": {
     "format": "laranex-schema",
-    "major": 1
+    "major": 2
   },
   "entry": {
     "script": "app.js",
@@ -18,8 +18,8 @@
     },
     {
       "path": "app.js",
-      "size": 507017,
-      "sha256": "3d8c3a706ceb705379a6dfc68bd21ce382a90c1d69ae5e974f0d7c2010469fad"
+      "size": 521209,
+      "sha256": "30f739dd1db93fc01181d288ea684a81d10547ab3f7ee3ecdf159920cb42b54b"
     },
     {
       "path": "assets/elk.bundled-Cijv1EqA.js",
@@ -113,8 +113,8 @@
     },
     {
       "path": "index.html",
-      "size": 590,
-      "sha256": "15069efc37dfbbbc2e7d06cf16c542ef94cc9f427c8c34759fd1ecffadf46e7d"
+      "size": 596,
+      "sha256": "485503414dbd2bd90057a7e09f0fcf95e8940651783b0ec7d1e1d7120e859611"
     }
   ]
 }

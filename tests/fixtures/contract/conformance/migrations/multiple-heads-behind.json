@@ -1,0 +1,68 @@
+{
+  "description": "With two unmerged heads, a database at one of them is behind the other",
+  "expected": {
+    "history": {
+      "heads": [
+        "b",
+        "x"
+      ],
+      "missing": [],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "a",
+          "parents": []
+        },
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "a"
+          ]
+        },
+        {
+          "branchLabels": [
+            "feature"
+          ],
+          "id": "x",
+          "parents": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "pending": [
+      "x"
+    ],
+    "status": "behind",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": [
+      "b"
+    ],
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "a",
+        "parents": []
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "a"
+        ]
+      },
+      {
+        "branchLabels": [
+          "feature"
+        ],
+        "id": "x",
+        "parents": [
+          "a"
+        ]
+      }
+    ]
+  }
+}

@@ -51,7 +51,6 @@ class ProjectConfig:
     container_image: str | None = None
     container_runtime: str | None = None
     source: str | None = None
-    format: str | None = None
     database_url_env: str | None = None
     database_schemas: list[str] = field(default_factory=list)
     database_connection: str | None = None
@@ -59,8 +58,7 @@ class ProjectConfig:
 
 
 SOURCES = ("declared", "database", "combined")
-FORMATS = ("v1", "laranex-schema")
-DATABASE_KEYS = {"source", "format", "database_url_env", "database_schemas", "database_connection", "databases"}
+DATABASE_KEYS = {"source", "database_url_env", "database_schemas", "database_connection", "databases"}
 SINGLE_DATABASE_KEYS = ("database_url_env", "database_schemas", "database_connection")
 ISOLATION_KEYS = {"isolation", "timeout", "env_passthrough", "env", "allow_writes", "container_image",
                   "container_runtime"}
@@ -76,6 +74,9 @@ def load_config(project_root: Path) -> ProjectConfig:
     if "database_url" in section or "url" in section:
         raise ValueError(f"[tool.{SECTION}] must not contain a database URL; name the environment variable that holds "
                          "it with database_url_env")
+    if "format" in section:
+        raise ValueError(f"[tool.{SECTION}] format was removed: build always writes laranex-schema 2.0; delete the "
+                         "format key")
     known = {"modules", "targets", "recursive", "output", "orm", "settings", *ISOLATION_KEYS, *DATABASE_KEYS}
     unknown = set(section) - known
     if unknown:
@@ -89,7 +90,7 @@ def load_config(project_root: Path) -> ProjectConfig:
     output = section.get("output")
     if output is not None and not isinstance(output, str):
         raise ValueError(f"[tool.{SECTION}] output must be a string path")
-    for key in ("orm", "settings", "isolation", "container_image", "container_runtime", "source", "format",
+    for key in ("orm", "settings", "isolation", "container_image", "container_runtime", "source",
                 "database_url_env", "database_connection"):
         if not isinstance(section.get(key, ""), str):
             raise ValueError(f"[tool.{SECTION}] {key} must be a string")
@@ -97,8 +98,6 @@ def load_config(project_root: Path) -> ProjectConfig:
         raise ValueError(f"[tool.{SECTION}] isolation must be process or container")
     if section.get("source", "declared") not in SOURCES:
         raise ValueError(f"[tool.{SECTION}] source must be declared, database or combined")
-    if section.get("format", "v1") not in FORMATS:
-        raise ValueError(f"[tool.{SECTION}] format must be v1 or laranex-schema")
     timeout = section.get("timeout")
     if timeout is not None and (isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0):
         raise ValueError(f"[tool.{SECTION}] timeout must be a positive number of seconds")
@@ -118,7 +117,7 @@ def load_config(project_root: Path) -> ProjectConfig:
         timeout=float(timeout) if timeout is not None else None,
         env_passthrough=section.get("env_passthrough", []), env=env, allow_writes=section.get("allow_writes", []),
         container_image=section.get("container_image"), container_runtime=section.get("container_runtime"),
-        source=section.get("source"), format=section.get("format"), database_url_env=section.get("database_url_env"),
+        source=section.get("source"), database_url_env=section.get("database_url_env"),
         database_schemas=section.get("database_schemas", []), database_connection=section.get("database_connection"),
         databases=databases,
     )

@@ -1,92 +1,166 @@
-"""The Python contract layer against the shared laranex-schema fixtures (tests/fixtures/contract)."""
+"""The Python contract layer against the shared laranex-schema 2.0 fixtures and conformance cases.
 
+tests/fixtures/contract is vendored unchanged from laranex-schema-viewer-ui by scripts/sync_contract.py; its manifest
+records the source commit and every file's SHA-256. The Python implementation validates them independently: every
+valid document passes strict validation and serializes back to the same bytes, every invalid one fails with the
+expected rule, and the graph and migration conformance cases give the expected results. Comparison and inference
+conformance belong to the intelligence milestone; their cases are vendored but not run yet.
+"""
+
+import hashlib
 import json
 import unittest
 from pathlib import Path
 
-from laranex_schema_viewer.contract import (assert_document, build_graph, canonical_json, revision,
-                                            validate_document)
+from laranex_schema_viewer import model as m
+from laranex_schema_viewer.contract import (assert_document, build_graph, canonical_json, document_to_json,
+                                            finalize, from_json, revision, to_json, validate_document)
+from laranex_schema_viewer.contract.migration import migration_history, migration_state
+from laranex_schema_viewer.contract.shape import json_schema
 from laranex_schema_viewer.contract.validate import InvalidDocumentError, UnsupportedDocumentError
 
-FIXTURES = Path(__file__).parent / "fixtures" / "contract"
+ROOT = Path(__file__).resolve().parents[1]
+CONTRACT = ROOT / "tests" / "fixtures" / "contract"
+MANIFEST = json.loads((CONTRACT / "manifest.json").read_text())
 
 
 def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def cases(directory: str) -> list[Path]:
+    return sorted((CONTRACT / directory).glob("*.json"))
+
+
+class VendoredCopy(unittest.TestCase):
+    def test_files_match_the_manifest(self):
+        found = sorted(str(p.relative_to(CONTRACT)) for p in CONTRACT.rglob("*.json") if p.name != "manifest.json")
+        self.assertEqual(found, sorted(MANIFEST["files"]), "files were added or removed; run scripts/sync_contract.py")
+        for name, digest in MANIFEST["files"].items():
+            with self.subTest(name):
+                self.assertEqual(hashlib.sha256((CONTRACT / name).read_bytes()).hexdigest(), digest,
+                                 f"{name} was edited; vendored fixtures change only through scripts/sync_contract.py")
+        self.assertEqual((MANIFEST["source"], len(MANIFEST["commit"])), ("laranex-schema-viewer-ui", 40))
+
+    def test_the_package_distributes_the_same_schema(self):
+        package = ROOT / "src" / "laranex_schema_viewer" / "contract" / "schema.json"
+        self.assertEqual(package.read_bytes(), (CONTRACT / "schema.json").read_bytes())
+
+    def test_the_python_shapes_describe_the_shared_schema(self):
+        self.assertEqual(json_schema(), load(CONTRACT / "schema.json"))
+
+
 class ValidFixtures(unittest.TestCase):
     def test_every_valid_fixture_passes_strict_validation(self):
-        paths = sorted((FIXTURES / "fixtures" / "valid").glob("*.json"))
-        self.assertEqual(len(paths), 6)
+        paths = cases("fixtures/valid")
+        self.assertEqual(len(paths), 13)
         for path in paths:
             with self.subTest(path.name):
-                document, errors = validate_document(load(path), strict=True)
-                self.assertEqual(errors, [])
+                self.assertEqual(validate_document(load(path), strict=True)[1], [])
 
-    def test_round_trip_is_byte_identical(self):
-        for path in sorted((FIXTURES / "fixtures" / "valid").glob("*.json")):
+    def test_the_model_serializes_back_to_identical_bytes(self):
+        for path in cases("fixtures/valid"):
             with self.subTest(path.name):
                 text = path.read_text(encoding="utf-8")
-                document = assert_document(json.loads(text), strict=True)
-                self.assertEqual(canonical_json(document.to_json()), text)
+                self.assertEqual(canonical_json(document_to_json(assert_document(json.loads(text), strict=True))),
+                                 text)
 
     def test_stored_links_match_the_graph_builder(self):
-        for path in sorted((FIXTURES / "fixtures" / "valid").glob("*.json")):
+        for path in cases("fixtures/valid"):
             with self.subTest(path.name):
-                data = load(path)
-                self.assertEqual(build_graph(data), {"links": data["links"], "derivedLinks": data["derivedLinks"]})
+                doc = assert_document(load(path), strict=True)
+                self.assertEqual(build_graph(doc.connections, doc.relationships), (doc.links, doc.derived_links))
+
+    def test_the_docs_demo_is_a_canonical_document(self):
+        path = ROOT / ".gh-page" / "demo" / "schema.json"
+        text = path.read_text(encoding="utf-8")
+        doc = assert_document(json.loads(text), strict=True)
+        self.assertEqual(canonical_json(document_to_json(finalize(doc))), text)
 
     def test_revision_ignores_key_order(self):
-        data = load(FIXTURES / "fixtures" / "valid" / "database-sqlite-indexes.json")
-        reordered = json.loads(json.dumps(data, sort_keys=False), object_pairs_hook=lambda p: dict(reversed(p)))
+        data = load(CONTRACT / "fixtures" / "valid" / "database-sqlite-indexes.json")
+        reordered = json.loads(json.dumps(data), object_pairs_hook=lambda pairs: dict(reversed(pairs)))
         self.assertEqual(revision(reordered), revision(data))
 
 
 class InvalidFixtures(unittest.TestCase):
-    def test_every_invalid_fixture_is_rejected(self):
-        paths = sorted((FIXTURES / "fixtures" / "invalid").glob("*.json"))
-        self.assertEqual(len(paths), 20)
+    def test_every_invalid_fixture_fails_with_the_expected_rule(self):
+        paths = cases("fixtures/invalid")
+        self.assertEqual(len(paths), 52)
         for path in paths:
             case = load(path)
             with self.subTest(path.name):
                 document, errors = validate_document(case["document"], strict=case["strict"])
                 self.assertIsNone(document)
-                self.assertTrue(errors)
-
-    def test_rule_errors_use_the_shared_messages(self):
-        # Shape errors come from Pydantic and are worded differently; rule errors must match TypeScript's.
-        shape = {"missing-field", "unknown-property-strict"}
-        for path in sorted((FIXTURES / "fixtures" / "invalid").glob("*.json")):
-            if path.stem in shape:
-                continue
-            case = load(path)
-            with self.subTest(path.name):
-                _, errors = validate_document(case["document"], strict=case["strict"])
                 for expected in case["errors"]:
                     self.assertTrue(any(expected in e for e in errors), f"{expected!r} not in {errors}")
 
-    def test_strict_mode_alone_rejects_unknown_properties(self):
-        case = load(FIXTURES / "fixtures" / "invalid" / "unknown-property-strict.json")
+    def test_unknown_properties_fail_only_strict_validation(self):
+        case = load(CONTRACT / "fixtures" / "invalid" / "unknown-property-strict.json")
         self.assertEqual(validate_document(case["document"])[1], [])
-        self.assertIn("$.connections[0].tables[0]: unknown property engine",
-                      validate_document(case["document"], strict=True)[1])
 
-    def test_typed_errors(self):
-        with self.assertRaises(UnsupportedDocumentError):
+    def test_versions(self):
+        data = load(CONTRACT / "fixtures" / "valid" / "declared-sqlalchemy.json")
+        later = {**data, "version": "2.7"}
+        self.assertEqual(validate_document(later)[1], [])
+        self.assertIn("$.version: strict validation is for version 2.0, got \"2.7\"",
+                      validate_document(later, strict=True)[1])
+        with self.assertRaisesRegex(UnsupportedDocumentError, 'version "1.0"; this reader supports 2.x'):
+            assert_document({**data, "version": "1.0"})
+        with self.assertRaisesRegex(UnsupportedDocumentError, "Not a laranex-schema document"):
             assert_document({"format": "laranex-schema-viewer", "version": 1})
         with self.assertRaises(InvalidDocumentError):
-            assert_document({"format": "laranex-schema", "version": "1.0"})
+            assert_document({"format": "laranex-schema", "version": "2.0"})
 
 
-class GraphConformance(unittest.TestCase):
-    def test_every_graph_case(self):
-        paths = sorted((FIXTURES / "conformance" / "graph").glob("*.json"))
-        self.assertEqual(len(paths), 12)
+class Conformance(unittest.TestCase):
+    def test_graph(self):
+        paths = cases("conformance/graph")
+        self.assertEqual(len(paths), 15)
         for path in paths:
             case = load(path)
             with self.subTest(path.name):
-                self.assertEqual(build_graph(case["input"]), case["expected"])
+                connections = [from_json(m.Connection, c) for c in case["input"]["connections"]]
+                relationships = [from_json(m.Relationship, r) for r in case["input"]["relationships"]]
+                links, derived = build_graph(connections, relationships)
+                self.assertEqual({"links": to_json(links), "derivedLinks": to_json(derived)}, case["expected"])
+
+    def test_migrations(self):
+        paths = cases("conformance/migrations")
+        self.assertEqual(len(paths), 14)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                revisions = case["input"]["revisions"]
+                history = None if revisions is None else migration_history(
+                    from_json(m.MigrationRevision, r) for r in revisions)
+                current = case["input"]["current"]
+                state = migration_state(history, None if current is None else tuple(current))
+                self.assertEqual({"history": to_json(history), "status": state.status,
+                                  "pending": to_json(state.pending),
+                                  "unknownRevisions": list(state.unknown_revisions)}, case["expected"])
+
+
+class Serialization(unittest.TestCase):
+    def test_canonical_form(self):
+        self.assertEqual(canonical_json({"b": 1, "a": {"d": [3, {"z": 1, "y": 2}], "c": "é/"}}),
+                         '{\n  "a": {\n    "c": "é/",\n    "d": [\n      3,\n      {\n        "y": 2,\n        "z": 1\n'
+                         '      }\n    ]\n  },\n  "b": 1\n}\n')
+
+    def test_diagnostic_ids_follow_the_rule(self):
+        diagnostic = m.Diagnostic(kind="declared_only", category="reconciliation", severity="warning",
+                                  certainty="certain", subject=m.Subject(type="column", id="t", columns=("a",)),
+                                  message="x")
+        expected = "n" + hashlib.sha256(
+            '["diagnostic","declared_only","column","t",["a"],"x"]'.encode()).hexdigest()[:16]
+        self.assertEqual((diagnostic.id, to_json(diagnostic)["id"]), (expected, expected))
+
+    def test_attribute_names_are_mapped_by_the_serializer_only(self):
+        drift = m.Drift(field="primary_key", database=["a"], declared=["b"])
+        self.assertEqual(to_json(drift), {"field": "primaryKey", "database": ["a"], "declared": ["b"]})
+        self.assertEqual(from_json(m.Drift, to_json(drift)), drift)
+        keys = m.Keys(source=m.Endpoint(table="a", columns=("x",)), target=m.Endpoint(table="b", columns=("y",)))
+        self.assertEqual(to_json(keys), {"from": {"table": "a", "columns": ["x"]}, "to": {"table": "b", "columns": ["y"]}})
 
 
 if __name__ == "__main__":

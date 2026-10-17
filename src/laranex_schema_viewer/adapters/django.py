@@ -13,23 +13,13 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-from ..document import (
-    Column,
-    Constraint,
-    Default,
-    Diagnostic,
-    Endpoint,
-    ForeignKey,
-    Index,
-    JoinPair,
-    Model,
-    Relationship,
-    SchemaDocument,
-)
-from ..document import Table as DocumentTable
-from . import callable_name, class_source, identifier
+from .. import model as m
+from . import (ConstraintDeclaration, IndexDeclaration, class_source, column_part, declared_document, declared_table,
+               diagnostic, dialect_options, expression_part, foreign_key, identifier, python_default, relationship,
+               sql_default, table_subject)
 
 NAMESPACE = "default"
+ORM = "django"
 
 
 @contextmanager
@@ -80,7 +70,7 @@ class DjangoAdapter:
         self.project_root = project_root
         self.connections = connections
         self.router = router
-        self.diagnostics: list[Diagnostic] = []
+        self.diagnostics: list[m.Diagnostic] = []
 
     def connection(self, model: type) -> Any:
         return self.connections[self.router.db_for_write(model) or "default"]
@@ -108,13 +98,12 @@ class DjangoAdapter:
             sql, params = compiler.compile(node)
             return sql % tuple(literal(p) for p in params) if params else sql
         except Exception as error:
-            self.diagnostics.append(Diagnostic(
-                kind="uncompiled_expression", subject=self.table_id(model),
-                message=f"Kept Django's expression text because SQL compilation failed: {error}",
-            ))
+            self.diagnostics.append(diagnostic(
+                "uncompiled_expression", table_subject(self.table_id(model)),
+                f"Kept Django's expression text because SQL compilation failed: {error}"))
             return str(expression)
 
-    def extract(self) -> SchemaDocument:
+    def extract(self) -> m.Document:
         self.diagnostics = []
         concrete = {}
         for model in self.models:
@@ -122,64 +111,51 @@ class DjangoAdapter:
             if opts.proxy:
                 continue
             if opts.db_table in concrete:
-                self.diagnostics.append(Diagnostic(
-                    kind="shared_table", subject=self.table_id(model),
-                    message=f"{opts.label} and {concrete[opts.db_table]._meta.label} declare the same table",
-                ))
+                self.diagnostics.append(diagnostic(
+                    "shared_table", table_subject(self.table_id(model)),
+                    f"{opts.label} and {concrete[opts.db_table]._meta.label} declare the same table"))
                 continue
             concrete[opts.db_table] = model
             if not opts.managed:
-                self.diagnostics.append(Diagnostic(
-                    kind="unmanaged_model", subject=self.table_id(model),
-                    message=f"{opts.label} has managed=False; Django does not create or migrate this table",
-                ))
+                self.diagnostics.append(diagnostic(
+                    "unmanaged_model", table_subject(self.table_id(model)),
+                    f"{opts.label} has managed=False; Django does not create or migrate this table"))
         selected = {id(m) for m in self.models}
-        tables = [self.extract_table(m) for _, m in sorted(concrete.items())]
+        tables = [(NAMESPACE, self.extract_table(x)) for _, x in sorted(concrete.items())]
         models, relationships = [], []
         for model in sorted(self.models, key=self.model_id):
             opts = model._meta
             if opts.auto_created:
                 continue
             mid = self.model_id(model)
-            models.append(Model(
+            models.append(m.Model(
                 id=mid, class_name=f"{model.__module__}.{model.__qualname__}",
-                table_ids=self.model_tables(model), primary_key=self.primary_key(model),
+                tables=tuple(self.model_tables(model)), primary_key=tuple(self.primary_key(model)),
                 source=class_source(model, self.project_root),
             ))
             for field in opts.private_fields:
                 if field.is_relation:
-                    self.diagnostics.append(Diagnostic(
-                        kind="unsupported_relation", subject=f"{mid}.{field.name}",
-                        message=f"{type(field).__name__} has no fixed target table and is not represented",
-                    ))
+                    self.diagnostics.append(diagnostic(
+                        "unsupported_relation", m.Subject(type="model", id=mid, label=field.name),
+                        f"{type(field).__name__} has no fixed target table and is not represented"))
             if not opts.proxy:
                 relationships.extend(self.relationships(model, selected))
-        return SchemaDocument(
-            tables=tables, models=models,
-            relationships=sorted(relationships, key=lambda r: r.id),
-            diagnostics=sorted(self.diagnostics, key=lambda d: (d.kind, d.subject, d.message)),
-        )
+        return declared_document(tables, orm=ORM, models=models, relationships=relationships,
+                                 diagnostics=self.diagnostics)
 
     def primary_key(self, model: type) -> list[str]:
         pk = model._meta.pk
         return [f.column for f in pk.fields] if hasattr(pk, "fields") else [pk.column]
 
-    def default(self, field: Any) -> Default | None:
-        if not field.has_default():
-            return None
-        if callable(field.default):
-            return Default(kind="callable", value=callable_name(field.default))
-        return Default(kind="scalar", value=str(field.default))
-
-    def server_default(self, model: type, field: Any) -> Default | None:
+    def server_default(self, model: type, field: Any) -> m.DefaultValue | None:
         from django.db.models import NOT_PROVIDED
 
         value = getattr(field, "db_default", NOT_PROVIDED)
         if value is NOT_PROVIDED:
             return None
-        return Default(kind="sql", value=self.compile(model, value))
+        return sql_default(self.compile(model, value))
 
-    def extract_table(self, model: type) -> DocumentTable:
+    def extract_table(self, model: type) -> m.Table:
         from django.db.models import CheckConstraint, UniqueConstraint
         from django.db.models.fields import AutoFieldMixin
 
@@ -192,11 +168,11 @@ class DjangoAdapter:
         def column_name(name: str) -> str:
             return opts.get_field(name).column
 
-        columns = [Column(
+        columns = [m.Column(
             name=f.column, type=f.db_type(connection) or f.get_internal_type(), nullable=f.null,
-            primary_key=f.column in primary_key, autoincrement=isinstance(f, AutoFieldMixin),
-            default=self.default(f), server_default=self.server_default(model, f),
-            comment=getattr(f, "db_comment", None),
+            auto_increment=isinstance(f, AutoFieldMixin),
+            orm_default=python_default(f.default) if f.has_default() else None,
+            default=self.server_default(model, f), comment=getattr(f, "db_comment", None), provenance=m.DECLARED,
         ) for f in fields]
 
         foreign_keys = []
@@ -206,81 +182,72 @@ class DjangoAdapter:
             target = field.target_field
             target_table = self.table_id(target.model)
             on_delete = getattr(field.remote_field.on_delete, "operation", None)
-            foreign_keys.append(ForeignKey(
+            foreign_keys.append(foreign_key(
                 id=identifier("foreign_key", tid, None, identifier(field.column), target_table,
                               identifier(target.column)),
                 name=None, columns=[field.column], target_table=target_table,
-                target_columns=[target.column], on_delete=on_delete,
+                target_columns=[target.column], on_delete=on_delete, orm=ORM,
             ))
 
         indexes, constraints = [], []
         for field in fields:
             if field.unique and not field.primary_key:
-                constraints.append(Constraint(kind="unique", name=None, columns=[field.column]))
+                constraints.append(ConstraintDeclaration(kind="unique", name=None, columns=(field.column,)))
             elif field.db_index and not field.primary_key:
-                indexes.append(Index(name=None, columns=[field.column],
-                                     expressions=[f"{opts.db_table}.{field.column}"], unique=False))
+                indexes.append(IndexDeclaration(name=None, parts=(column_part(field.column),), unique=False))
         for names in opts.unique_together:
-            constraints.append(Constraint(kind="unique", name=None,
-                                          columns=[column_name(n) for n in names]))
+            constraints.append(ConstraintDeclaration(kind="unique", name=None,
+                                                     columns=tuple(column_name(n) for n in names)))
         for names in getattr(opts, "index_together", ()):
-            columns_ = [column_name(n) for n in names]
-            indexes.append(Index(name=None, columns=columns_, unique=False,
-                                 expressions=[f"{opts.db_table}.{c}" for c in columns_]))
+            indexes.append(IndexDeclaration(name=None, parts=tuple(column_part(column_name(n)) for n in names),
+                                            unique=False))
         for index in opts.indexes:
             indexes.append(self.index(model, index, unique=False, include=index.include,
                                       method=getattr(index, "suffix", "idx")))
         for constraint in opts.constraints:
             if isinstance(constraint, UniqueConstraint):
                 if getattr(constraint, "deferrable", None) is not None:
-                    self.diagnostics.append(Diagnostic(
-                        kind="unsupported_constraint_option", subject=tid,
-                        message=f"Deferrable setting of {constraint.name} is not represented",
-                    ))
+                    self.diagnostics.append(diagnostic(
+                        "unsupported_constraint_option", table_subject(tid),
+                        f"Deferrable setting of {constraint.name} is not represented"))
                 if constraint.condition is None and not constraint.expressions and not constraint.include:
-                    constraints.append(Constraint(kind="unique", name=constraint.name,
-                                                  columns=[column_name(n) for n in constraint.fields]))
+                    constraints.append(ConstraintDeclaration(
+                        kind="unique", name=constraint.name,
+                        columns=tuple(column_name(n) for n in constraint.fields)))
                 else:
                     # Django creates conditional or expression uniqueness as a unique index.
                     indexes.append(self.index(model, constraint, unique=True, include=constraint.include))
             elif isinstance(constraint, CheckConstraint):
                 check = getattr(constraint, "condition", None) or getattr(constraint, "check", None)
-                constraints.append(Constraint(kind="check", name=constraint.name,
-                                              expression=self.compile(model, check, condition=True)))
+                constraints.append(ConstraintDeclaration(kind="check", name=constraint.name,
+                                                         expression=self.compile(model, check, condition=True)))
             else:
-                self.diagnostics.append(Diagnostic(
-                    kind="unsupported_constraint", subject=tid,
-                    message=f"{type(constraint).__name__} {constraint.name} is not represented",
-                ))
-        return DocumentTable(
-            id=tid, namespace=NAMESPACE, name=opts.db_table, schema_name=None,
-            comment=getattr(opts, "db_table_comment", None) or None, columns=columns,
-            primary_key=primary_key,
-            indexes=sorted(indexes, key=lambda i: i.model_dump_json()),
-            foreign_keys=sorted(foreign_keys, key=lambda f: f.id),
-            constraints=sorted(constraints, key=lambda c: c.model_dump_json()),
+                self.diagnostics.append(diagnostic(
+                    "unsupported_constraint", table_subject(tid),
+                    f"{type(constraint).__name__} {constraint.name} is not represented"))
+        return declared_table(
+            id=tid, name=opts.db_table, schema=None, comment=getattr(opts, "db_table_comment", None) or None,
+            columns=columns, primary_key=primary_key, indexes=indexes, foreign_keys=foreign_keys,
+            constraints=constraints,
         )
 
     def index(self, model: type, index: Any, *, unique: bool, include: Any,
-              method: str = "idx") -> Index:
+              method: str = "idx") -> IndexDeclaration:
         opts = model._meta
         vendor = self.connection(model).vendor
-        columns, expressions = [], []
-        for name in index.fields:
-            descending = name.startswith("-")
-            column = opts.get_field(name.lstrip("-")).column
-            columns.append(column)
-            expressions.append(f"{opts.db_table}.{column}" + (" DESC" if descending else ""))
-        expressions += [self.compile(model, e) for e in index.expressions]
-        return Index(
-            name=index.name, columns=columns, expressions=expressions, unique=unique,
-            predicates=({vendor: self.compile(model, index.condition, condition=True)}
-                        if index.condition is not None else {}),
-            included_columns={vendor: [opts.get_field(n).column for n in include]} if include else {},
-            methods={vendor: method} if method != "idx" else {},
+        parts = [column_part(opts.get_field(name.lstrip("-")).column, "desc" if name.startswith("-") else None)
+                 for name in index.fields]
+        parts += [expression_part(self.compile(model, e)) for e in index.expressions]
+        return IndexDeclaration(
+            name=index.name, parts=tuple(parts), unique=unique,
+            dialect_options=dialect_options(
+                predicates={vendor: self.compile(model, index.condition, condition=True)}
+                if index.condition is not None else None,
+                included={vendor: [opts.get_field(n).column for n in include]} if include else None,
+                methods={vendor: method} if method != "idx" else None),
         )
 
-    def relationships(self, model: type, selected: set[int]) -> list[Relationship]:
+    def relationships(self, model: type, selected: set[int]) -> list[m.Relationship]:
         opts = model._meta
         mid = self.model_id(model)
         result = []
@@ -288,18 +255,14 @@ class DjangoAdapter:
         def relation(name: str, target: type, direction: str, uselist: bool,
                      back: str | None, pairs: list[tuple[type, str, type, str]],
                      secondary: type | None = None) -> None:
-            joins = [JoinPair(local=Endpoint(table=self.table_id(a), column=ac),
-                              remote=Endpoint(table=self.table_id(b), column=bc))
-                     for a, ac, b, bc in pairs]
             text = [f"{a._meta.db_table}.{ac} = {b._meta.db_table}.{bc}" for a, ac, b, bc in pairs]
-            result.append(Relationship(
+            result.append(relationship(
                 id=identifier("relationship", mid, name), name=name, model=mid,
-                target_model=self.model_id(target), source_table=self.table_id(model),
-                target_table=self.table_id(target), direction=direction, uselist=uselist,
-                viewonly=False, back_populates=back,
+                related_model=self.model_id(target), table=self.table_id(model),
+                related_table=self.table_id(target), direction=direction, collection=uselist, inverse=back,
                 secondary=self.table_id(secondary) if secondary is not None else None,
                 primary_join=text[0], secondary_join=text[1] if len(text) > 1 else None,
-                join_pairs=joins,
+                pairs=[((self.table_id(a), ac), (self.table_id(b), bc)) for a, ac, b, bc in pairs],
             ))
 
         for field in opts.local_fields:
@@ -365,7 +328,7 @@ def related_closure(models: list[type]) -> list[type]:
 
 def document_from_settings(
     *, settings: str | None, modules: list[str], project_root: Path,
-) -> SchemaDocument:
+) -> m.Document:
     """Configure Django, then extract installed models, optionally limited to modules."""
     with connections_blocked():
         setup(settings)

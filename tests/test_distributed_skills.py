@@ -1,4 +1,4 @@
-"""Validate portable skill bundles and their examples against the real snapshot API."""
+"""Validate portable skill bundles and their examples against the real document and query API."""
 
 import inspect
 import json
@@ -13,7 +13,7 @@ from pathlib import Path
 import yaml
 
 from laranex_schema_viewer.query import SnapshotQuery
-from laranex_schema_viewer.snapshot import write_snapshot
+from laranex_schema_viewer.snapshot import write_document
 from tests.test_extraction import example_document
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,7 +78,7 @@ class DistributedSkillTests(unittest.TestCase):
     def test_json_tool_examples_match_query_contract(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "schema-viewer.json"
-            write_snapshot(example_document(), path)
+            write_document(example_document(), path)
             query = SnapshotQuery(path)
             methods = {
                 "schema_overview": query.overview,
@@ -111,12 +111,12 @@ class DistributedSkillTests(unittest.TestCase):
         source = (SKILLS / "schema-discovery/references/snapshot.md").read_text()
         code = re.search(r"```python\n(.*?)\n```", source, re.S)[1]
         with tempfile.TemporaryDirectory() as tmp:
-            write_snapshot(example_document(), Path(tmp) / "schema-viewer.json")
+            write_document(example_document(), Path(tmp) / "schema-viewer.json")
             result = subprocess.run(
                 [sys.executable, "-c", code], cwd=tmp, capture_output=True, text=True,
                 timeout=20, check=True,
             )
-            self.assertIn("declared_metadata", result.stdout)
+            self.assertIn("declared", result.stdout)
             self.assertIn("users", result.stdout)
 
 

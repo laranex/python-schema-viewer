@@ -1,0 +1,63 @@
+{
+  "description": "No revision recorded: uninitialized, with every revision pending",
+  "expected": {
+    "history": {
+      "heads": [
+        "c"
+      ],
+      "missing": [],
+      "revisions": [
+        {
+          "branchLabels": [],
+          "id": "a",
+          "parents": []
+        },
+        {
+          "branchLabels": [],
+          "id": "b",
+          "parents": [
+            "a"
+          ]
+        },
+        {
+          "branchLabels": [],
+          "id": "c",
+          "parents": [
+            "b"
+          ]
+        }
+      ]
+    },
+    "pending": [
+      "a",
+      "b",
+      "c"
+    ],
+    "status": "uninitialized",
+    "unknownRevisions": []
+  },
+  "input": {
+    "current": [],
+    "revisions": [
+      {
+        "branchLabels": [],
+        "id": "a",
+        "parents": []
+      },
+      {
+        "branchLabels": [],
+        "id": "b",
+        "parents": [
+          "a"
+        ]
+      },
+      {
+        "branchLabels": [],
+        "id": "c",
+        "parents": [
+          "b"
+        ]
+      }
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 {
+  "comparisons": [],
   "connections": [
     {
       "coverage": {
@@ -30,7 +31,7 @@
         "declared": null
       },
       "defaultSchema": "public",
-      "driver": "pgsql",
+      "driver": "postgresql",
       "id": "connection:primary",
       "name": "primary",
       "tables": [
@@ -167,9 +168,6 @@
                 "constraint": null,
                 "kind": "primary_key"
               },
-              "columns": [
-                "id"
-              ],
               "expression": false,
               "id": "pg:billing.invoices:index:invoices_pkey",
               "included": [],
@@ -188,7 +186,6 @@
                 }
               ],
               "predicate": null,
-              "primary": true,
               "provenance": [
                 "database"
               ],
@@ -199,10 +196,6 @@
                 "constraint": "pg:billing.invoices:constraint:invoices_account_id_number_key",
                 "kind": "unique_constraint"
               },
-              "columns": [
-                "account_id",
-                "number"
-              ],
               "expression": false,
               "id": "pg:billing.invoices:index:invoices_account_id_number_key",
               "included": [],
@@ -230,7 +223,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -461,9 +453,6 @@
                 "constraint": null,
                 "kind": "primary_key"
               },
-              "columns": [
-                "id"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_pkey",
               "included": [],
@@ -482,7 +471,6 @@
                 }
               ],
               "predicate": null,
-              "primary": true,
               "provenance": [
                 "database"
               ],
@@ -493,9 +481,6 @@
                 "constraint": "pg:public.accounts:constraint:accounts_email_key",
                 "kind": "unique_constraint"
               },
-              "columns": [
-                "email"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_email_key",
               "included": [],
@@ -514,7 +499,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -522,9 +506,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "external_ref"
-              ],
               "dialectOptions": {
                 "postgresql": {
                   "options": {
@@ -550,7 +531,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -558,7 +538,6 @@
             },
             {
               "backs": null,
-              "columns": [],
               "expression": true,
               "id": "pg:public.accounts:index:accounts_lower_email_idx",
               "included": [],
@@ -577,7 +556,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -585,9 +563,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "email"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_live_email_idx",
               "included": [],
@@ -606,7 +581,6 @@
                 }
               ],
               "predicate": "(deleted_at IS NULL)",
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -614,9 +588,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "created_at"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_created_at_idx",
               "included": [
@@ -637,7 +608,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -645,9 +615,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "status"
-              ],
               "expression": true,
               "id": "pg:public.accounts:index:accounts_status_created_idx",
               "included": [],
@@ -675,7 +642,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -683,9 +649,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "email"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_email_pattern_idx",
               "included": [],
@@ -704,7 +667,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -712,9 +674,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "tags"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_tags_idx",
               "included": [],
@@ -733,7 +692,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -741,9 +699,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "data"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_data_idx",
               "included": [],
@@ -762,7 +717,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -770,9 +724,6 @@
             },
             {
               "backs": null,
-              "columns": [
-                "search"
-              ],
               "expression": false,
               "id": "pg:public.accounts:index:accounts_search_idx",
               "included": [],
@@ -791,7 +742,6 @@
                 }
               ],
               "predicate": null,
-              "primary": false,
               "provenance": [
                 "database"
               ],
@@ -822,6 +772,7 @@
     "name": "contract-fixtures",
     "orm": null
   },
+  "inferredAssociations": [],
   "links": [
     {
       "foreignKey": "pg:billing.invoices:fk:invoices_account_id_fkey",
@@ -844,9 +795,10 @@
       }
     }
   ],
+  "migrations": [],
   "models": [],
   "note": null,
   "relationships": [],
   "source": "database",
-  "version": "1.0"
+  "version": "2.0"
 }

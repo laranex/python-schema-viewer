@@ -88,14 +88,10 @@ class ServedViewer(unittest.TestCase):
                                                   "relationships": ["manager", "reports", "teams"]})
         self.assertGreater(report["edges"], 0)
 
-    def test_declared_v1_snapshot_is_converted(self):
-        snapshot = self.build("declared-v1.json", "--module", "tests.fixtures.sqlalchemy_models")
-        self.assertEqual(json.loads(snapshot.read_text())["format"], "laranex-schema-viewer")
-        self.assert_declared(snapshot)
-
     def test_declared_document(self):
-        self.assert_declared(self.build("declared.json", "--module", "tests.fixtures.sqlalchemy_models",
-                                        "--format", "laranex-schema"))
+        snapshot = self.build("declared.json", "--module", "tests.fixtures.sqlalchemy_models")
+        self.assertEqual(json.loads(snapshot.read_text())["version"], "2.0")
+        self.assert_declared(snapshot)
 
     def test_database_document(self):
         snapshot = self.build("database.json", "--source", "database", database=True)

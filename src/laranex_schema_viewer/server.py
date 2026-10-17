@@ -1,8 +1,7 @@
 """Small snapshot-only HTTP server, independent of web frameworks.
 
 It serves the vendored laranex-schema-viewer-ui build (static/viewer, files listed in its manifest only) and the
-configured document as /snapshot.json. The viewer reads laranex-schema documents only, so a version 1 snapshot is
-converted explicitly with unified.from_v1 on each request; laranex-schema documents are served as saved.
+configured laranex-schema 2.x document as /snapshot.json, validated and in canonical form, reloaded on each request.
 """
 
 from __future__ import annotations
@@ -14,7 +13,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .contract import canonical_json
-from .snapshot import load_document
+from .snapshot import read_document
 
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
          ".css": "text/css; charset=utf-8", ".woff": "font/woff", ".woff2": "font/woff2",
@@ -38,7 +37,7 @@ def viewer_routes() -> dict[str, tuple[str, str]]:
 
 def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765):
     path = Path(snapshot).resolve()
-    load_document(path).unified  # Fail before binding if the snapshot is missing, invalid or unconvertible.
+    read_document(path)  # Fail before binding if the document is missing, invalid or of another version.
     viewer = files("laranex_schema_viewer").joinpath("static/viewer")
     routes = viewer_routes()
 
@@ -57,7 +56,7 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
             route = urlsplit(self.path).path
             if route == "/snapshot.json":
                 try:
-                    content = canonical_json(load_document(path).unified).encode("utf-8")
+                    content = canonical_json(read_document(path).data).encode("utf-8")
                 except (ValueError, OSError):
                     self.send_error(503, "Snapshot unavailable or invalid")
                     return

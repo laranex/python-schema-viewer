@@ -3,9 +3,11 @@ import {test} from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {prepareDemo, demoDirectory} from '../scripts/prepare-demo.mjs';
 
-test('synthetic demo is a laranex-schema document with links of both kinds', async () => {
+test('synthetic demo is a laranex-schema 2.0 document with links of both kinds', async () => {
     const schema = JSON.parse(await readFile(new URL('../demo/schema.json', import.meta.url), 'utf8'));
     assert.equal(schema.format, 'laranex-schema');
+    assert.equal(schema.version, '2.0');
+    for (const key of ['comparisons', 'migrations', 'inferredAssociations']) assert.ok(Array.isArray(schema[key]), key);
     const tables = new Map(schema.connections.flatMap(c => c.tables).map(t => [t.id, t]));
     assert.equal(tables.size, 9);
     for (const link of schema.links) for (const end of [link.from, link.to]) {

@@ -1,0 +1,306 @@
+{
+  "description": "Tables match by name; a table only in the baseline is missing, one only in the target extra, and their contents are not listed",
+  "expected": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "complete": true,
+    "differences": [
+      {
+        "baseline": null,
+        "certainty": "certain",
+        "change": "extra",
+        "fields": [],
+        "id": "x0325a4cd45dcb774",
+        "key": [
+          "comments"
+        ],
+        "objectType": "table",
+        "severity": "error",
+        "target": {
+          "id": null,
+          "label": "comments",
+          "table": "b:comments"
+        }
+      },
+      {
+        "baseline": {
+          "id": null,
+          "label": "posts",
+          "table": "a:posts"
+        },
+        "certainty": "certain",
+        "change": "missing",
+        "fields": [],
+        "id": "x6ba2ea9e4ff0188e",
+        "key": [
+          "posts"
+        ],
+        "objectType": "table",
+        "severity": "error",
+        "target": null
+      }
+    ],
+    "id": "ccd30999b0df19108",
+    "omitted": 0,
+    "summary": {
+      "changed": 0,
+      "extra": 1,
+      "missing": 1
+    },
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  },
+  "input": {
+    "baseline": {
+      "connection": "connection:a",
+      "schema": null
+    },
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:a",
+          "name": "a",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "a:users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            },
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                },
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "title",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "text",
+                  "typeName": "text"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "a:posts",
+              "indexes": [],
+              "name": "posts",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "postgresql",
+          "id": "connection:b",
+          "name": "b",
+          "tables": [
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "b:users",
+              "indexes": [],
+              "name": "users",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            },
+            {
+              "columns": [
+                {
+                  "autoIncrement": false,
+                  "collation": null,
+                  "comment": null,
+                  "default": null,
+                  "enum": null,
+                  "generated": null,
+                  "name": "id",
+                  "note": null,
+                  "nullable": false,
+                  "ormDefault": null,
+                  "provenance": [
+                    "database"
+                  ],
+                  "timezone": null,
+                  "type": "bigint",
+                  "typeName": "bigint"
+                }
+              ],
+              "comment": null,
+              "constraints": [],
+              "foreignKeys": [],
+              "id": "b:comments",
+              "indexes": [],
+              "name": "comments",
+              "note": null,
+              "owner": {
+                "kind": "application",
+                "package": null
+              },
+              "primaryKey": [],
+              "provenance": [
+                "database"
+              ],
+              "schema": null
+            }
+          ]
+        }
+      ],
+      "source": "database"
+    },
+    "limit": null,
+    "overrides": [],
+    "target": {
+      "connection": "connection:b",
+      "schema": null
+    }
+  }
+}
