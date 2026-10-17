@@ -9,7 +9,8 @@ from pathlib import Path
 from dataclasses import replace
 
 from . import __version__
-from .config import (DEFAULT_COMPARISON_LIMIT, DEFAULT_SNAPSHOT, SOURCES, ComparisonConfig, DatabaseConfig,
+from .config import (CHECK_CERTAINTIES, CHECK_SEVERITIES, DEFAULT_CHECK_CERTAINTY, DEFAULT_CHECK_SEVERITY,
+                     DEFAULT_COMPARISON_LIMIT, DEFAULT_SNAPSHOT, SOURCES, ComparisonConfig, DatabaseConfig,
                      ProjectConfig, add_config, comparison_option, config_section, database_option,
                      detect_django_settings, detect_model_module, load_config, resolve_snapshot)
 
@@ -68,9 +69,30 @@ def main(argv: list[str] | None = None) -> int:
     compare.add_argument("--json", action="store_true", help="Print the comparisons as laranex-schema JSON")
     compare.add_argument("--write", action="store_true",
                          help="Store the comparisons in the snapshot, replacing those of the same scopes")
+    check = commands.add_parser(
+        "check", help="Check a saved document's comparisons, migrations and diagnostics against thresholds, for CI",
+        description="Exit codes: 0 passed; 1 a finding meets the thresholds; 2 the check could not be completed "
+                    "(an incomplete comparison, an unknown migration status, an inspection error, an invalid or "
+                    "unreadable document, or invalid arguments or configuration).")
+    check.add_argument("comparisons", nargs="*", metavar="BASELINE=TARGET",
+                       help="Also compare these scopes of the document first, as `compare` would, without writing it; "
+                            "default: check the stored comparisons only")
+    check.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
+    check.add_argument("--severity", choices=CHECK_SEVERITIES,
+                       help="Lowest severity that fails the check; default: [tool.laranex-schema-viewer.check], "
+                            f"else {DEFAULT_CHECK_SEVERITY}")
+    check.add_argument("--certainty", choices=CHECK_CERTAINTIES,
+                       help="certain: only certain findings fail the check; likely: likely ones too; default: "
+                            f"[tool.laranex-schema-viewer.check], else {DEFAULT_CHECK_CERTAINTY}")
+    check.add_argument("--limit", type=int, metavar="N",
+                       help=f"Differences listed per comparison named here; default {DEFAULT_COMPARISON_LIMIT}")
+    check.add_argument("--json", action="store_true", help="Print the laranex-schema-gate 1.0 report instead of a summary")
+    check.add_argument("--output", type=Path, metavar="FILE", help="Also write the JSON report to FILE, atomically")
     mcp = commands.add_parser("mcp", help="Run read-only MCP tools over a saved document, on stdio")
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
+    if args.command == "check":
+        return run_check(args)
     try:
         if args.command == "init":
             def ask(question: str, default: str) -> str:
@@ -282,6 +304,48 @@ def run_compare(args: argparse.Namespace) -> None:
     if args.write:
         write_document(store(document, comparisons, diagnostics), path)
         print(f"Stored {len(comparisons)} comparisons in {path}", file=sys.stderr if args.json else sys.stdout)
+
+
+def run_check(args: argparse.Namespace) -> int:
+    """The drift gate. Returns its exit code: 0 passed, 1 qualifying findings, 2 for anything that kept the check from
+    completing, including invalid arguments, configuration and documents. Never 0 or 1 on a failure."""
+    try:
+        from .check import check, invalid, summary
+        from .compare import compute, store
+        from .contract import VERSION, assert_document, canonical_json
+        from .snapshot import read_document, write_atomically
+
+        config = load_config(Path.cwd())
+        thresholds = {"severity": args.severity or config.check.severity or DEFAULT_CHECK_SEVERITY,
+                      "certainty": args.certainty or config.check.certainty or DEFAULT_CHECK_CERTAINTY}
+        if args.limit is not None and not args.comparisons:
+            raise ValueError("--limit applies to comparisons named on the command line")
+        specs = comparison_specs(args.comparisons, args.limit, ProjectConfig()) if args.comparisons else ()
+        path = resolve_snapshot(args.snapshot, Path.cwd())
+        if path.is_absolute() and path.is_relative_to(Path.cwd()):
+            path = path.relative_to(Path.cwd())
+        document = None
+        try:
+            snapshot = read_document(path)
+            version = snapshot.data["version"]
+            document = assert_document(snapshot.data, strict=True) if version == VERSION else snapshot.document
+        except OSError as error:
+            report = invalid(thresholds, f"Cannot read {path}: {error.strerror or error}")
+        except ValueError as error:
+            message = str(error)
+            report = invalid(thresholds, message if message.startswith(str(path)) else f"{path}: {message}")
+        if document is not None:
+            if specs:
+                document = store(document, *compute(document, specs))
+            report = check(document, version, thresholds)
+        text = canonical_json(report)
+        if args.output:
+            write_atomically(text.encode("utf-8"), args.output)
+        print(text if args.json else summary(report, document), end="" if args.json else "\n", flush=True)
+        return report["exitCode"]
+    except (Exception, KeyboardInterrupt) as error:
+        print(f"Error: {error or type(error).__name__}", file=sys.stderr)
+        return 2
 
 
 def database_connections(args: argparse.Namespace, config: ProjectConfig) -> list[DatabaseConfig]:
