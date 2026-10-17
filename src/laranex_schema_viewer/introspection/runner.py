@@ -69,6 +69,30 @@ def introspect(request: DatabaseRequest, *, project_roots: list[str] | tuple[str
         shutil.rmtree(scratch, ignore_errors=True)
 
 
+def introspect_all(requests: list[DatabaseRequest] | tuple[DatabaseRequest, ...], *,
+                   project_roots: list[str] | tuple[str, ...] = ()) -> dict[str, Any]:
+    """Several connections as one database document. Each connection is read by its own worker, which receives only
+    that connection's URL; one failure fails the whole inspection."""
+    names = [r.connection for r in requests]
+    if not names or len(set(names)) != len(names):
+        raise IntrospectionError("Inspect at least one connection, each under a distinct name")
+    documents = [introspect(r, project_roots=project_roots) for r in requests]
+    return merge(documents)
+
+
+def merge(documents: list[dict[str, Any]]) -> dict[str, Any]:
+    """Database documents with distinct connection names as one document."""
+    from ..contract import assert_document, build_graph
+    from ..unified import sort_diagnostics
+
+    doc = {**documents[0], "connections": sorted([c for d in documents for c in d["connections"]],
+                                                 key=lambda c: c["name"]),
+           "diagnostics": sort_diagnostics([x for d in documents for x in d["diagnostics"]]),
+           "links": [], "derivedLinks": []}
+    doc.update(build_graph(doc))
+    return assert_document(doc, strict=True).to_json()
+
+
 def _scrub(message: str, url: str) -> str:
     from .worker import scrub
 
