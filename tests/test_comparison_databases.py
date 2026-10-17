@@ -6,14 +6,20 @@ admin URLs described in tests/test_introspection.py; skipped otherwise. Schemas 
 """
 
 import importlib.util
+import json
 import os
 import secrets
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 from laranex_schema_viewer.compare import compute, store
 from laranex_schema_viewer.config import comparison_option
 from laranex_schema_viewer.contract import document_to_json, validate_document
 
+ROOT = Path(__file__).resolve().parents[1]
 HAS_SQLALCHEMY = importlib.util.find_spec("sqlalchemy") is not None
 TENANTS = ("tenant_a", "tenant_b", "tenant_c")
 
@@ -200,6 +206,50 @@ class PostgreSQLTenants(Disposable, unittest.TestCase):
         self.assertIn(("table", "extra", ("orders",)), differences)
         users = differences["column", "missing", ("users", "login")]
         self.assertEqual(users.baseline.label, "public.users.login")
+
+
+class SchemaNamedTables(Disposable, unittest.TestCase):
+    """Schemas billing and archive, each holding tables named like them: build stores their comparison."""
+
+    @classmethod
+    def setUpClass(cls):
+        url = os.environ.get("LSV_TEST_POSTGRES_URL")
+        if not (url and HAS_SQLALCHEMY):
+            raise unittest.SkipTest("set LSV_TEST_POSTGRES_URL to run these tests")
+        try:
+            cls.create({"pg": url})
+            cls.execute("pg", [
+                'CREATE SCHEMA billing', 'CREATE SCHEMA archive',
+                'CREATE TABLE billing.billing (id integer PRIMARY KEY, archive text)',
+                'CREATE INDEX archive ON billing.billing (archive)',
+                'CREATE TABLE archive.billing (id integer PRIMARY KEY)',
+                'CREATE TABLE archive.archive (id integer PRIMARY KEY)',
+                f'GRANT USAGE ON SCHEMA billing, archive TO "{cls.role}"'])
+        except Exception:
+            cls.drop()
+            raise
+
+    def test_build_stores_the_comparison(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "schema.json"
+            (Path(tmp) / "pyproject.toml").write_text(
+                "[tool.laranex-schema-viewer.databases.ledger]\n"
+                "url_env = 'LEDGER_URL'\nschemas = ['public', 'billing', 'archive']\n")
+            result = subprocess.run(
+                [sys.executable, "-m", "laranex_schema_viewer", "build", "--source", "database",
+                 "--compare", "ledger:billing=ledger:archive",
+                 "--output", str(output)],
+                cwd=tmp, capture_output=True, text=True, timeout=120,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=str(ROOT / "src"),
+                         LEDGER_URL=self.urls["pg"]))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertNotIn(self.password, result.stdout + result.stderr)
+            document = json.loads(output.read_text())
+        self.assertEqual(validate_document(document, strict=True)[1], [])
+        [comparison] = document["comparisons"]
+        self.assertEqual({(d["objectType"], tuple(d["key"]), d["change"]) for d in comparison["differences"]},
+                         {("table", ("archive",), "extra"), ("column", ("billing", "archive"), "missing"),
+                          ("index", ("billing", "name", "archive"), "missing")})
 
 
 class MixedDrivers(Disposable, unittest.TestCase):

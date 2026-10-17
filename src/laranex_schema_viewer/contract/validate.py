@@ -270,8 +270,6 @@ def _comparison_rules(doc: m.Document, connections: dict[str, m.Connection], tab
 
         if not all(_difference_before(a, b) for a, b in zip(c.differences, c.differences[1:])):
             errors.append(f"Differences are sorted by object type, key and change: {at}")
-        tenant = ([c.baseline.schema, c.target.schema] if c.baseline.schema is not None and c.target.schema is not None
-                  and c.baseline.schema != c.target.schema else [])
         counts = {"missing": 0, "extra": 0, "changed": 0}
         for d in c.differences:
             where = f"difference {d.id}"
@@ -288,8 +286,6 @@ def _comparison_rules(doc: m.Document, connections: dict[str, m.Connection], tab
                 errors.append(f"Only a changed difference lists fields, and it lists at least one: {where}")
             if not _is_sorted([f.field for f in d.fields]):
                 errors.append(f"Difference fields are unique and sorted by field: {where}")
-            if any(k in tenant for k in d.key):
-                errors.append(f"A difference key never contains a compared schema name: {where}")
             for scope, ref in ((c.baseline, d.baseline), (c.target, d.target)):
                 if ref is None:
                     continue
@@ -298,6 +294,10 @@ def _comparison_rules(doc: m.Document, connections: dict[str, m.Connection], tab
                     errors.append(f"A difference side names a table of its own scope: {where}")
                     continue
                 table = tables[ref.table]
+                if _key_at(d.key, 0) != table.name:
+                    errors.append(f"A difference key starts with its table's name: {where}")
+                if d.object_type == "column" and not any(col.name == _key_at(d.key, 1) for col in table.columns):
+                    errors.append(f"A column difference key names a column of its table: {where}")
                 entities = {"index": table.indexes, "foreignKey": table.foreign_keys,
                             "constraint": table.constraints}.get(d.object_type)
                 if (not any(e.id == ref.id for e in entities)) if entities is not None else ref.id is not None:
@@ -307,6 +307,10 @@ def _comparison_rules(doc: m.Document, connections: dict[str, m.Connection], tab
             errors.append(f"A comparison with omitted differences is incomplete: {at}")
         if total != len(c.differences) + c.omitted or any(getattr(c.summary, k) < counts[k] for k in CHANGES):
             errors.append(f"Comparison summary does not count its differences and omitted ones: {at}")
+
+
+def _key_at(key: tuple[str, ...], index: int) -> str | None:
+    return key[index] if index < len(key) else None
 
 
 def _difference_before(a: m.Difference, b: m.Difference) -> bool:

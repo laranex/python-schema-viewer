@@ -341,6 +341,27 @@ class Command(unittest.TestCase):
         self.assertEqual({k: v for k, v in written.items() if k != "comparisons"},
                          {k: v for k, v in json.loads(before).items() if k != "comparisons"})
 
+    def test_tables_named_like_a_compared_schema_are_stored(self):
+        # Table billing in schema billing (with a column archive), compared with schema archive: the keys hold those
+        # names as object names, which the contract allows; a key naming another table is still rejected.
+        named = fixture("comparison-schema-named-tables.json")
+        self.snapshot.write_text(canonical_json(document_to_json(m.replace(named, comparisons=()))))
+        result = self.run_cli("compare", "--snapshot", str(self.snapshot), "--write", "ledger:billing=ledger:archive")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        written = json.loads(self.snapshot.read_text())
+        self.assertEqual(validate_document(written, strict=True)[1], [])
+        self.assertEqual({(d["objectType"], tuple(d["key"]), d["change"]) for d in written["comparisons"][0]["differences"]},
+                         {("table", ("archive",), "extra"), ("column", ("billing", "archive"), "missing"),
+                          ("index", ("billing", "name", "archive"), "missing")})
+        column = next(d for d in written["comparisons"][0]["differences"] if d["objectType"] == "column")
+        for key, message in ((["archive", "archive"], "A difference key starts with its table's name"),
+                             (["billing", "id_x"], "A column difference key names a column of its table")):
+            with self.subTest(key):
+                broken = json.loads(json.dumps(written))
+                [d for d in broken["comparisons"][0]["differences"] if d["id"] == column["id"]][0]["key"] = key
+                errors = validate_document(broken, strict=True)[1]
+                self.assertTrue(any(message in e for e in errors), errors)
+
     def test_compare_uses_the_configuration(self):
         (self.root / "pyproject.toml").write_text(
             "[tool.laranex-schema-viewer]\noutput = 'schema.json'\n"

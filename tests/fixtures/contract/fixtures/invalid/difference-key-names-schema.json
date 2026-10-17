@@ -1,5 +1,5 @@
 {
-  "description": "A difference key that contains a compared tenant schema name",
+  "description": "A difference key that names a compared tenant schema instead of its table",
   "document": {
     "comparisons": [
       {
@@ -2743,7 +2743,7 @@
     "version": "2.0"
   },
   "errors": [
-    "A difference key never contains a compared schema name"
+    "A difference key starts with its table's name"
   ],
   "strict": false
 }

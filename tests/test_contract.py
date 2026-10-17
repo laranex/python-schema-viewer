@@ -54,7 +54,7 @@ class VendoredCopy(unittest.TestCase):
 class ValidFixtures(unittest.TestCase):
     def test_every_valid_fixture_passes_strict_validation(self):
         paths = cases("fixtures/valid")
-        self.assertEqual(len(paths), 13)
+        self.assertEqual(len(paths), 14)
         for path in paths:
             with self.subTest(path.name):
                 self.assertEqual(validate_document(load(path), strict=True)[1], [])
@@ -87,7 +87,7 @@ class ValidFixtures(unittest.TestCase):
 class InvalidFixtures(unittest.TestCase):
     def test_every_invalid_fixture_fails_with_the_expected_rule(self):
         paths = cases("fixtures/invalid")
-        self.assertEqual(len(paths), 52)
+        self.assertEqual(len(paths), 53)
         for path in paths:
             case = load(path)
             with self.subTest(path.name):

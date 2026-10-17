@@ -1,6 +1,6 @@
 {
   "source": "laranex-schema-viewer-ui",
-  "commit": "bc80f0eefc7fc9a9bb41cbdbe64c4740ce12fb44",
+  "commit": "0902ccb2e4c14f43eb3c3b6be593af5f8a078794",
   "version": "0.3.0-dev.0",
   "files": {
     "schema.json": "c054ff63f9a48abec30122b78e6aab915703009aedad855a9d1ed1488c476701",
@@ -71,7 +71,8 @@
     "fixtures/invalid/diagnostic-unknown-subject.json": "b7b2a52de2a0f9dcc0c1b319c79cf61b487d9b3f03dda4868fd7fd1fc515b846",
     "fixtures/invalid/diagnostic-wrong-id.json": "70d7b3ff9363d23747edf2519c14011ef54e786044e98d6b15252827e232b93e",
     "fixtures/invalid/difference-changed-without-fields.json": "84a4cae365dc767d153fcb06b817f6ca67bbc57547413fab5979a724ca38a767",
-    "fixtures/invalid/difference-key-names-schema.json": "37dd326994f9daac2b51455cf4dd28b0711c8d8c81af9ca79d67759af52b7e9d",
+    "fixtures/invalid/difference-key-names-schema.json": "8ff41d2b127581ba943c3132fd46e41d98b813bb096a64f591029b3ff06de7b8",
+    "fixtures/invalid/difference-key-unknown-column.json": "294d9eac79d1ebf412863642e3583c62fbfee5f8a22d491b0c43fc27aeac64ec",
     "fixtures/invalid/difference-missing-with-target.json": "5e4a65e5022411d248ab17523d70f9555e58993640dd967129d788c3b809b035",
     "fixtures/invalid/difference-side-outside-scope.json": "98468c76d64337bb00e83f0ee6d831760a238d0579035228db2771803f7ad3dd",
     "fixtures/invalid/difference-side-wrong-entity.json": "379aa3eadfa877102ac24163005ed6650aaf834cf103d75a45f62583aaff4c5c",
@@ -116,6 +117,7 @@
     "fixtures/valid/combined-multi-connection.json": "b15eb4f3ffb97ff5a85171382c39b185edaecd1fe38723dc137adc1a5dfbf098",
     "fixtures/valid/comparison-incomplete.json": "990e2d0a76c1365872b5a2225b4fe2355256afc9612c72d0d9111a16cb5f187c",
     "fixtures/valid/comparison-multi-connection.json": "4838f6abce38788bc2485987a9840da28f61cf8fe3995b241ca3151705b3aea9",
+    "fixtures/valid/comparison-schema-named-tables.json": "2b47140c227a4b1674ad791e2cd78b4b323ed9d270ca54d78b5eeb6ed26a8f81",
     "fixtures/valid/comparison-tenant-schemas.json": "8fc33266578cab25a66a52c5009d98d24dc325ebb25850f3f078d7ab14f45313",
     "fixtures/valid/database-mysql-indexes.json": "79925527bfbad807213d015361e6d61e07405be6647520bfb23eed129246af5b",
     "fixtures/valid/database-postgresql-indexes.json": "fb896a8aaeeb2059d4d22ffbb0b32e4b43435a04150a68d3fabe9e1a20dc9900",
