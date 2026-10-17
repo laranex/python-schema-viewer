@@ -18,7 +18,7 @@ from .snapshot import load_document
 
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
          ".css": "text/css; charset=utf-8", ".woff": "font/woff", ".woff2": "font/woff2",
-         ".json": "application/json; charset=utf-8"}
+         ".svg": "image/svg+xml", ".ico": "image/x-icon", ".json": "application/json; charset=utf-8"}
 POLICY = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; "
           "base-uri 'none'; frame-ancestors 'none'")
 
@@ -55,12 +55,6 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
                 self.send_error(403, "Host not allowed")
                 return
             route = urlsplit(self.path).path
-            if route == "/favicon.ico":
-                # Browsers ask for it unprompted; the viewer has none, and a 404 would log a console error.
-                self.send_response(204)
-                self.send_header("Content-Length", "0")
-                self.end_headers()
-                return
             if route == "/snapshot.json":
                 try:
                     content = canonical_json(load_document(path).unified).encode("utf-8")
@@ -84,4 +78,15 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
             if not head:
                 self.wfile.write(content)
 
-    return ThreadingHTTPServer((host, port), Handler)
+    server = ThreadingHTTPServer((host, port), Handler, bind_and_activate=False)
+    # The viewer requests its scripts, styles and fonts in parallel; socketserver's default backlog of 5 makes the
+    # operating system reset the connections that overflow it.
+    server.request_queue_size = 128
+    server.daemon_threads = True
+    try:
+        server.server_bind()
+        server.server_activate()
+    except BaseException:
+        server.server_close()
+        raise
+    return server
