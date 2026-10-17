@@ -15,9 +15,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from laranex_schema_viewer.compare import compute, store
+from laranex_schema_viewer.compare import compute
 from laranex_schema_viewer.config import comparison_option
 from laranex_schema_viewer.contract import document_to_json, validate_document
+from laranex_schema_viewer.contract.comparison import comparison_diagnostics, store_comparisons
 
 ROOT = Path(__file__).resolve().parents[1]
 HAS_SQLALCHEMY = importlib.util.find_spec("sqlalchemy") is not None
@@ -152,8 +153,8 @@ class PostgreSQLTenants(Disposable, unittest.TestCase):
             raise
 
     def compare(self, *texts, **options):
-        comparisons, diagnostics = compute(self.document, [spec(t) for t in texts])
-        return comparisons, diagnostics
+        comparisons = compute(self.document, [spec(t) for t in texts])
+        return comparisons, tuple(d for c in comparisons for d in comparison_diagnostics(self.document, c))
 
     def test_an_identical_tenant_has_no_differences(self):
         [comparison], diagnostics = self.compare("app:tenant_a=app:tenant_b")
@@ -197,7 +198,7 @@ class PostgreSQLTenants(Disposable, unittest.TestCase):
         for comparison in comparisons:
             for difference in comparison.differences:
                 self.assertFalse(set(TENANTS) & set(difference.key), difference)
-        document = store(self.document, *self.compare("app:tenant_a=app:*"))
+        document = store_comparisons(self.document, self.compare("app:tenant_a=app:*")[0])
         self.assertEqual(validate_document(document_to_json(document), strict=True)[1], [])
 
     def test_the_unqualified_scope_is_the_default_schema(self):
@@ -295,7 +296,7 @@ class MixedDrivers(Disposable, unittest.TestCase):
         return out
 
     def test_postgresql_against_mysql_and_mariadb(self):
-        comparisons, _ = compute(self.document, [spec("primary=mysql"), spec("primary=mariadb")])
+        comparisons = compute(self.document, [spec("primary=mysql"), spec("primary=mariadb")])
         by_target = {c.target.connection: c for c in comparisons}
         for name, functional in (("mysql", True), ("mariadb", False)):
             with self.subTest(name):
@@ -306,7 +307,7 @@ class MixedDrivers(Disposable, unittest.TestCase):
                 self.assertEqual([f.baseline for f in created.fields][1], "timestamp with time zone")
 
     def test_mysql_against_mariadb(self):
-        [comparison], _ = compute(self.document, [spec("mysql=mariadb")])
+        [comparison] = compute(self.document, [spec("mysql=mariadb")])
         differences = found(comparison)
         # Different drivers: types compare normalized and equal; CURRENT_TIMESTAMP and current_timestamp() normalize
         # alike. MariaDB lacks the functional index, and reads the decimal default unquoted (likely).
@@ -315,7 +316,7 @@ class MixedDrivers(Disposable, unittest.TestCase):
         total = differences["column", "changed", ("orders", "total")]
         self.assertEqual((total.certainty, [(f.baseline.value, f.target.value) for f in total.fields]),
                          ("likely", [("'0.00'", "0.00")]))
-        document = store(self.document, *compute(self.document, [spec("primary=mysql"), spec("mysql=mariadb")]))
+        document = store_comparisons(self.document, compute(self.document, [spec("primary=mysql"), spec("mysql=mariadb")]))
         self.assertEqual(validate_document(document_to_json(document), strict=True)[1], [])
 
 

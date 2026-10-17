@@ -13,8 +13,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from laranex_schema_viewer.compare import compute, store
+from laranex_schema_viewer.compare import compute
 from laranex_schema_viewer.config import comparison_option
+from laranex_schema_viewer.contract.comparison import store_comparisons
 from laranex_schema_viewer.query import MAX_RESPONSE_BYTES, SnapshotQuery, size
 from laranex_schema_viewer.snapshot import write_document
 from tests.test_comparison import large_document
@@ -105,7 +106,7 @@ class Responses(unittest.TestCase):
 
     def test_large_comparisons_page_within_the_byte_limit(self):
         document = large_document()
-        document = store(document, *compute(document, [comparison_option("primary=replica")]))
+        document = store_comparisons(document, compute(document, [comparison_option("primary=replica")]))
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "large.json"
             write_document(document, path)

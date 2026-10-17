@@ -17,11 +17,12 @@ from dataclasses import replace
 from pathlib import Path
 
 from laranex_schema_viewer import model as m
-from laranex_schema_viewer.compare import compute, describe, scopes, store
-from laranex_schema_viewer.config import (DEFAULT_COMPARISON_LIMIT, ComparisonConfig, OverrideConfig, ScopeConfig,
-                                          comparison_option, load_config)
+from laranex_schema_viewer.compare import compute, describe, expand
+from laranex_schema_viewer.config import (DEFAULT_COMPARISON_LIMIT, ComparisonConfig, ScopeConfig, comparison_option,
+                                          load_config)
 from laranex_schema_viewer.contract import (assert_document, canonical_json, document_to_json, validate_document)
-from laranex_schema_viewer.contract.comparison import normalize_sql, normalize_type
+from laranex_schema_viewer.contract.comparison import (SeverityOverride, comparison_diagnostics, normalize_sql,
+                                                       normalize_type, store_comparisons)
 
 ROOT = Path(__file__).resolve().parents[1]
 VALID = ROOT / "tests/fixtures/contract/fixtures/valid"
@@ -74,15 +75,15 @@ class Configuration(unittest.TestCase):
             "baseline = { connection = 'app', schema = 'tenant_template' }\n"
             "target = { connection = 'app', schema = '*' }\n"
             "limit = 20\n"
-            "overrides = [{ object_type = 'index', change = 'missing', severity = 'error' },\n"
-            "  { object_type = 'foreignKey', change = 'changed', field = 'onDelete', severity = 'info' }]\n"
+            "overrides = [{ objectType = 'index', change = 'missing', severity = 'error' },\n"
+            "  { objectType = 'foreignKey', change = 'changed', field = 'onDelete', severity = 'info' }]\n"
             "[[tool.laranex-schema-viewer.comparisons]]\n"
             "baseline = { connection = 'primary' }\n"
             "target = { connection = 'replica' }\n")
         self.assertEqual(config.comparisons, (
             ComparisonConfig(baseline=ScopeConfig("app", "tenant_template"), target=ScopeConfig("app", "*"), limit=20,
-                             overrides=(OverrideConfig("index", "missing", "error"),
-                                        OverrideConfig("foreignKey", "changed", "info", "onDelete"))),
+                             overrides=(SeverityOverride("index", "missing", "error"),
+                                        SeverityOverride("foreignKey", "changed", "info", "onDelete"))),
             ComparisonConfig(baseline=ScopeConfig("primary"), target=ScopeConfig("replica"),
                              limit=DEFAULT_COMPARISON_LIMIT),
         ))
@@ -107,18 +108,31 @@ class Configuration(unittest.TestCase):
                 (entry + "baseline = { connection = 'a' }\ntarget = { connection = 'a' }\n", "with itself"),
                 (entry + scopes + "limit = -1\n", "nonnegative integer"),
                 (entry + scopes + "limit = true\n", "nonnegative integer"),
-                (entry + scopes + "overrides = [{ object_type = 'view', change = 'missing', severity = 'error' }]\n",
-                 "object_type must be one of"),
-                (entry + scopes + "overrides = [{ object_type = 'table', change = 'gone', severity = 'error' }]\n",
-                 "change must be one of"),
-                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'fatal' }]\n",
-                 "severity must be one of"),
-                (entry + scopes + "overrides = [{ object_type = 'foreignKey', change = 'changed', "
-                                  "field = 'on_delete', severity = 'info' }]\n", "field applies"),
-                (entry + scopes + "overrides = [{ object_type = 'column', change = 'missing', field = 'type', "
-                                  "severity = 'info' }]\n", "field applies"),
-                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'info', "
-                                  "level = 1 }]\n", "override keys: level")):
+                (entry + scopes + "overrides = [{ objectType = 'view', change = 'missing', severity = 'error' }]\n",
+                 r"entry 1 overrides\[0\]\.objectType must be one of table, column, primaryKey, index, foreignKey, "
+                 "constraint$"),
+                (entry + scopes + "overrides = [{ objectType = 'table', change = 'gone', severity = 'error' }]\n",
+                 r"entry 1 overrides\[0\]\.change must be one of missing, extra, changed$"),
+                (entry + scopes + "overrides = [{ objectType = 'table', change = 'missing', severity = 'fatal' }]\n",
+                 r"entry 1 overrides\[0\]\.severity must be one of error, warning, info$"),
+                (entry + scopes + "overrides = [{ objectType = 'foreignKey', change = 'changed', "
+                                  "field = 'on_delete', severity = 'info' }]\n",
+                 r"overrides\[0\]\.field must be one of columns, deferrable, foreignColumns, foreignTable, initially, "
+                 "name, onDelete, onUpdate for objectType foreignKey$"),
+                (entry + scopes + "overrides = [{ objectType = 'column', change = 'missing', field = 'type', "
+                                  "severity = 'info' }]\n",
+                 r"overrides\[0\]\.field applies only to changed differences, not missing$"),
+                (entry + scopes + "overrides = [{ objectType = 'table', change = 'missing', severity = 'info', "
+                                  "level = 1 }]\n", r"overrides\[0\] has unknown keys: level$"),
+                (entry + scopes + "overrides = [{ object_type = 'table', change = 'missing', severity = 'info' }]\n",
+                 r"overrides\[0\] has unknown keys: object_type; \[\[tool.laranex-schema-viewer.comparisons\]\] "
+                 r"entry 1 overrides\[0\]\.objectType must be one of"),
+                (entry + scopes + "overrides = { objectType = 'table', change = 'missing', severity = 'info' }\n",
+                 r"entry 1 overrides must be an array$"),
+                (entry + scopes + "overrides = ['table']\n", r"entry 1 overrides\[0\] must be an object$"),
+                (entry + scopes + "overrides = [{ objectType = 'column', change = 'changed', field = 'type', "
+                                  "severity = 'error' },\n  { objectType = 'column', change = 'changed', field = 'type', "
+                                  "severity = 'info' }]\n", r"entry 1 overrides\[1\] repeats overrides\[0\]$")):
             with self.subTest(text):
                 with self.assertRaisesRegex(ValueError, message):
                     self.load(text)
@@ -137,41 +151,76 @@ class Configuration(unittest.TestCase):
 
 
 class Expansion(unittest.TestCase):
+    """Configured and named comparisons are expanded with the shared expand_comparison_requests; its errors are
+    configuration errors with the contract's messages."""
+
     def setUp(self):
         self.document = fixture("comparison-tenant-schemas.json")  # app: default public, read tenant_a and tenant_b
 
-    def pairs(self, text: str):
-        return [(b.schema, t.schema) for b, t in scopes(self.document, spec(text))]
+    def pairs(self, *texts: str):
+        return [(b.schema, t.schema) for b, t, _ in expand(self.document, [spec(text) for text in texts])]
 
     def test_a_wildcard_target_expands_to_the_inspected_schemas_except_the_baseline(self):
         self.assertEqual(self.pairs("app:tenant_a=app:*"), [("tenant_a", "tenant_b")])
         self.assertEqual(self.pairs("app=app:*"), [(None, "tenant_a"), (None, "tenant_b")])
         self.assertEqual(self.pairs("app:tenant_b=app:tenant_a"), [("tenant_b", "tenant_a")])
+        self.assertEqual(self.pairs("app:tenant_b=app:*", "app:tenant_a=app:*"),
+                         [("tenant_a", "tenant_b"), ("tenant_b", "tenant_a")])
 
-    def test_unknown_connections_and_schemaless_targets_fail(self):
-        with self.assertRaisesRegex(ValueError, "names connection other, which the document does not have"):
-            scopes(self.document, spec("other=app:*"))
+    def test_expansion_errors_are_configuration_errors(self):
         sqlite = fixture("database-sqlite-indexes.json")
         name = sqlite.connections[0].name
-        with self.assertRaisesRegex(ValueError, "read named schemas"):
-            scopes(sqlite, spec(f"{name}={name}:*"))
+        single = m.replace(self.document, connections=tuple(
+            m.replace(c, coverage=m.ConnectionCoverage(database=m.replace(c.coverage.database, schemas=("public",))))
+            for c in self.document.connections))
+        for document, texts, message in (
+                (self.document, ["other=app:*"],
+                 "Requested comparison other → app:* names connection other, which the document does not have."),
+                (sqlite, [f"{name}={name}:*"], f"Requested comparison {name} → {name}:* cannot be expanded: the "
+                                               f"inspection of connection {name} lists no schemas."),
+                (single, ["app=app:*"], "Requested comparison app → app:* matches no schema."),
+                (single, ["app:public=app:*"], "Requested comparison app:public → app:* matches no schema."),
+                (self.document, ["app:tenant_a=app:tenant_b", "app:tenant_a=app:tenant_b"],
+                 "Requested comparison app:tenant_a → app:tenant_b is listed more than once.")):
+            with self.subTest(texts):
+                with self.assertRaises(ValueError) as caught:
+                    compute(document, [spec(text) for text in texts])
+                self.assertEqual(str(caught.exception), message)
 
-    def test_explicit_pairs_take_precedence_over_expansion_and_duplicates_fail(self):
-        overridden = spec("app:tenant_a=app:tenant_b", overrides=(OverrideConfig("table", "missing", "info"),))
-        comparisons, _ = compute(self.document, [spec("app:tenant_a=app:*"), overridden])
-        self.assertEqual(len(comparisons), 1)
-        missing = [d for d in comparisons[0].differences if d.object_type == "table" and d.change == "missing"]
-        self.assertTrue(missing and all(d.severity == "info" for d in missing))
-        with self.assertRaisesRegex(ValueError, "configured more than once"):
-            compute(self.document, [spec("app:tenant_a=app:tenant_b"), spec("app:tenant_a=app:tenant_b")])
+    def test_every_expansion_error_is_reported(self):
+        with self.assertRaises(ValueError) as caught:
+            compute(self.document, [spec("app=ghost"), spec("app:tenant_a=app:tenant_b"), spec("app=ghost")])
+        self.assertEqual(str(caught.exception).splitlines(), [
+            "Requested comparison app → ghost names connection ghost, which the document does not have.",
+            "Requested comparison app → ghost is listed more than once."])
+
+    def test_explicit_pairs_take_precedence_over_expansion(self):
+        overridden = spec("app:tenant_a=app:tenant_b", limit=1, overrides=(SeverityOverride("table", "missing", "info"),))
+        for specs in ([spec("app:tenant_a=app:*"), overridden], [overridden, spec("app:tenant_a=app:*")]):
+            with self.subTest(order=specs[0].target.schema):
+                [(_, _, chosen)] = expand(self.document, specs)
+                self.assertIs(chosen, overridden)
+                [comparison] = compute(self.document, specs)
+                self.assertEqual(len(comparison.differences), 1)
+                missing = [d for d in compute(self.document, [replace(overridden, limit=100)])[0].differences
+                           if d.object_type == "table" and d.change == "missing"]
+                self.assertTrue(missing and all(d.severity == "info" for d in missing))
+
+    def test_each_pair_takes_the_limit_and_overrides_of_its_own_request(self):
+        specs = [spec("app:tenant_a=app:*", limit=1), spec("app:tenant_b=app:*", limit=2,
+                                                             overrides=(SeverityOverride("table", "extra", "info"),))]
+        comparisons = {(c.baseline.schema, len(c.differences)) for c in compute(self.document, specs)}
+        self.assertEqual(comparisons, {("tenant_a", 1), ("tenant_b", 2)})
+        [b] = [c for c in compute(self.document, [replace(specs[1], limit=100)])]
+        self.assertTrue(all(d.severity == "info" for d in b.differences if d.change == "extra" and d.object_type == "table"))
 
     def test_tenant_schema_names_are_never_drift(self):
-        comparisons, _ = compute(self.document, [spec("app:tenant_a=app:*"), spec("app:tenant_b=app:*")])
+        comparisons = compute(self.document, [spec("app:tenant_a=app:*"), spec("app:tenant_b=app:*")])
         self.assertEqual(len(comparisons), 2)
         for comparison in comparisons:
             for difference in comparison.differences:
                 self.assertFalse({"tenant_a", "tenant_b"} & set(difference.key), difference)
-        document = store(self.document, *compute(self.document, [spec("app:tenant_a=app:*")]))
+        document = store_comparisons(self.document, compute(self.document, [spec("app:tenant_a=app:*")]))
         self.assertEqual(validate_document(document_to_json(document), strict=True)[1], [])
 
 
@@ -180,26 +229,27 @@ class Results(unittest.TestCase):
         self.document = fixture("comparison-tenant-schemas.json")
 
     def test_limits_omit_differences_and_explain_the_incomplete_comparison(self):
-        comparisons, diagnostics = compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=3)])
-        comparison = comparisons[0]
+        [comparison] = compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=3)])
         total = comparison.summary.missing + comparison.summary.extra + comparison.summary.changed
         self.assertEqual((len(comparison.differences), comparison.omitted, comparison.complete), (3, total - 3, False))
-        [diagnostic] = diagnostics
+        [diagnostic] = comparison_diagnostics(self.document, comparison)
         self.assertEqual((diagnostic.kind, diagnostic.category, diagnostic.subject.type, diagnostic.subject.id),
                          ("comparison_incomplete", "inspection", "comparison", comparison.id))
         self.assertEqual(diagnostic.message, f"Comparison app:tenant_a=app:tenant_b is incomplete: {total - 3} of "
                                              f"{total} differences are left out by the limit of 3")
-        unlimited, none = compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=1000)])
-        self.assertEqual((unlimited[0].complete, unlimited[0].omitted, none), (True, 0, ()))
+        unlimited = compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=1000)])
+        self.assertEqual((unlimited[0].complete, unlimited[0].omitted), (True, 0))
+        self.assertEqual(comparison_diagnostics(self.document, unlimited[0]), [])
         self.assertEqual(unlimited[0].differences[:3], comparison.differences)
 
     def test_incomplete_coverage_is_explained(self):
         document = fixture("comparison-incomplete.json")
         [stored] = document.comparisons
-        comparisons, [diagnostic] = compute(document, [ComparisonConfig(
+        comparisons = compute(document, [ComparisonConfig(
             baseline=ScopeConfig(*self.scope(document, stored.baseline)),
             target=ScopeConfig(*self.scope(document, stored.target)))])
         self.assertFalse(comparisons[0].complete)
+        [diagnostic] = comparison_diagnostics(document, comparisons[0])
         self.assertIn("not completely covered", diagnostic.message)
 
     @staticmethod
@@ -207,9 +257,9 @@ class Results(unittest.TestCase):
         return next(c.name for c in document.connections if c.id == scope.connection), scope.schema
 
     def test_overrides_and_the_most_severe_field(self):
-        overrides = (OverrideConfig("column", "changed", "error", "nullable"), OverrideConfig("column", "changed", "info"),
-                     OverrideConfig("table", "extra", "warning"))
-        [comparison], _ = compute(self.document, [spec("app:tenant_a=app:tenant_b", overrides=overrides)])
+        overrides = (SeverityOverride("column", "changed", "error", "nullable"), SeverityOverride("column", "changed", "info"),
+                     SeverityOverride("table", "extra", "warning"))
+        [comparison] = compute(self.document, [spec("app:tenant_a=app:tenant_b", overrides=overrides)])
         by_key = {(d.object_type, d.change, d.key): d for d in comparison.differences}
         self.assertEqual(by_key["column", "changed", ("orders", "placed_at")].severity, "error")
         self.assertEqual(by_key["column", "changed", ("orders", "total")].severity, "info")
@@ -218,23 +268,23 @@ class Results(unittest.TestCase):
 
     def test_results_are_deterministic(self):
         specs = [spec("app:tenant_b=app:*"), spec("app:tenant_a=app:*")]
-        first = store(self.document, *compute(self.document, specs))
-        second = store(self.document, *compute(self.document, list(reversed(specs))))
+        first = store_comparisons(self.document, compute(self.document, specs))
+        second = store_comparisons(self.document, compute(self.document, list(reversed(specs))))
         self.assertEqual(canonical_json(document_to_json(first)), canonical_json(document_to_json(second)))
         self.assertEqual([c.id for c in first.comparisons], sorted(c.id for c in first.comparisons))
 
     def test_storing_replaces_the_same_scopes_and_keeps_others(self):
-        limited = store(self.document, *compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=1)]))
+        limited = store_comparisons(self.document, compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=1)]))
         self.assertEqual(sum(d.kind == "comparison_incomplete" for d in limited.diagnostics), 1)
-        other = store(limited, *compute(limited, [spec("app:tenant_b=app:tenant_a")]))
+        other = store_comparisons(limited, compute(limited, [spec("app:tenant_b=app:tenant_a")]))
         self.assertEqual(len(other.comparisons), 2)
-        again = store(other, *compute(other, [spec("app:tenant_a=app:tenant_b")]))
+        again = store_comparisons(other, compute(other, [spec("app:tenant_a=app:tenant_b")]))
         self.assertEqual(len(again.comparisons), 2)
         self.assertFalse(any(d.kind == "comparison_incomplete" for d in again.diagnostics))
         self.assertEqual(validate_document(document_to_json(again), strict=True)[1], [])
 
     def test_summary_lines(self):
-        comparisons, _ = compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=2)])
+        comparisons = compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=2)])
         lines = describe(self.document, comparisons).splitlines()
         self.assertTrue(lines[0].startswith("app:tenant_a -> app:tenant_b (incomplete): 8 missing, 8 extra, 9 changed"))
         self.assertEqual(len(lines), 3)
@@ -254,14 +304,15 @@ class Results(unittest.TestCase):
 class LargeSchemas(unittest.TestCase):
     def test_the_default_limit_bounds_a_large_comparison(self):
         document = large_document()
-        [comparison], [diagnostic] = compute(document, [comparison_option("primary=replica")])
+        [comparison] = compute(document, [comparison_option("primary=replica")])
+        [diagnostic] = comparison_diagnostics(document, comparison)
         total = comparison.summary.missing + comparison.summary.extra + comparison.summary.changed
         self.assertEqual((comparison.summary.missing, comparison.summary.extra, comparison.summary.changed),
                          (40, 200, 360))
         self.assertEqual((len(comparison.differences), comparison.omitted), (DEFAULT_COMPARISON_LIMIT,
                                                                             total - DEFAULT_COMPARISON_LIMIT))
         self.assertIn(f"left out by the limit of {DEFAULT_COMPARISON_LIMIT}", diagnostic.message)
-        data = document_to_json(store(document, [comparison], [diagnostic]))
+        data = document_to_json(store_comparisons(document, [comparison]))
         self.assertEqual(validate_document(data, strict=True)[1], [])
 
 
@@ -288,7 +339,7 @@ class CombinedDocuments(unittest.TestCase):
         analytics = next(c for c in document.connections if c.name == "analytics")
         events = next(t for t in analytics.tables if t.name == "events")
         self.assertEqual(events.provenance, ("declared",))
-        [comparison], _ = compute(document, [comparison_option("analytics=default")])
+        [comparison] = compute(document, [comparison_option("analytics=default")])
         self.assertFalse(any(d.key[0] == "events" for d in comparison.differences))
         self.assertEqual({(d.object_type, d.change, d.key) for d in comparison.differences}, {
             ("table", "extra", ("teams",)),
@@ -297,7 +348,7 @@ class CombinedDocuments(unittest.TestCase):
             ("column", "extra", ("users", "team_id")),
             ("foreignKey", "extra", ("users", "references", "team_id->teams(id)")),
         })
-        data = document_to_json(store(document, [comparison], []))
+        data = document_to_json(store_comparisons(document, [comparison]))
         self.assertEqual(validate_document(data, strict=True)[1], [])
 
 
