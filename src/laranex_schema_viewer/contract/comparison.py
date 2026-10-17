@@ -16,12 +16,15 @@ from dataclasses import dataclass
 from typing import Any, TypeVar
 
 from .. import model as m
-from .graph import in_scope
+from .graph import diagnostic_order, in_scope
 from .ids import by_list, comparison_id, difference_id
 from .shape import CHANGES, OBJECT_TYPES
 
-__all__ = ["COMPARISON_FEATURES", "FIELDS", "SeverityOverride", "compare_scopes", "coverage_gaps", "default_severity",
-           "normalize_sql", "normalize_type", "scope_covered", "table_label"]
+__all__ = ["COMPARISON_FEATURES", "DIFFERENCE_FIELDS", "REQUEST_ERROR_KINDS", "WILDCARD", "ExpandedComparison",
+           "RequestError", "SeverityOverride", "compare_scopes", "comparison_diagnostics", "coverage_gap_text",
+           "coverage_gaps", "default_severity", "expand_comparison_requests", "normalize_sql", "normalize_type",
+           "request_key", "scope_covered", "scope_name", "spell_scope", "store_comparisons", "table_label",
+           "validate_severity_overrides"]
 
 # The features a comparison reads; a side whose coverage does not have them all complete makes it incomplete.
 COMPARISON_FEATURES = (
@@ -29,8 +32,9 @@ COMPARISON_FEATURES = (
     "indexes", "indexExpressions", "indexPredicates", "uniqueConstraints", "checkConstraints",
 )
 
-# The fields a changed difference of each object type can list.
-FIELDS = {
+# The fields a changed difference of each object type can list (the comparison algorithm), in code point order:
+# exactly the fields a severity override may name.
+DIFFERENCE_FIELDS = {
     "table": ("comment",),
     "column": ("collation", "comment", "default", "enum", "generated", "nullable", "type"),
     "primaryKey": ("columns",),
@@ -40,6 +44,7 @@ FIELDS = {
     "constraint": ("columns", "expression", "name"),
 }
 SEVERITIES = ("error", "warning", "info")
+OVERRIDE_KEYS = ("objectType", "change", "field", "severity")
 
 # Fields whose comparison rests on normalized text: their differences are "likely".
 LIKELY_FIELDS = {"table": (), "column": ("default", "generated"), "primaryKey": (), "index": ("predicate",),
@@ -97,6 +102,47 @@ def default_severity(object_type: str, change: str, field: str | None = None) ->
     if object_type == "primaryKey":
         return "error"
     return "warning"
+
+
+def validate_severity_overrides(overrides: Any) -> list[str]:
+    """Checks severity overrides as a producer reads them from its configuration: a list of
+    ``{objectType, change, field?, severity}`` objects. Returns the errors, empty when the overrides are valid."""
+    if not isinstance(overrides, list):
+        return ["overrides must be an array"]
+    errors: list[str] = []
+    seen: dict[str, int] = {}
+    for i, o in enumerate(overrides):
+        at = f"overrides[{i}]"
+        if not isinstance(o, dict):
+            errors.append(f"{at} must be an object")
+            continue
+        object_type, change, severity = o.get("objectType"), o.get("change"), o.get("severity")
+        field = o.get("field")
+        unknown = sorted(k for k in o if k not in OVERRIDE_KEYS)
+        if unknown:
+            errors.append(f"{at} has unknown keys: {', '.join(unknown)}")
+        type_ok = isinstance(object_type, str) and object_type in OBJECT_TYPES
+        change_ok = isinstance(change, str) and change in CHANGES
+        if not type_ok:
+            errors.append(f"{at}.objectType must be one of {', '.join(OBJECT_TYPES)}")
+        if not change_ok:
+            errors.append(f"{at}.change must be one of {', '.join(CHANGES)}")
+        if not (isinstance(severity, str) and severity in SEVERITIES):
+            errors.append(f"{at}.severity must be one of {', '.join(SEVERITIES)}")
+        if field is not None and not isinstance(field, str):
+            errors.append(f"{at}.field must be a string or null")
+        elif field is not None and change_ok and change != "changed":
+            errors.append(f"{at}.field applies only to changed differences, not {change}")
+        elif field is not None and type_ok and change == "changed" and field not in DIFFERENCE_FIELDS[object_type]:
+            errors.append(f"{at}.field must be one of {', '.join(DIFFERENCE_FIELDS[object_type])} "
+                          f"for objectType {object_type}")
+        if type_ok and change_ok and (field is None or isinstance(field, str)):
+            key = json.dumps([object_type, change, field], ensure_ascii=False)
+            if key in seen:
+                errors.append(f"{at} repeats overrides[{seen[key]}]")
+            else:
+                seen[key] = i
+    return errors
 
 
 def _severity(object_type: str, change: str, field: str | None, overrides: Sequence[SeverityOverride]) -> str:
@@ -171,10 +217,19 @@ class _Side:
         return normalize_sql(text, self.scope.schema, self.connection.driver)
 
 
-def _side(document: m.Document, scope: m.Scope) -> _Side:
+def _connection_of(document: m.Document, scope: m.Scope) -> m.Connection:
     connection = next((c for c in document.connections if c.id == scope.connection), None)
     if connection is None:
         raise ValueError(f"Unknown connection {scope.connection}")
+    return connection
+
+
+def _coverage_of(document: m.Document, connection: m.Connection) -> m.Coverage | None:
+    return connection.coverage.declared if document.source == "declared" else connection.coverage.database
+
+
+def _side(document: m.Document, scope: m.Scope) -> _Side:
+    connection = _connection_of(document, scope)
     combined = document.source == "combined"
     tables: dict[str, m.Table] = {}
     for t in connection.tables:
@@ -184,33 +239,48 @@ def _side(document: m.Document, scope: m.Scope) -> _Side:
                                    ensure_ascii=False)
                 raise ValueError(f"Table name {t.name} occurs twice in scope {where}")
             tables[t.name] = t
-    coverage = connection.coverage.declared if document.source == "declared" else connection.coverage.database
     return _Side(scope=scope, connection=connection, combined=combined, tables=tables,
-                 names={t.id: t.name for t in connection.tables}, coverage=coverage)
+                 names={t.id: t.name for t in connection.tables}, coverage=_coverage_of(document, connection))
 
 
-def _gaps(coverage: m.Coverage | None, connection: m.Connection, schema: str | None) -> list[str]:
+# A coverage gap, as the contract spells it: {"kind": "coverage_unknown"}, {"kind": "feature", "feature", "state"}
+# (state partial, unavailable, or unknown when left out) or {"kind": "schema_not_read", "schema"}.
+CoverageGap = dict[str, str]
+
+
+def _gaps_of(coverage: m.Coverage | None, connection: m.Connection, schema: str | None) -> list[CoverageGap]:
     if coverage is None:
-        return ["coverage unknown"]
-    gaps = [f"{f} {coverage.features.get(f, 'unknown')}" for f in COMPARISON_FEATURES
-            if coverage.features.get(f) not in ("complete", "not_applicable")]
+        return [{"kind": "coverage_unknown"}]
+    gaps: list[CoverageGap] = []
+    for feature in COMPARISON_FEATURES:
+        state = coverage.features.get(feature)
+        if state not in ("complete", "not_applicable"):
+            gaps.append({"kind": "feature", "feature": feature, "state": state or "unknown"})
     read = schema if schema is not None else connection.default_schema
     if read is not None and coverage.schemas is not None and read not in coverage.schemas:
-        gaps.append(f"schema {read} not read")
+        gaps.append({"kind": "schema_not_read", "schema": read})
     return gaps
 
 
+def coverage_gap_text(gap: CoverageGap) -> str:
+    """A gap as messages spell it: ``coverage unknown``, ``{feature} {state}``, ``schema {schema} not read``."""
+    if gap["kind"] == "coverage_unknown":
+        return "coverage unknown"
+    return f"{gap['feature']} {gap['state']}" if gap["kind"] == "feature" else f"schema {gap['schema']} not read"
+
+
+def coverage_gaps(document: m.Document, scope: m.Scope) -> list[CoverageGap]:
+    """Why one side of a comparison cannot be compared completely: no coverage, each compared feature that is not
+    complete or not applicable (in COMPARISON_FEATURES order), then the scope's schema when the coverage did not read
+    it. Its connection's database coverage, or declared coverage in a declared document. Raises ValueError for a
+    scope whose connection the document does not have."""
+    connection = _connection_of(document, scope)
+    return _gaps_of(_coverage_of(document, connection), connection, scope.schema)
+
+
 def scope_covered(coverage: m.Coverage | None, connection: m.Connection, schema: str | None) -> bool:
-    """Whether a side's coverage supports a comparison (scopeCovered): every compared feature complete or not
-    applicable, and the scope's schema read."""
-    return not _gaps(coverage, connection, schema)
-
-
-def coverage_gaps(document: m.Document, scope: m.Scope) -> list[str]:
-    """Why a side cannot be compared completely: the features a comparison reads that its coverage does not have
-    complete or not applicable, and its schema when the coverage did not read it. Empty when the side is covered."""
-    s = _side(document, scope)
-    return _gaps(s.coverage, s.connection, s.scope.schema)
+    """Whether a side's coverage supports a comparison: it has no coverage gaps."""
+    return not _gaps_of(coverage, connection, schema)
 
 
 @dataclass
@@ -250,8 +320,12 @@ def _pair(a: Sequence[E], b: Sequence[E], passes: Sequence[Callable[[E], str | N
 
 def compare_scopes(document: m.Document, baseline: m.Scope, target: m.Scope, *,
                    overrides: Sequence[SeverityOverride] = (), limit: int | None = None) -> m.Comparison:
-    """Compares the tables of two scopes of one document. Raises ValueError for an unknown connection, or when a
-    scope's table names repeat."""
+    """Compares the tables of two scopes of one document. Raises ValueError for an unknown connection, when a
+    scope's table names repeat, or when the overrides are invalid (validate_severity_overrides)."""
+    invalid = validate_severity_overrides([{"objectType": o.object_type, "change": o.change, "field": o.field,
+                                            "severity": o.severity} for o in overrides])
+    if invalid:
+        raise ValueError(f"Invalid severity overrides: {'; '.join(invalid)}")
     A = _side(document, baseline)
     B = _side(document, target)
     same_driver = A.connection.driver is not None and A.connection.driver == B.connection.driver
@@ -531,3 +605,143 @@ def _constraints(name: str, ta: m.Table, tb: m.Table, A: _Side, B: _Side, add: C
         add("constraint", unmatched(c), kref(ta, c), None)
     for c in extra:
         add("constraint", unmatched(c), None, kref(tb, c))
+
+
+# A comparison as people request it, by connection name, in the contract's JSON shape:
+# {"baseline": {"connection", "schema"}, "target": {"connection", "schema"}}. A target schema "*" stands for every
+# schema the target connection's inspection read, except the baseline's own scope; "*" in a baseline is an ordinary
+# schema name.
+RequestedComparison = dict[str, dict[str, Any]]
+REQUEST_ERROR_KINDS = ("unknown_connection", "no_schemas", "no_match", "duplicate")
+WILDCARD = "*"
+
+
+@dataclass(frozen=True)
+class ExpandedComparison:
+    """A pair of scopes (connection ids) and the request that gave it."""
+
+    baseline: m.Scope
+    target: m.Scope
+    request: RequestedComparison
+
+
+@dataclass(frozen=True)
+class RequestError:
+    kind: str
+    request: RequestedComparison
+    message: str
+
+
+def _scope_key(connection: str, schema: str | None) -> tuple[str, tuple[int, str]]:
+    # null sorts before any string.
+    return connection, (0, "") if schema is None else (1, schema)
+
+
+def request_key(request: RequestedComparison) -> tuple[Any, ...]:
+    """Orders requests by baseline connection, baseline schema, target connection and target schema."""
+    b, t = request["baseline"], request["target"]
+    return _scope_key(b["connection"], b["schema"]), _scope_key(t["connection"], t["schema"])
+
+
+def spell_scope(connection: str, schema: str | None) -> str:
+    """A scope as people write it: the connection's name, then ``:schema``."""
+    return connection if schema is None else f"{connection}:{schema}"
+
+
+def expand_comparison_requests(document: m.Document, requests: Sequence[RequestedComparison]
+                               ) -> tuple[list[ExpandedComparison], list[RequestError]]:
+    """Resolves requested comparisons to the scope pairs they stand for (docs/contract.md, "Requested comparisons"):
+    ``(pairs, errors)``. Never raises; what cannot be resolved is an error, and the rest is still expanded."""
+    by_name = {c.name: c for c in document.connections}
+    chosen: dict[tuple[m.Scope, m.Scope], ExpandedComparison] = {}
+    errors: list[RequestError] = []
+    ordered = sorted(({side: {"connection": r[side]["connection"], "schema": r[side]["schema"]}
+                       for side in ("baseline", "target")} for r in requests), key=request_key)
+    for i, request in enumerate(ordered):
+        b, t = request["baseline"], request["target"]
+        prefix = (f"Requested comparison {spell_scope(b['connection'], b['schema'])} → "
+                  f"{spell_scope(t['connection'], t['schema'])}")
+        if i > 0 and request_key(ordered[i - 1]) == request_key(request):
+            if i == 1 or request_key(ordered[i - 2]) != request_key(request):
+                errors.append(RequestError("duplicate", request, f"{prefix} is listed more than once."))
+            continue
+        baseline, target = by_name.get(b["connection"]), by_name.get(t["connection"])
+        for name in dict.fromkeys((b["connection"], t["connection"])):
+            if name not in by_name:
+                errors.append(RequestError("unknown_connection", request,
+                                           f"{prefix} names connection {name}, which the document does not have."))
+        if baseline is None or target is None:
+            continue
+        wildcard = t["schema"] == WILDCARD
+        schemas: list[str | None] = [t["schema"]]
+        if wildcard:
+            coverage = _coverage_of(document, target)
+            read = coverage.schemas if coverage is not None else None
+            if read is None:
+                errors.append(RequestError("no_schemas", request, f"{prefix} cannot be expanded: the inspection of "
+                                                                  f"connection {target.name} lists no schemas."))
+                continue
+            # The baseline's own scope: on the same connection, its schema, or with a null schema the default one.
+            own = (set() if target.id != baseline.id else {b["schema"]} if b["schema"] is not None
+                   else {target.default_schema})
+            schemas = [s for s in sorted(set(read)) if s not in own]
+            if not schemas:
+                errors.append(RequestError("no_match", request, f"{prefix} matches no schema."))
+        for schema in schemas:
+            pair = ExpandedComparison(baseline=m.Scope(connection=baseline.id, schema=b["schema"]),
+                                      target=m.Scope(connection=target.id, schema=schema), request=request)
+            key = (pair.baseline, pair.target)
+            # A pair named explicitly takes precedence over the same pair from a "*" expansion.
+            if key not in chosen or not wildcard:
+                chosen[key] = pair
+    pairs = sorted(chosen.values(), key=lambda p: (_scope_key(p.baseline.connection, p.baseline.schema),
+                                                   _scope_key(p.target.connection, p.target.schema)))
+    return pairs, errors
+
+
+def scope_name(document: m.Document, scope: m.Scope) -> str:
+    """A scope spelled with its connection's name: ``name`` or ``name:schema``."""
+    name = next((c.name for c in document.connections if c.id == scope.connection), scope.connection)
+    return spell_scope(name, scope.schema)
+
+
+def comparison_diagnostics(document: m.Document, comparison: m.Comparison) -> list[m.Diagnostic]:
+    """The comparison_incomplete diagnostic a producer stores beside an incomplete comparison: none when it is
+    complete."""
+    if comparison.complete:
+        return []
+    reasons: list[str] = []
+    if comparison.omitted > 0:
+        s = comparison.summary
+        reasons.append(f"{comparison.omitted} of {s.missing + s.extra + s.changed} differences are left out by the "
+                       f"limit of {len(comparison.differences)}")
+    for side, scope in (("baseline", comparison.baseline), ("target", comparison.target)):
+        gaps = coverage_gaps(document, scope)
+        if gaps:
+            reasons.append(f"the {side} {scope_name(document, scope)} is not completely covered "
+                           f"({', '.join(map(coverage_gap_text, gaps))})")
+    label = f"{scope_name(document, comparison.baseline)}={scope_name(document, comparison.target)}"
+    message = f"Comparison {label} is incomplete" + (f": {'; '.join(reasons)}" if reasons else "")
+    return [m.Diagnostic(kind="comparison_incomplete", category="inspection", severity="warning", certainty="certain",
+                         subject=m.Subject(type="comparison", id=comparison.id, columns=None, label=label),
+                         message=message)]
+
+
+def store_comparisons(document: m.Document, comparisons: Sequence[m.Comparison]) -> m.Document:
+    """The document with these comparisons stored: stored comparisons with the same ids, and every diagnostic whose
+    subject is one of them, are replaced; the others are kept. Each new comparison's diagnostics
+    (comparison_diagnostics) are added. Comparisons end sorted by id, diagnostics in canonical order, each diagnostic
+    id once. Raises ValueError when two of the comparisons have one id."""
+    ids = {c.id for c in comparisons}
+    if len(ids) != len(comparisons):
+        repeated = next(c for i, c in enumerate(comparisons) if any(x.id == c.id for x in comparisons[:i]))
+        raise ValueError(f"Comparison {repeated.id} is listed more than once")
+    kept = [c for c in document.comparisons if c.id not in ids]
+    diagnostics = [*(d for d in document.diagnostics
+                     if not (d.subject.type == "comparison" and d.subject.id is not None and d.subject.id in ids)),
+                   *(d for c in comparisons for d in comparison_diagnostics(document, c))]
+    unique: dict[str, m.Diagnostic] = {}
+    for d in sorted(diagnostics, key=diagnostic_order):
+        unique.setdefault(d.id, d)
+    return m.replace(document, comparisons=tuple(sorted([*kept, *comparisons], key=lambda c: c.id)),
+                     diagnostics=tuple(unique.values()))

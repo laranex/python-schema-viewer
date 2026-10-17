@@ -1,0 +1,32 @@
+{
+  "description": "Unknown object types, changes and severities, each reported; a field is not judged against an unknown object type or change",
+  "expected": {
+    "errors": [
+      "overrides[0].objectType must be one of table, column, primaryKey, index, foreignKey, constraint",
+      "overrides[1].change must be one of missing, extra, changed",
+      "overrides[1].severity must be one of error, warning, info",
+      "overrides[2].objectType must be one of table, column, primaryKey, index, foreignKey, constraint"
+    ]
+  },
+  "input": {
+    "overrides": [
+      {
+        "change": "changed",
+        "field": "definition",
+        "objectType": "view",
+        "severity": "error"
+      },
+      {
+        "change": "renamed",
+        "field": "type",
+        "objectType": "column",
+        "severity": "fatal"
+      },
+      {
+        "change": "missing",
+        "objectType": "primary_key",
+        "severity": "error"
+      }
+    ]
+  }
+}

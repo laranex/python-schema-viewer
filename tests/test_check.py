@@ -328,6 +328,23 @@ class Command(Fixture):
                     self.assertIn(note, result.stderr)
                 self.assertNotIn(str(self.root), result.stdout + result.stderr)
 
+    def test_the_output_report_is_written_atomically(self):
+        from tests.test_comparison import failing_writes, leftovers, run_main
+
+        code, out, err = run_main(self.root, "check", "--snapshot", "schema.json", "--output", "report.json")
+        self.assertEqual(code, 1, err)
+        text = (self.root / "report.json").read_text()
+        self.assertEqual((canonical_json(json.loads(text)), json.loads(text)["exitCode"]), (text, 1))
+        self.assertEqual(leftovers(self.root), [])
+        (self.root / "report.json").write_text("previous report")
+        for name, patch in failing_writes("laranex_schema_viewer.snapshot").items():
+            with self.subTest(name), patch:
+                code, out, err = run_main(self.root, "check", "--snapshot", "schema.json", "--output", "report.json")
+                self.assertEqual((code, out), (2, ""))
+                self.assertTrue(err.startswith("Error: [Errno "), err)
+                self.assertEqual((self.root / "report.json").read_text(), "previous report")
+                self.assertEqual(leftovers(self.root), [])
+
     def test_invalid_arguments_and_configuration_exit_2(self):
         for args, message in (
                 (("--severity", "fatal"), "invalid choice"),

@@ -8,6 +8,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .contract.comparison import WILDCARD, SeverityOverride, validate_severity_overrides
+
 if sys.version_info >= (3, 11):
     import tomllib
 else:
@@ -25,7 +27,8 @@ ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 # Differences listed per comparison; the rest are counted as omitted. Keeps a document with many tenant comparisons
 # well inside the 32 MiB snapshot limit.
 DEFAULT_COMPARISON_LIMIT = 500
-WILDCARD = "*"
+# A severity override's TOML keys, with the contract's names for them.
+OVERRIDE_KEYS = {"object_type": "objectType", "change": "change", "field": "field", "severity": "severity"}
 # check: the lowest severity that fails, and whether likely findings fail too.
 CHECK_SEVERITIES = ("error", "warning", "info")
 CHECK_CERTAINTIES = ("certain", "likely")
@@ -59,21 +62,11 @@ class ScopeConfig:
 
 
 @dataclass(frozen=True)
-class OverrideConfig:
-    """A severity for (object_type, change), or for one field of a changed difference; contract spellings."""
-
-    object_type: str
-    change: str
-    severity: str
-    field: str | None = None
-
-
-@dataclass(frozen=True)
 class ComparisonConfig:
     baseline: ScopeConfig
     target: ScopeConfig
     limit: int = DEFAULT_COMPARISON_LIMIT
-    overrides: tuple[OverrideConfig, ...] = ()
+    overrides: tuple[SeverityOverride, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -222,10 +215,7 @@ def database_section(value: object) -> dict[str, DatabaseConfig]:
 
 def comparison_section(value: object) -> tuple[ComparisonConfig, ...]:
     """[[tool.laranex-schema-viewer.comparisons]] entries: baseline and target ({connection, schema}), limit,
-    overrides ([{object_type, change, field, severity}])."""
-    from .contract.comparison import FIELDS, SEVERITIES
-    from .contract.shape import CHANGES
-
+    overrides ([{object_type, change, field, severity}], mapped to the contract's severity overrides)."""
     if not isinstance(value, list) or not all(isinstance(v, dict) for v in value):
         raise ValueError(f"[tool.{SECTION}] comparisons must be an array of tables, "
                          f"such as [[tool.{SECTION}.comparisons]]")
@@ -242,28 +232,36 @@ def comparison_section(value: object) -> tuple[ComparisonConfig, ...]:
         limit = entry.get("limit", DEFAULT_COMPARISON_LIMIT)
         if isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:
             raise ValueError(f"{where} limit must be a nonnegative integer")
-        overrides = entry.get("overrides", [])
-        if not isinstance(overrides, list) or not all(isinstance(o, dict) for o in overrides):
-            raise ValueError(f"{where} overrides must be an array of tables")
-        parsed = []
-        for o in overrides:
-            unknown = set(o) - {"object_type", "change", "field", "severity"}
-            if unknown:
-                raise ValueError(f"Unknown {where} override keys: {', '.join(sorted(unknown))}")
-            object_type, change, severity, name = (o.get("object_type"), o.get("change"), o.get("severity"),
-                                                   o.get("field"))
-            if object_type not in FIELDS:
-                raise ValueError(f"{where} override object_type must be one of {', '.join(FIELDS)}")
-            if change not in CHANGES:
-                raise ValueError(f"{where} override change must be one of {', '.join(CHANGES)}")
-            if severity not in SEVERITIES:
-                raise ValueError(f"{where} override severity must be one of {', '.join(SEVERITIES)}")
-            if name is not None and (change != "changed" or name not in FIELDS[object_type]):
-                raise ValueError(f"{where} override field applies to changed differences; a {object_type} field is "
-                                 f"one of {', '.join(FIELDS[object_type])}")
-            parsed.append(OverrideConfig(object_type=object_type, change=change, severity=severity, field=name))
-        comparisons.append(ComparisonConfig(baseline=baseline, target=target, limit=limit, overrides=tuple(parsed)))
+        overrides = override_section(entry.get("overrides", []), where)
+        comparisons.append(ComparisonConfig(baseline=baseline, target=target, limit=limit, overrides=overrides))
     return tuple(comparisons)
+
+
+def override_section(value: object, where: str) -> tuple[SeverityOverride, ...]:
+    """A comparison's ``overrides``: TOML tables keyed object_type, change, field and severity, mapped to the
+    contract's overrides ({objectType, change, field, severity}) and checked with the shared validator, whose
+    messages are reported with the TOML key names and prefixed with ``where``."""
+    errors = {}
+    if isinstance(value, list):
+        contract: list[object] = []
+        for i, o in enumerate(value):
+            if isinstance(o, dict):
+                unknown = sorted(set(o) - set(OVERRIDE_KEYS))
+                if unknown:
+                    errors[i] = [f"overrides[{i}] has unknown keys: {', '.join(unknown)}"]
+                o = {OVERRIDE_KEYS[k]: v for k, v in o.items() if k in OVERRIDE_KEYS}
+            contract.append(o)
+    else:
+        contract = value  # type: ignore[assignment]
+    invalid = [e.replace("objectType", "object_type") for e in validate_severity_overrides(contract)]
+    if isinstance(value, list):
+        # Each override's errors together, in index order: the unknown TOML keys first, as the validator orders them.
+        invalid = [e for i in range(len(value)) for e in errors.get(i, []) + [
+            x for x in invalid if x.startswith((f"overrides[{i}].", f"overrides[{i}] "))]]
+    if invalid:
+        raise ValueError("; ".join(f"{where} {error}" for error in invalid))
+    return tuple(SeverityOverride(object_type=o["objectType"], change=o["change"], severity=o["severity"],
+                                  field=o.get("field")) for o in contract)  # type: ignore[index, union-attr]
 
 
 def scope_config(value: object, where: str, *, wildcard: bool) -> ScopeConfig:

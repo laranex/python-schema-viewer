@@ -2062,14 +2062,14 @@
     {
       "category": "inspection",
       "certainty": "certain",
-      "id": "n07eb1f1d82474e0d",
+      "id": "naf3d2234b85f9d3e",
       "kind": "comparison_incomplete",
-      "message": "Check constraints were not compared, and 20 differences were left out of the listing.",
+      "message": "Comparison app:tenant_b=app:tenant_a is incomplete: 20 of 25 differences are left out by the limit of 5; the baseline app:tenant_b is not completely covered (checkConstraints unavailable); the target app:tenant_a is not completely covered (checkConstraints unavailable)",
       "severity": "warning",
       "subject": {
         "columns": null,
         "id": "cb00c43b2ff67d1ed",
-        "label": "app tenant_b → app tenant_a",
+        "label": "app:tenant_b=app:tenant_a",
         "type": "comparison"
       }
     },

@@ -252,9 +252,10 @@ def run_build(args: argparse.Namespace) -> None:
         print(f"Skipped {len(comparisons)} configured comparisons: they compare inspected databases "
               "(--source database or combined)")
     elif comparisons:
-        from .compare import compute, store
+        from .compare import compute
+        from .contract.comparison import store_comparisons
 
-        document = store(document, *compute(document, comparisons))
+        document = store_comparisons(document, compute(document, comparisons))
         incomplete = sum(1 for c in document.comparisons if not c.complete)
         print(f"Compared {len(document.comparisons)} scope pairs"
               + (f" ({incomplete} incomplete)" if incomplete else ""))
@@ -283,8 +284,9 @@ def comparison_specs(options: list[str], limit: int | None, config: ProjectConfi
 
 def run_compare(args: argparse.Namespace) -> None:
     """Compare scopes of a saved document. Reads only the document (and pyproject.toml): no database, no imports."""
-    from .compare import compute, describe, store
+    from .compare import compute, describe
     from .contract import VERSION, canonical_json, to_json
+    from .contract.comparison import store_comparisons
     from .snapshot import read_document, write_document
 
     config = load_config(Path.cwd())
@@ -298,13 +300,13 @@ def run_compare(args: argparse.Namespace) -> None:
         raise ValueError(f"{path} is laranex-schema {snapshot.data['version']}; --write rewrites only {VERSION} "
                          "documents, so nothing a newer version added is lost")
     document = snapshot.document
-    comparisons, diagnostics = compute(document, specs)
+    comparisons = compute(document, specs)
     if args.json:
         print(canonical_json(to_json(comparisons)), end="")
     else:
         print(describe(document, comparisons) or "No scope pairs to compare")
     if args.write:
-        write_document(store(document, comparisons, diagnostics), path)
+        write_document(store_comparisons(document, comparisons), path)
         print(f"Stored {len(comparisons)} comparisons in {path}", file=sys.stderr if args.json else sys.stdout)
 
 

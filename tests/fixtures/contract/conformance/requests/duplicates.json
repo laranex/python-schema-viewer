@@ -1,0 +1,271 @@
+{
+  "description": "A request listed more than once is one duplicate error and is expanded once, however often it repeats",
+  "expected": {
+    "errors": [
+      {
+        "kind": "duplicate",
+        "message": "Requested comparison app:public → app:* is listed more than once.",
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": "public"
+          },
+          "target": {
+            "connection": "app",
+            "schema": "*"
+          }
+        }
+      },
+      {
+        "kind": "duplicate",
+        "message": "Requested comparison app:public → app:tenant_a is listed more than once.",
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": "public"
+          },
+          "target": {
+            "connection": "app",
+            "schema": "tenant_a"
+          }
+        }
+      }
+    ],
+    "pairs": [
+      {
+        "baseline": {
+          "connection": "connection:app",
+          "schema": "public"
+        },
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": "public"
+          },
+          "target": {
+            "connection": "app",
+            "schema": "tenant_a"
+          }
+        },
+        "target": {
+          "connection": "connection:app",
+          "schema": "tenant_a"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "connection:app",
+          "schema": "public"
+        },
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": "public"
+          },
+          "target": {
+            "connection": "app",
+            "schema": "*"
+          }
+        },
+        "target": {
+          "connection": "connection:app",
+          "schema": "tenant_b"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "connection:app",
+          "schema": "public"
+        },
+        "request": {
+          "baseline": {
+            "connection": "app",
+            "schema": "public"
+          },
+          "target": {
+            "connection": "app",
+            "schema": "*"
+          }
+        },
+        "target": {
+          "connection": "connection:app",
+          "schema": "tenant_c"
+        }
+      }
+    ]
+  },
+  "input": {
+    "document": {
+      "connections": [
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "tenant_c",
+                "tenant_a",
+                "public",
+                "tenant_b",
+                "tenant_a"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "public",
+          "driver": "postgresql",
+          "id": "connection:app",
+          "name": "app",
+          "tables": []
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": [
+                "shop"
+              ]
+            },
+            "declared": null
+          },
+          "defaultSchema": "shop",
+          "driver": "mysql",
+          "id": "connection:replica",
+          "name": "replica",
+          "tables": []
+        },
+        {
+          "coverage": {
+            "database": null,
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:legacy",
+          "name": "legacy",
+          "tables": []
+        },
+        {
+          "coverage": {
+            "database": {
+              "complete": true,
+              "features": {
+                "checkConstraints": "complete",
+                "columnTypes": "complete",
+                "columns": "complete",
+                "comments": "complete",
+                "defaults": "complete",
+                "foreignKeys": "complete",
+                "includedColumns": "complete",
+                "indexExpressions": "complete",
+                "indexPredicates": "complete",
+                "indexes": "complete",
+                "models": "not_applicable",
+                "primaryKeys": "complete",
+                "referentialActions": "complete",
+                "relationships": "not_applicable",
+                "tables": "complete",
+                "uniqueConstraints": "complete"
+              },
+              "schemas": null
+            },
+            "declared": null
+          },
+          "defaultSchema": null,
+          "driver": "sqlite",
+          "id": "connection:flat",
+          "name": "flat",
+          "tables": []
+        }
+      ],
+      "source": "database"
+    },
+    "requests": [
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": "public"
+        },
+        "target": {
+          "connection": "app",
+          "schema": "tenant_a"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": "public"
+        },
+        "target": {
+          "connection": "app",
+          "schema": "*"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": "public"
+        },
+        "target": {
+          "connection": "app",
+          "schema": "tenant_a"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": "public"
+        },
+        "target": {
+          "connection": "app",
+          "schema": "*"
+        }
+      },
+      {
+        "baseline": {
+          "connection": "app",
+          "schema": "public"
+        },
+        "target": {
+          "connection": "app",
+          "schema": "tenant_a"
+        }
+      }
+    ]
+  }
+}

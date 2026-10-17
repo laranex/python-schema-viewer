@@ -1,0 +1,32 @@
+{
+  "description": "A field of another object type",
+  "expected": {
+    "errors": [
+      "overrides[0].field must be one of comment for objectType table",
+      "overrides[1].field must be one of included, method, name, parts, predicate, unique for objectType index",
+      "overrides[2].field must be one of columns for objectType primaryKey"
+    ]
+  },
+  "input": {
+    "overrides": [
+      {
+        "change": "changed",
+        "field": "type",
+        "objectType": "table",
+        "severity": "error"
+      },
+      {
+        "change": "changed",
+        "field": "expression",
+        "objectType": "index",
+        "severity": "info"
+      },
+      {
+        "change": "changed",
+        "field": "name",
+        "objectType": "primaryKey",
+        "severity": "info"
+      }
+    ]
+  }
+}

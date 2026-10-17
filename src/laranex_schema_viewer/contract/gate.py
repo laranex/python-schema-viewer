@@ -15,7 +15,8 @@ from typing import Any
 
 from .. import model as m
 from ..model import FEATURES
-from .comparison import scope_covered, table_label
+from .comparison import (coverage_gap_text, coverage_gaps, expand_comparison_requests, request_key, spell_scope,
+                         table_label)
 from .ids import by_list
 from .serialize import FORMAT, MAJOR, VERSION
 from .shape import (CHANGES, OBJECT_TYPES, Context, Shape, array, boolean, integer, literal, nullable, obj, one_of,
@@ -32,7 +33,6 @@ EXIT_CODES = (0, 1, 2)
 GATE_ERROR_KINDS = ("comparison_incomplete", "comparison_not_found", "coverage_incomplete", "inspection_failed",
                     "invalid_document", "migration_unknown", "validation_incomplete")
 DEFAULT_THRESHOLDS = {"severity": "warning", "certainty": "certain"}
-WILDCARD = "*"
 
 RANK = {"info": 0, "warning": 1, "error": 2}
 PREFIX = {"diagnostic": "n", "comparison": "x", "migration": "m"}
@@ -111,20 +111,6 @@ def qualifies(finding: Mapping[str, Any], thresholds: Mapping[str, str]) -> bool
             and (thresholds["certainty"] == "likely" or finding["certainty"] == "certain"))
 
 
-def _scope_key(scope: Mapping[str, Any]) -> tuple[str, tuple[int, str]]:
-    # null sorts before any string.
-    return scope["connection"], (0, "") if scope["schema"] is None else (1, scope["schema"])
-
-
-def _request_key(request: Mapping[str, Any]) -> tuple[Any, ...]:
-    return _scope_key(request["baseline"]), _scope_key(request["target"])
-
-
-def _spell(connection: str, schema: str | None) -> str:
-    """A scope as people write it: the connection's name, then ``:schema``."""
-    return connection if schema is None else f"{connection}:{schema}"
-
-
 def _report(thresholds: dict[str, str], requested: list[dict[str, Any]], comparisons: list[str],
             findings: list[dict[str, Any]], errors: list[dict[str, str]]) -> dict[str, Any]:
     """The report for what was found. Findings are sorted by source, id and kind; errors by kind and message, each
@@ -174,8 +160,8 @@ def gate_document(data: Any, *, thresholds: Mapping[str, str | None] | None = No
     """
     limits = {**DEFAULT_THRESHOLDS, **{k: v for k, v in (thresholds or {}).items() if v is not None}}
     wanted_requests: list[dict[str, Any]] = []
-    for r in sorted(requested or (), key=_request_key):
-        if not wanted_requests or _request_key(wanted_requests[-1]) != _request_key(r):
+    for r in sorted(requested or (), key=request_key):
+        if not wanted_requests or request_key(wanted_requests[-1]) != request_key(r):
             wanted_requests.append({side: {"connection": r[side]["connection"], "schema": r[side]["schema"]}
                                     for side in ("baseline", "target")})
     doc, problem = _invalid(data)
@@ -189,61 +175,28 @@ def gate_document(data: Any, *, thresholds: Mapping[str, str | None] | None = No
                                   f"so what {version} adds was not checked."})
 
     connections = {c.id: c for c in doc.connections}
-    by_name = {c.name: c for c in doc.connections}
 
     def name_of(connection_id: str) -> str:
         c = connections.get(connection_id)
         return c.name if c is not None else connection_id
 
     def pair(baseline: m.Scope, target: m.Scope) -> str:
-        return f"{_spell(name_of(baseline.connection), baseline.schema)} → {_spell(name_of(target.connection), target.schema)}"
-
-    def side_coverage(c: m.Connection) -> m.Coverage | None:
-        return c.coverage.declared if doc.source == "declared" else c.coverage.database
+        return (f"{spell_scope(name_of(baseline.connection), baseline.schema)} → "
+                f"{spell_scope(name_of(target.connection), target.schema)}")
 
     # The comparisons to check: every stored one, or only the requested ones.
     checked = list(doc.comparisons)
     if wanted_requests:
         wanted: set[str] = set()
-        for r in wanted_requests:
-            b, t = r["baseline"], r["target"]
-            request = f"{_spell(b['connection'], b['schema'])} → {_spell(t['connection'], t['schema'])}"
-            baseline, target = by_name.get(b["connection"]), by_name.get(t["connection"])
-            for name in dict.fromkeys((b["connection"], t["connection"])):
-                if name not in by_name:
-                    errors.append({"kind": "comparison_not_found",
-                                   "message": f"Requested comparison {request} names connection {name}, which the "
-                                              "document does not have."})
-            if baseline is None or target is None:
-                continue
-            schemas: list[str | None] = [t["schema"]]
-            if t["schema"] == WILDCARD:
-                coverage = side_coverage(target)
-                read = coverage.schemas if coverage is not None else None
-                if read is None:
-                    errors.append({"kind": "comparison_not_found",
-                                   "message": f"Requested comparison {request} cannot be expanded: the inspection of "
-                                              f"connection {target.name} lists no schemas."})
-                    continue
-
-                def own(s: str) -> bool:
-                    return target.id == baseline.id and (
-                        s == b["schema"] or (b["schema"] is None and s == target.default_schema))
-
-                schemas = [s for s in sorted(set(read)) if not own(s)]
-                if not schemas:
-                    errors.append({"kind": "comparison_not_found",
-                                   "message": f"Requested comparison {request} matches no schema."})
-            for schema in schemas:
-                found = next((c for c in doc.comparisons
-                              if c.baseline.connection == baseline.id and c.baseline.schema == b["schema"]
-                              and c.target.connection == target.id and c.target.schema == schema), None)
-                if found is not None:
-                    wanted.add(found.id)
-                else:
-                    errors.append({"kind": "comparison_not_found",
-                                   "message": f"Requested comparison {_spell(baseline.name, b['schema'])} → "
-                                              f"{_spell(target.name, schema)} is not in the document."})
+        pairs, expansion_errors = expand_comparison_requests(doc, wanted_requests)
+        errors += [{"kind": "comparison_not_found", "message": e.message} for e in expansion_errors]
+        for p in pairs:
+            found = next((c for c in doc.comparisons if c.baseline == p.baseline and c.target == p.target), None)
+            if found is not None:
+                wanted.add(found.id)
+            else:
+                errors.append({"kind": "comparison_not_found",
+                               "message": f"Requested comparison {pair(p.baseline, p.target)} is not in the document."})
         checked = [c for c in doc.comparisons if c.id in wanted]
 
     findings: list[dict[str, Any]] = []
@@ -264,9 +217,9 @@ def gate_document(data: Any, *, thresholds: Mapping[str, str | None] | None = No
                 total = c.summary.missing + c.summary.extra + c.summary.changed
                 reasons.append(f"{c.omitted} of {total} differences omitted")
             for side, scope in (("baseline", c.baseline), ("target", c.target)):
-                connection = connections[scope.connection]
-                if not scope_covered(side_coverage(connection), connection, scope.schema):
-                    reasons.append(f"the {side} {_spell(connection.name, scope.schema)} was not inspected completely")
+                if coverage_gaps(doc, scope):
+                    reasons.append(f"the {side} {spell_scope(name_of(scope.connection), scope.schema)} was not "
+                                   "inspected completely")
             errors.append({"kind": "comparison_incomplete",
                            "message": f"Comparison {label} is incomplete"
                                       + (f": {'; '.join(reasons)}." if reasons else ".")})
@@ -276,12 +229,12 @@ def gate_document(data: Any, *, thresholds: Mapping[str, str | None] | None = No
     if doc.source != "declared":
         for c in doc.connections:
             features = c.coverage.database.features if c.coverage.database is not None else {}
-            gaps = [f"{f} {features.get(f, 'unknown')}" for f in FEATURES
+            gaps = [{"kind": "feature", "feature": f, "state": features.get(f, "unknown")} for f in FEATURES
                     if features.get(f) == "unavailable" or (f in REQUIRED_FEATURES and features.get(f) != "complete")]
             if gaps:
                 errors.append({"kind": "coverage_incomplete",
                                "message": f"Connection {c.name}: the database inspection is incomplete: "
-                                          f"{', '.join(gaps)}."})
+                                          f"{', '.join(map(coverage_gap_text, gaps))}."})
 
     label_of = _diagnostic_label(doc, pair, name_of)
     for d in doc.diagnostics:
@@ -424,7 +377,7 @@ def validate_gate_report(value: Any, *, strict: bool = False) -> tuple[dict[str,
                 len(problems) > 1 or findings or r["comparisons"]):
             errors.append("A report on an invalid document has no other error, no findings and no checked comparisons")
         for i, q in enumerate(r["requested"]):
-            if i > 0 and _request_key(r["requested"][i - 1]) >= _request_key(q):
+            if i > 0 and request_key(r["requested"][i - 1]) >= request_key(q):
                 errors.append(f"Requested comparisons are unique and sorted: requested[{i}]")
         for i, c in enumerate(r["comparisons"]):
             if i > 0 and r["comparisons"][i - 1] >= c:
