@@ -68,7 +68,7 @@ See [MCP client configuration](./mcp.md) for Codex and Claude Code settings.
 | `schema-discovery` | `schema_overview` → `schema_search` → `schema_get_table` / `schema_get_model` |
 | `relationship-analysis` | `schema_get_relationships` with `kind="foreign_key"` and `kind="orm"` separately |
 | `schema-diagnostics` | Inspect tool evidence; read diagnostic messages from JSON because MCP exposes only their count |
-| `schema-viewer-mcp` | Configure clients, discover tools, paginate results, and troubleshoot revisions or startup errors |
+| `schema-viewer-mcp` | Configure clients, discover tools, paginate results (including stored comparisons with `schema_compare`), and troubleshoot revisions or startup errors |
 
 For example, ask: “Use schema-discovery with my MCP server to find tasks, then use relationship-analysis to compare its foreign keys with its ORM declarations.” The agent must use returned opaque IDs, not guess IDs from table names.
 

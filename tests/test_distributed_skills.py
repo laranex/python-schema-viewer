@@ -86,6 +86,7 @@ class DistributedSkillTests(unittest.TestCase):
                 "schema_get_table": query.get_table,
                 "schema_get_model": query.get_model,
                 "schema_get_relationships": query.relationships,
+                "schema_compare": query.compare,
             }
             exercised = set()
             for source in SKILLS.rglob("*.md"):

@@ -245,8 +245,8 @@ def scope_config(value: object, where: str, *, wildcard: bool) -> ScopeConfig:
     connection, schema = value.get("connection"), value.get("schema")
     if not isinstance(connection, str) or not CONNECTION_NAME.fullmatch(connection):
         raise ValueError(f"{where} needs connection, a connection name")
-    if schema is not None and (not isinstance(schema, str) or not schema):
-        raise ValueError(f"{where} schema must be a non-empty string")
+    if schema is not None and (not isinstance(schema, str) or not schema or "@" in schema or "//" in schema):
+        raise ValueError(f"{where} schema must be a schema name (never a URL)")
     if schema == WILDCARD and not wildcard:
         raise ValueError(f"{where} schema cannot be \"*\"; only a target expands to every inspected schema")
     return ScopeConfig(connection=connection, schema=schema)

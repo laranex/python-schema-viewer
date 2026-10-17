@@ -61,6 +61,7 @@ export default defineConfig({
         { text: 'CLI & configuration', link: '/cli' },
         { text: 'MCP for agents', link: '/mcp' },
         { text: 'Database introspection', link: '/database' },
+        { text: 'Schema comparison', link: '/comparison' },
         { text: 'Build security', link: '/security' },
         { text: 'Agent skills', link: '/agent-skills' },
         { text: 'Troubleshooting', link: '/troubleshooting' },

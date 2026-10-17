@@ -9,9 +9,12 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Added
 
 - The laranex-schema 2.0 contract of laranex-schema-viewer-ui 0.3.0-dev.0: a typed schema model (`laranex_schema_viewer.model`, frozen dataclasses independent of the JSON), canonical serialization to and from 2.0 JSON (`contract.serialize`, the only code that knows the document's field names), a port of the shared validator with its messages (strict producers accept exactly 2.0; lenient readers accept 2.x and reject 1.x), the graph builder, diagnostic ids, and the migration status rules the validator recomputes. The distributed JSON Schema is the shared one (`laranex_schema_viewer/contract/schema.json`).
-- The shared fixtures and conformance cases are vendored in `tests/fixtures/contract` by `scripts/sync_contract.py`, with a manifest of their source commit and hashes that a test checks. All 13 valid documents pass strict validation and serialize back to identical bytes, all 52 invalid ones fail with their expected rule, and the 15 graph and 14 migration cases pass.
+- The shared fixtures and conformance cases are vendored in `tests/fixtures/contract` by `scripts/sync_contract.py`, with a manifest of their source commit and hashes that a test checks. All 13 valid documents pass strict validation and serialize back to identical bytes, all 52 invalid ones fail with their expected rule, and the 15 graph, 14 comparison and 14 migration cases pass.
 - MCP conformance recordings for every shared valid document (`tests/fixtures/mcp-conformance`, written by `scripts/record_mcp_conformance.py`), so other implementations can check the response format.
 - `schema_get_table` sections `links`, `derived_links` and `diagnostics`; `schema_search` also finds indexes, foreign keys and constraints by name.
+- Schema comparisons ([docs](docs/comparison.md)): a port of the shared comparison algorithm (`contract.comparison.compare_scopes`) that passes the 14 shared comparison conformance cases byte for byte. Database and combined builds compute the comparisons configured in `[[tool.laranex-schema-viewer.comparisons]]` (baseline and target scopes, a target schema `*` for every inspected tenant schema, severity overrides, a difference limit, default 500) or named with `build --compare BASELINE=TARGET` and `--compare-limit`, and store them in the document; an incomplete comparison gets a `comparison_incomplete` diagnostic. Comparisons read only inspected catalog data; tenant schema names never appear in difference keys.
+- `laranex-schema-viewer compare`: compares scopes of a saved document without a database or application imports, prints a summary or (`--json`) the comparison objects, and with `--write` stores them in the document atomically.
+- The read-only MCP tool `schema_compare`: lists stored comparisons and pages through their differences, filtered by comparison id, baseline and target scope, object type, change, severity and certainty. The other tools' responses are unchanged; the MCP conformance recordings cover the new tool, with `comparison-byte-limit.json` for differences cut by the response limit.
 
 ### Changed
 
@@ -29,7 +32,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - **Breaking:** the version 1 snapshot format: its Pydantic models (`laranex_schema_viewer.document`, `SchemaDocument`), its JSON Schema, `read_snapshot`/`write_snapshot`, the `convert` command, `build --format` and the `format` configuration key, and the conversion from version 1 (`unified.from_v1`). Use `laranex_schema_viewer.read_document` and `write_document`.
 - Reading laranex-schema 1.0 documents.
 
-Schema comparisons, migration tracks and inferred associations are part of the 2.0 document but are not computed yet; their arrays are empty.
+Migration tracks and inferred associations are part of the 2.0 document but are not computed yet; their arrays are empty. A CI gate over comparisons is not part of this version: `compare` exits 0 whatever it finds.
 
 ## [0.4.0] - 2026-10-17
 

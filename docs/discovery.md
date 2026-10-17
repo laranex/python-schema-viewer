@@ -31,7 +31,8 @@ Model imports execute trusted Python code. Recursive imports are restricted to t
 | `relationships` | Explicit ORM relationship declarations |
 | `links`, `derivedLinks` | Graph edges relating foreign keys and relationships, built by the shared rules |
 | `diagnostics` | What extraction could not represent |
-| `comparisons`, `migrations`, `inferredAssociations` | Empty in this version |
+| `comparisons` | Schema comparisons between scopes; empty unless a database build or `compare` computed them ([schema comparison](./comparison.md)) |
+| `migrations`, `inferredAssociations` | Empty in this version |
 
 IDs are opaque. Use returned IDs rather than constructing them from table names. A null `schema` means unqualified, not automatically PostgreSQL `public`.
 

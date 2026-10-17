@@ -128,6 +128,10 @@ In a combined build, tables match by schema and name; the default schema counts 
 
 `likely` means the comparison normalizes type names or SQL text, for example `VARCHAR(255)` and `character varying(255)`, or casts in a default, and could be wrong. The indexes MySQL creates for foreign keys, and the indexes behind primary keys and unique constraints, are matched to their keys and are not reported as extra.
 
+## Comparisons
+
+A database or combined build can also compare inspected scopes with each other: tenant schemas of one connection, or two connections, of the same or different drivers. See [schema comparison](./comparison.md). Drift between your models and the database is reported as above, with drift entries and diagnostics, not as comparisons.
+
 ## Not yet produced
 
-laranex-schema 2.0 documents also hold schema comparisons, migration tracks and inferred associations. This version writes those arrays empty; computing them is planned. Drift between your models and the database is reported as above, with drift entries and diagnostics, not as comparisons.
+laranex-schema 2.0 documents also hold migration tracks and inferred associations. This version writes those arrays empty; computing them is planned.

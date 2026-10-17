@@ -49,10 +49,11 @@ See the [official Claude Code MCP documentation](https://code.claude.com/docs/en
 | `schema_get_table` | Exact `table` ID; `section`: `columns` (default), `indexes`, `foreign_keys`, `constraints`, `models`, `relationships`, `links`, `derived_links`, or `diagnostics` | The section's objects |
 | `schema_get_model` | Exact `model` ID | The relationships the model declares |
 | `schema_get_relationships` | Optional `table` ID; `kind`: `orm` (default) or `foreign_key`, never mixed | Relationships, or foreign-key entries |
+| `schema_compare` | `section`: `comparisons` (default) or `differences`; optional `comparison` ID, `baseline` and `target` scopes (`CONNECTION` or `CONNECTION:SCHEMA`); for differences, optional `object_type`, `change`, `severity`, `certainty` | Stored [comparisons](./comparison.md), or their differences |
 
 Every tool also accepts `limit` (1–100, default 25), `offset` (default 0), and an optional `revision`. Follow `nextOffset` until it is null, keeping the other arguments and passing the returned `revision`. Inputs are validated; IDs are looked up, never evaluated or treated as paths. Unknown IDs and revisions return tool errors.
 
-Each server pins one validated document for its lifetime. Restart after rebuilding; the revision prevents pagination against a different document after a restart. A missing, invalid or oversized file, or one of another format or version, fails startup. These tools cannot rebuild documents or connect to a database. Schema comparison, migration and inferred-association tools are planned with the features that compute them; this version has none.
+Each server pins one validated document for its lifetime. Restart after rebuilding; the revision prevents pagination against a different document after a restart. A missing, invalid or oversized file, or one of another format or version, fails startup. These tools cannot rebuild documents or connect to a database. `schema_compare` reads the comparisons stored in the document; it never computes one. Migration and inferred-association tools are planned with the features that compute them.
 
 The implementation uses [the official Python MCP SDK](https://github.com/modelcontextprotocol/python-sdk), currently the 2.x `MCPServer` API. Tests initialize a genuine SDK client over subprocess stdio, discover all tools, call each, and verify read-only annotations and invalid inputs. Interactive Codex and Claude Code client sessions were not run in the implementation environment.
 
@@ -85,12 +86,18 @@ A result is a JSON object with the tool's context fields (below), then:
 | `Unknown table ID` | `schema_get_relationships` with a table ID the document does not have |
 | `kind must be orm or foreign_key` | `schema_get_relationships` with another kind |
 | `query must contain 1 to 200 characters` | `schema_search` with an empty or longer `query_text` |
+| `section must be comparisons or differences` | `schema_compare` with another section |
+| `Unknown comparison ID; use schema_compare` | `schema_compare` with a comparison ID the document does not have |
+| `baseline must be CONNECTION or CONNECTION:SCHEMA`, `target must be ...` | `schema_compare` with a scope that ends in `:` |
+| `Unknown baseline connection; use schema_overview`, `Unknown target connection; ...` | `schema_compare` with a scope whose connection name the document does not have |
+| `object_type must be one of table, column, primaryKey, index, foreignKey, constraint`; `change must be one of missing, extra, changed`; `severity must be one of error, warning, info`; `certainty must be one of certain, likely` | `schema_compare` with another value |
+| `object_type, change, severity and certainty filter differences; use section differences` | `schema_compare` with a difference filter in section `comparisons` |
 | `limit must be an integer from 1 to 100` | Any tool |
 | `offset must be a nonnegative integer` | Any tool |
 | `Document revision differs; restart pagination without revision` | `revision` is not the pinned document's |
 | `One result exceeds the response byte limit`, `Response metadata exceeds the response byte limit` | See Size |
 
-The MCP SDK also rejects out-of-range `limit` and `offset` values from the tool schema before the call reaches the query service.
+`schema_compare` checks its arguments in this order: `section`, `comparison`, `baseline`, `target`, `object_type`, `change`, `severity`, `certainty`, then difference filters given with section `comparisons`. The MCP SDK also rejects out-of-range `limit` and `offset` values, and values outside the enumerations, from the tool schema before the call reaches the query service.
 
 ### `schema_overview`
 
@@ -134,15 +141,28 @@ Context: `model`, the Model object. Items: the Relationship objects whose `model
 
 Context: `kind` and `table` (the requested table ID, or null). With `kind` `orm`, items are Relationship objects: every relationship, or with a table, those the table's `relationships` section lists. With `kind` `foreign_key`, items are `{table, foreignKey}` for every foreign key in document order (`table` is the id of the table that declares it), or with a table, those declared on the table or referencing it (`foreignTable`).
 
+### `schema_compare`
+
+Selects the document's comparisons, in document order (sorted by id): those with the given `comparison` id, whose `baseline` scope is the given one, and whose `target` scope is the given one (each filter only when given). A scope argument is the connection's `name`, then `:` and the schema when the scope has one; `app` means the scope with a null schema, not any schema of `app`.
+
+Context fields: `section`; `filters`, the requested `{comparison, baseline, target, objectType, change, severity, certainty}` (null when not given). Section `differences` adds `comparisons`, the number of selected comparisons, and `omitted`, the sum of their `omitted` (differences counted in the document but not listed in it, which no page returns).
+
+| Section | Items |
+| --- | --- |
+| `comparisons` | One per selected comparison: the Comparison object without `differences`, plus `labels` `{baseline, target}` (the scopes spelled as above) and `counts` `{differences, error, warning, info, certain, likely}` (the listed differences, and how many have each severity and certainty) |
+| `differences` | `{comparison, difference}` for each listed difference of each selected comparison, in stored order, whose `objectType`, `change`, `severity` and `certainty` equal the given filters; `comparison` is the comparison's id and `difference` the Difference object |
+
 ### Conformance
 
-`tests/fixtures/mcp-conformance/NAME.json` has, for each valid fixture of the shared contract (`tests/fixtures/contract/fixtures/valid/NAME.json`), `{document, revision, calls}`; `calls` lists `{tool, arguments, result}` or `{tool, arguments, error}` for every tool, every table and section, every model, pagination with the pinned revision, and invalid arguments. `byte-limit.json` embeds a synthetic document whose pages the size limit cuts. `python scripts/record_mcp_conformance.py` rewrites them, and `--check` reports stale ones.
+`tests/fixtures/mcp-conformance/NAME.json` has, for each valid fixture of the shared contract (`tests/fixtures/contract/fixtures/valid/NAME.json`), `{document, revision, calls}`; `calls` lists `{tool, arguments, result}` or `{tool, arguments, error}` for every tool, every table and section, every model, pagination with the pinned revision, and invalid arguments, then `schema_compare`: the comparisons, each comparison by scopes, its differences with each filter value and pagination, and invalid arguments. `byte-limit.json` and `comparison-byte-limit.json` embed synthetic documents whose pages the size limit cuts (table columns, and the differences of a comparison). `python scripts/record_mcp_conformance.py` rewrites them, and `--check` reports stale ones.
 
 ## Example agent workflow
 
 Ask: “Find the tasks table, show its indexes, and explain foreign keys separately from ORM relationships.” Search first, use the returned opaque table ID, and inspect both relationship kinds independently.
 
-A table's diagnostics, with their messages, are its `diagnostics` section. Diagnostics about connections, models, relationships or the document are in the saved JSON's top-level `diagnostics`.
+A table's diagnostics, with their messages, are its `diagnostics` section. Diagnostics about connections, models, relationships, comparisons or the document are in the saved JSON's top-level `diagnostics`.
+
+Ask: “How does tenant_initech differ from the template?” List the comparisons with `schema_compare`, then page through `section` `differences` with `baseline` `app:tenant_template` and `target` `app:tenant_initech`, filtering by `severity` or `certainty`. Report `likely` differences as needing confirmation, and an incomplete comparison (or `omitted` above zero) as partial evidence.
 
 ## Pair MCP with agent skills
 

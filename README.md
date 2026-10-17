@@ -31,7 +31,7 @@ Build only trusted modules: imports and mapper callbacks execute application cod
 
 - [Installation](https://laranex.github.io/python-schema-viewer/installation.html) and [quick start](https://laranex.github.io/python-schema-viewer/quick-start.html)
 - [Supported ORMs](https://laranex.github.io/python-schema-viewer/orm-support.html): [SQLAlchemy](https://laranex.github.io/python-schema-viewer/sqlalchemy.html), [SQLModel](https://laranex.github.io/python-schema-viewer/sqlmodel.html), [Django](https://laranex.github.io/python-schema-viewer/django.html), [Tortoise ORM](https://laranex.github.io/python-schema-viewer/tortoise.html), [Peewee](https://laranex.github.io/python-schema-viewer/peewee.html), and [model discovery](https://laranex.github.io/python-schema-viewer/discovery.html)
-- [CLI reference](https://laranex.github.io/python-schema-viewer/cli.html), [database introspection](https://laranex.github.io/python-schema-viewer/database.html), and [interactive viewer](https://laranex.github.io/python-schema-viewer/viewer.html)
+- [CLI reference](https://laranex.github.io/python-schema-viewer/cli.html), [database introspection](https://laranex.github.io/python-schema-viewer/database.html), [schema comparison](https://laranex.github.io/python-schema-viewer/comparison.html) of tenant schemas and connections, and [interactive viewer](https://laranex.github.io/python-schema-viewer/viewer.html)
 - [MCP for Codex and Claude Code](https://laranex.github.io/python-schema-viewer/mcp.html)
 - [Agent skills](https://laranex.github.io/python-schema-viewer/agent-skills.html) and [troubleshooting](https://laranex.github.io/python-schema-viewer/troubleshooting.html)
 
