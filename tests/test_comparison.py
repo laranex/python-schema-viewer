@@ -5,6 +5,7 @@ valid fixtures and SQLite; tests/test_comparison_databases.py runs PostgreSQL, M
 """
 
 import importlib.util
+import io
 import json
 import os
 import sqlite3
@@ -12,11 +13,13 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from contextlib import closing
+from contextlib import closing, redirect_stderr, redirect_stdout
 from dataclasses import replace
 from pathlib import Path
+from unittest import mock
 
 from laranex_schema_viewer import model as m
+from laranex_schema_viewer.cli import main
 from laranex_schema_viewer.compare import compute, describe, expand
 from laranex_schema_viewer.config import (DEFAULT_COMPARISON_LIMIT, ComparisonConfig, ScopeConfig, comparison_option,
                                           load_config)
@@ -57,6 +60,60 @@ def fixture(name: str) -> m.Document:
 
 def spec(text: str, **options) -> ComparisonConfig:
     return replace(comparison_option(text), **options)
+
+
+def with_features(document: m.Document, **features: str) -> m.Document:
+    """The document with these database coverage feature states on every connection."""
+    return m.replace(document, connections=tuple(
+        m.replace(c, coverage=m.ConnectionCoverage(database=m.coverage(
+            {**c.coverage.database.features, **features}, c.coverage.database.schemas)))
+        for c in document.connections))
+
+
+def run_main(root: Path, *args: str) -> tuple[int, str, str]:
+    """The command run in-process from ``root``, so a test can patch how it writes."""
+    previous = os.getcwd()
+    os.chdir(root)
+    try:
+        with redirect_stdout(io.StringIO()) as out, redirect_stderr(io.StringIO()) as err:
+            code = main(list(args))
+    finally:
+        os.chdir(previous)
+    return code, out.getvalue(), err.getvalue()
+
+
+def failing_writes(where: str):
+    """Patches for write_atomically: the temporary file's write stops halfway with a full disk, or the final rename
+    fails after a complete temporary file was written."""
+    real_fdopen = os.fdopen
+
+    def half(fd, mode):
+        stream = real_fdopen(fd, mode)
+
+        class Half:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                stream.close()
+                return False
+
+            def write(self, data):
+                stream.write(data[:len(data) // 2])
+                stream.flush()
+                raise OSError(28, "No space left on device")
+
+        return Half()
+
+    def rename(source, destination):
+        raise OSError(18, "Invalid cross-device link")
+
+    return {"half-written": mock.patch(f"{where}.os.fdopen", half),
+            "rename failed": mock.patch(f"{where}.os.replace", rename)}
+
+
+def leftovers(directory: Path) -> list[str]:
+    return sorted(p.name for p in directory.iterdir() if p.name.startswith(".schema-"))
 
 
 class Configuration(unittest.TestCase):
@@ -299,6 +356,111 @@ class Results(unittest.TestCase):
         self.assertEqual(normalize_sql("nextval('\"Tenant_A\".seq'::regclass)", "Tenant_A"), "nextval'seq'")
         self.assertEqual(normalize_sql("OCTET_LENGTH(`tenant_a`.a)", "tenant_a", "mariadb"), "lengtha")
         self.assertEqual(normalize_sql("mytenant_a.x + tenant_a.y", "tenant_a"), "mytenant_a.x+y")
+
+
+class IncompleteDiagnostics(unittest.TestCase):
+    """The comparison_incomplete diagnostics a document stores (comparison_diagnostics through store_comparisons):
+    the limit's omissions, each side's coverage gaps, both, or none for a complete comparison."""
+
+    def setUp(self):
+        self.document = fixture("comparison-tenant-schemas.json")  # complete coverage, schemas tenant_a and tenant_b
+
+    def stored(self, document: m.Document, *specs: ComparisonConfig) -> list[str]:
+        stored = store_comparisons(document, compute(document, list(specs)))
+        self.assertEqual(validate_document(document_to_json(stored), strict=True)[1], [])
+        return [d.message for d in stored.diagnostics if d.kind == "comparison_incomplete"]
+
+    def test_omitted_only(self):
+        self.assertEqual(self.stored(self.document, spec("app:tenant_a=app:tenant_b", limit=3)), [
+            "Comparison app:tenant_a=app:tenant_b is incomplete: 22 of 25 differences are left out by the limit of 3"])
+
+    def test_coverage_only(self):
+        gapped = with_features(self.document, checkConstraints="unavailable", comments="partial")
+        self.assertEqual(self.stored(gapped, spec("app:tenant_a=app:tenant_b")), [
+            "Comparison app:tenant_a=app:tenant_b is incomplete: the baseline app:tenant_a is not completely covered "
+            "(comments partial, checkConstraints unavailable); the target app:tenant_b is not completely covered "
+            "(comments partial, checkConstraints unavailable)"])
+
+    def test_a_schema_the_inspection_did_not_read(self):
+        self.assertEqual(self.stored(self.document, spec("app:tenant_a=app:tenant_z")), [
+            "Comparison app:tenant_a=app:tenant_z is incomplete: the target app:tenant_z is not completely covered "
+            "(schema tenant_z not read)"])
+
+    def test_both(self):
+        gapped = with_features(self.document, indexPredicates="unavailable")
+        self.assertEqual(self.stored(gapped, spec("app:tenant_a=app:tenant_b", limit=0)), [
+            "Comparison app:tenant_a=app:tenant_b is incomplete: 25 of 25 differences are left out by the limit of 0; "
+            "the baseline app:tenant_a is not completely covered (indexPredicates unavailable); the target "
+            "app:tenant_b is not completely covered (indexPredicates unavailable)"])
+
+    def test_complete_has_none_and_replaces_an_earlier_incomplete_one(self):
+        self.assertEqual(self.stored(self.document, spec("app:tenant_a=app:*")), [])
+        limited = store_comparisons(self.document, compute(self.document, [spec("app:tenant_a=app:tenant_b", limit=1)]))
+        self.assertEqual(self.stored(limited, spec("app:tenant_a=app:tenant_b")), [])
+
+
+class Storing(unittest.TestCase):
+    def setUp(self):
+        self.document = fixture("comparison-tenant-schemas.json")
+
+    def test_storing_is_idempotent(self):
+        specs = [spec("app:tenant_a=app:*", limit=2), spec("app:tenant_b=app:*")]
+        once = store_comparisons(self.document, compute(self.document, specs))
+        twice = store_comparisons(once, compute(once, specs))
+        self.assertEqual(canonical_json(document_to_json(twice)), canonical_json(document_to_json(once)))
+        self.assertEqual(store_comparisons(once, once.comparisons), once)
+
+    def test_storing_changes_only_comparisons_and_their_diagnostics(self):
+        stored = store_comparisons(self.document, compute(self.document, [spec("app:tenant_b=app:*", limit=1)]))
+        before, after = document_to_json(self.document), document_to_json(stored)
+        self.assertEqual({k: v for k, v in after.items() if k not in ("comparisons", "diagnostics")},
+                         {k: v for k, v in before.items() if k not in ("comparisons", "diagnostics")})
+        self.assertEqual([d for d in after["diagnostics"] if d["kind"] != "comparison_incomplete"],
+                         before["diagnostics"])
+
+
+class AtomicWrites(unittest.TestCase):
+    """compare --write replaces the snapshot atomically: a complete canonical file, or the previous one untouched and
+    no temporary file left behind."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        self.snapshot = self.root / "schema.json"
+        self.snapshot.write_text(canonical_json(document_to_json(
+            m.replace(fixture("comparison-tenant-schemas.json"), comparisons=()))))
+
+    def test_a_complete_file(self):
+        code, out, err = run_main(self.root, "compare", "--snapshot", "schema.json", "--write", "app:tenant_a=app:*")
+        self.assertEqual(code, 0, err)
+        self.assertIn("Stored 1 comparisons in schema.json", out)
+        text = self.snapshot.read_text()
+        self.assertEqual(canonical_json(json.loads(text)), text)
+        self.assertEqual(validate_document(json.loads(text), strict=True)[1], [])
+        self.assertEqual(leftovers(self.root), [])
+        code, _, err = run_main(self.root, "compare", "--snapshot", "schema.json", "--write", "app:tenant_a=app:*")
+        self.assertEqual((code, self.snapshot.read_text()), (0, text), err)
+
+    def test_a_failed_write_keeps_the_previous_snapshot(self):
+        before = self.snapshot.read_bytes()
+        for name, patch in failing_writes("laranex_schema_viewer.snapshot").items():
+            with self.subTest(name), patch:
+                code, _, err = run_main(self.root, "compare", "--snapshot", "schema.json", "--write",
+                                        "app:tenant_a=app:*")
+                self.assertEqual(code, 1)
+                self.assertTrue(err.startswith("Error: [Errno "), err)
+                self.assertEqual(self.snapshot.read_bytes(), before)
+                self.assertEqual(leftovers(self.root), [])
+
+    def test_a_configuration_error_writes_nothing(self):
+        before = self.snapshot.read_bytes()
+        code, _, err = run_main(self.root, "compare", "--snapshot", "schema.json", "--write", "app:tenant_a=app:*",
+                                "app=ghost")
+        self.assertEqual((code, err), (1, "Error: Requested comparison app → ghost names connection ghost, which the "
+                                          "document does not have.\n"))
+        self.assertEqual(self.snapshot.read_bytes(), before)
+        self.assertEqual(leftovers(self.root), [])
 
 
 class LargeSchemas(unittest.TestCase):
