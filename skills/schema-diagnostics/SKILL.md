@@ -20,7 +20,7 @@ A table's diagnostics (about it, its columns, indexes, foreign keys and constrai
 {"tool":"schema_get_table","arguments":{"table":"opaque-table-id","section":"diagnostics","limit":25}}
 ```
 
-Diagnostics about connections, models, relationships or the document are in top-level `diagnostics[]` (`id`, `kind`, `category`, `severity`, `certainty`, `subject`, `message`) of the saved JSON; read it with `laranex_schema_viewer.read_document` when installed. If the file is unavailable, report that rather than rebuilding. Inspect affected items with `schema_search`, `schema_get_table`, `schema_get_model`, and `schema_get_relationships`, paging through `nextOffset` with the returned `revision`. The local file can be newer than the revision a running MCP server pinned; note which one you used.
+Diagnostics about connections, models, relationships, comparisons or the document are in top-level `diagnostics[]` (`id`, `kind`, `category`, `severity`, `certainty`, `subject`, `message`) of the saved JSON; read it with `laranex_schema_viewer.read_document` when installed. If the file is unavailable, report that rather than rebuilding. Inspect affected items with `schema_search`, `schema_get_table`, `schema_get_model`, and `schema_get_relationships`, paging through `nextOffset` with the returned `revision`. The local file can be newer than the revision a running MCP server pinned; note which one you used.
 
 `category` says what kind of evidence it is: `extraction` and `inspection` (what could not be read), `reconciliation` (one source has what the other lacks), `drift` (both have it and disagree), `lint` (advice). `certainty` `certain` is a fact read from metadata; `likely` rests on normalized type or SQL text and may be wrong.
 
@@ -39,6 +39,7 @@ Diagnostics about connections, models, relationships or the document are in top-
 | `column_drift`, `index_drift`, `foreign_key_drift`, `constraint_drift`, `table_drift` | Combined builds: the database and the models disagree; the entity holds the database's value and `drift` lists both. |
 | `declared_only`, `database_only`, `model_without_table`, `table_without_model` | Combined builds: one source has what the other lacks. |
 | `inspection_unavailable`, `write_privileges` | A database feature or connection was not inspected, or the role could write (the session stayed read-only). |
+| `comparison_incomplete` | A stored comparison left differences out (its limit) or a side's coverage was incomplete; read its differences with `schema_compare` and treat it as partial evidence. |
 
 Import and mapper failures stop a build and leave the previous document in place, which may then be stale. Zero diagnostics does not prove complete imports, migration parity, or sound design.
 
@@ -48,4 +49,4 @@ Missing primary keys, unindexed foreign keys, type mismatches, duplicate-looking
 
 ## Reporting
 
-List recorded diagnostics, then hypotheses, then proposed fixes, citing the document or revision. Fix only within the authorized scope and never weaken validation. Do not start the application, run SQL or migrations, or import recursively to diagnose. There is no check, hints, or diff command.
+List recorded diagnostics, then hypotheses, then proposed fixes, citing the document or revision. Fix only within the authorized scope and never weaken validation. Do not start the application, run SQL or migrations, or import recursively to diagnose. There is no check or hints command; `compare` reports differences between stored scopes but gates nothing.

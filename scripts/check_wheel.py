@@ -31,7 +31,8 @@ def main():
             assert f"laranex_schema_viewer/static/{legacy}" not in names
         for module in ("isolation/worker.py", "isolation/guards.py", "introspection/worker.py",
                        "introspection/readonly.py", "reconcile.py", "model.py", "contract/serialize.py",
-                       "contract/validate.py", "contract/shape.py", "contract/graph.py", "contract/migration.py"):
+                       "contract/validate.py", "contract/shape.py", "contract/graph.py", "contract/migration.py",
+                       "contract/comparison.py", "compare.py"):
             assert f"laranex_schema_viewer/{module}" in names, module
         schema = json.loads(wheel.read("laranex_schema_viewer/contract/schema.json"))
         assert schema["$id"].endswith("/laranex-schema/2.0.json"), schema["$id"]

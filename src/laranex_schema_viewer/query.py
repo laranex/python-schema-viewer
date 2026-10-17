@@ -24,6 +24,9 @@ KINDS = ("orm", "foreign_key")
 CATEGORIES = ("extraction", "inspection", "reconciliation", "drift", "lint")
 SEVERITIES = ("error", "warning", "info")
 CERTAINTIES = ("certain", "likely")
+COMPARE_SECTIONS = ("comparisons", "differences")
+OBJECT_TYPES = ("table", "column", "primaryKey", "index", "foreignKey", "constraint")
+CHANGES = ("missing", "extra", "changed")
 
 
 def size(value: Any) -> int:
@@ -43,6 +46,7 @@ class SnapshotQuery:
         self.connection_of = {t.id: c for c in doc.connections for t in c.tables}
         self.tables = {t.id: t for t in doc.tables()}
         self.models = {x.id: x for x in doc.models}
+        self.comparisons = {c.id: c for c in doc.comparisons}
 
     def page(self, items: list[Any], *, limit: int = 25, offset: int = 0,
              revision: str | None = None, **context: Any) -> dict[str, Any]:
@@ -184,3 +188,63 @@ class SnapshotQuery:
             if needle in f"{r.name} {r.type}".casefold():
                 hit("relationship", r.id, r.table, r.name)
         return self.page(items, query=query, **pagination)
+
+    def scope_label(self, scope: m.Scope) -> str:
+        """A scope as the command line spells it: the connection's name, then ``:schema``."""
+        name = next((c.name for c in self.document.connections if c.id == scope.connection), scope.connection)
+        return name if scope.schema is None else f"{name}:{scope.schema}"
+
+    def scope_filter(self, value: str | None, side: str) -> m.Scope | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"{side} must be CONNECTION or CONNECTION:SCHEMA")
+        name, separator, schema = value.partition(":")
+        if separator and not schema:
+            raise ValueError(f"{side} must be CONNECTION or CONNECTION:SCHEMA")
+        connection = next((c for c in self.document.connections if c.name == name), None)
+        if connection is None:
+            raise ValueError(f"Unknown {side} connection; use schema_overview")
+        return m.Scope(connection=connection.id, schema=schema if separator else None)
+
+    def compare(self, section: str = "comparisons", comparison: str | None = None, baseline: str | None = None,
+                target: str | None = None, object_type: str | None = None, change: str | None = None,
+                severity: str | None = None, certainty: str | None = None, **pagination: Any) -> dict[str, Any]:
+        """Stored comparisons, or their differences, selected by comparison id or scopes and difference filters."""
+        if section not in COMPARE_SECTIONS:
+            raise ValueError("section must be comparisons or differences")
+        if comparison is not None and comparison not in self.comparisons:
+            raise ValueError("Unknown comparison ID; use schema_compare")
+        scopes = {"baseline": self.scope_filter(baseline, "baseline"), "target": self.scope_filter(target, "target")}
+        filters = {"objectType": object_type, "change": change, "severity": severity, "certainty": certainty}
+        for (name, value), allowed in zip(filters.items(), (OBJECT_TYPES, CHANGES, SEVERITIES, CERTAINTIES)):
+            if value is not None and value not in allowed:
+                argument = "object_type" if name == "objectType" else name
+                raise ValueError(f"{argument} must be one of {', '.join(allowed)}")
+        if section == "comparisons" and any(v is not None for v in filters.values()):
+            raise ValueError("object_type, change, severity and certainty filter differences; use section differences")
+        selected = [c for c in self.document.comparisons
+                    if (comparison is None or c.id == comparison)
+                    and (scopes["baseline"] is None or c.baseline == scopes["baseline"])
+                    and (scopes["target"] is None or c.target == scopes["target"])]
+        context: dict[str, Any] = {"section": section, "filters": {"comparison": comparison, "baseline": baseline,
+                                                                    "target": target, **filters}}
+        if section == "comparisons":
+            return self.page([self.comparison_summary(c) for c in selected], **context, **pagination)
+        items = [{"comparison": c.id, "difference": to_json(d)} for c in selected for d in c.differences
+                 if all(v is None or getattr(d, attribute) == v for attribute, v in
+                        (("object_type", object_type), ("change", change), ("severity", severity),
+                         ("certainty", certainty)))]
+        return self.page(items, **context, comparisons=len(selected), omitted=sum(c.omitted for c in selected),
+                         **pagination)
+
+    def comparison_summary(self, comparison: m.Comparison) -> dict[str, Any]:
+        """The Comparison object without its differences, with readable scope labels and counts of the listed ones."""
+        summary = {k: v for k, v in to_json(comparison).items() if k != "differences"}
+        listed = comparison.differences
+        summary["labels"] = {"baseline": self.scope_label(comparison.baseline),
+                             "target": self.scope_label(comparison.target)}
+        summary["counts"] = {"differences": len(listed),
+                             **{v: sum(1 for d in listed if d.severity == v) for v in SEVERITIES},
+                             **{v: sum(1 for d in listed if d.certainty == v) for v in CERTAINTIES}}
+        return summary

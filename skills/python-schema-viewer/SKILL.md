@@ -33,6 +33,7 @@ laranex-schema-viewer build --module myapp.models --output /path/to/schema-viewe
 - **Tortoise:** for several apps or a specific SQL dialect, pass `--orm tortoise --target module:TORTOISE_ORM`. Only app labels and the connection scheme are read.
 - Config keys are `modules`, `targets`, `recursive`, `output`, `orm`, `settings`, and `source`; command-line flags override them.
 - `--source database` reads a live database's catalogs instead, and `--source combined` reconciles both and records drift. The URL comes only from an environment variable (`LARANEX_SCHEMA_DATABASE_URL` by default) and should belong to a read-only role; never put it in arguments or `pyproject.toml`. Inspect a database only when the user authorized it.
+- A database or combined build can compare inspected scopes (tenant schemas, connections): `--compare app:tenant_template=app:*`, or `[[tool.laranex-schema-viewer.comparisons]]` entries. `laranex-schema-viewer compare BASELINE=TARGET [--json] [--write]` compares scopes of a saved document without a database. `likely` differences rest on normalized text.
 - Every build writes laranex-schema 2.0 (default `schema-viewer.json`); `serve` and `mcp` read 2.x only, so rebuild files of any other format or version.
 - Write output outside read-only reference projects. Report the actual table, model, and diagnostic counts from the build output.
 
@@ -49,6 +50,6 @@ For MCP clients, configure a stdio server with the absolute executable path and 
 
 ## Limits
 
-- No diff, check, export, or hints commands exist; comparisons, migration status and inferred associations are not produced yet (their document arrays are empty).
+- No check (CI gate), export, or hints commands exist; migration status and inferred associations are not produced yet (their document arrays are empty).
 - The server is local and unauthenticated; do not expose it or publish documents without authorization.
 - Package contribution rules live in the package repository's `AGENTS.md`, not in this skill.

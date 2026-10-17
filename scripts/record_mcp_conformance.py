@@ -5,8 +5,8 @@
 
 Each file lists tool calls (the MCP tool name and its arguments) with the exact result, or the error message a tool
 error carries: every tool, every table section, every table and model, pagination with the pinned revision, and
-invalid arguments. byte-limit.json embeds a synthetic document whose pages are cut by the 64 KiB response limit. The
-response format is specified in docs/mcp.md; tests/test_mcp.py checks the recordings against query.py.
+invalid arguments, and schema_compare over the stored comparisons. byte-limit.json and comparison-byte-limit.json embed
+synthetic documents whose pages are cut by the 64 KiB response limit. The response format is specified in docs/mcp.md; tests/test_mcp.py checks the recordings against query.py.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "tests/fixtures/contract"
 TARGET = ROOT / "tests/fixtures/mcp-conformance"
+COMPARE_FILTERS = ("comparison", "baseline", "target", "object_type", "change", "severity", "certainty")
 SECTIONS = ("columns", "indexes", "foreign_keys", "constraints", "models", "relationships", "links",
             "derived_links", "diagnostics")
 
@@ -34,6 +35,8 @@ def call(query: Any, tool: str, arguments: dict[str, Any]) -> dict[str, Any]:
         "schema_get_model": lambda: query.get_model(arguments["model"], **pagination),
         "schema_get_relationships": lambda: query.relationships(arguments.get("table"),
                                                                 arguments.get("kind", "orm"), **pagination),
+        "schema_compare": lambda: query.compare(
+            arguments.get("section", "comparisons"), *(arguments.get(k) for k in COMPARE_FILTERS), **pagination),
     }
     try:
         return {"tool": tool, "arguments": arguments, "result": methods[tool]()}
@@ -76,6 +79,38 @@ def calls(query: Any) -> list[dict[str, Any]]:
             ("schema_get_relationships", {"table": "missing", "kind": "orm"}),
             ("schema_get_relationships", {"kind": "sql"})):
         out.append(call(query, tool, arguments))
+    return out + compare_calls(query)
+
+
+def compare_calls(query: Any) -> list[dict[str, Any]]:
+    """schema_compare: the comparisons, each one's differences with every filter, pagination, and invalid arguments."""
+    out = [call(query, "schema_compare", {}), call(query, "schema_compare", {"section": "differences", "limit": 100})]
+    for comparison in query.document.comparisons:
+        baseline, target = query.scope_label(comparison.baseline), query.scope_label(comparison.target)
+        out.append(call(query, "schema_compare", {"baseline": baseline, "target": target}))
+        out.append(call(query, "schema_compare", {"section": "differences", "comparison": comparison.id,
+                                                  "limit": 100}))
+        first = call(query, "schema_compare", {"section": "differences", "comparison": comparison.id, "limit": 2})
+        out.append(first)
+        if first["result"]["nextOffset"] is not None:
+            out.append(call(query, "schema_compare", {"section": "differences", "comparison": comparison.id,
+                                                      "limit": 2, "offset": first["result"]["nextOffset"],
+                                                      "revision": query.revision}))
+        for name, values in (("object_type", ("table", "column", "primaryKey", "index", "foreignKey", "constraint")),
+                             ("change", ("missing", "extra", "changed")), ("severity", ("error", "warning", "info")),
+                             ("certainty", ("certain", "likely"))):
+            for value in values:
+                out.append(call(query, "schema_compare", {"section": "differences", "comparison": comparison.id,
+                                                          name: value, "limit": 100}))
+        out.append(call(query, "schema_compare", {"section": "differences", "target": target, "severity": "error",
+                                                  "certainty": "certain", "limit": 100}))
+    connection = query.document.connections[0].name if query.document.connections else "missing"
+    for arguments in ({"section": "tables"}, {"comparison": "missing"}, {"baseline": "missing"},
+                      {"target": f"{connection}:"}, {"section": "differences", "object_type": "view"},
+                      {"section": "differences", "change": "gone"}, {"section": "differences", "severity": "fatal"},
+                      {"section": "differences", "certainty": "maybe"}, {"severity": "error"},
+                      {"baseline": connection, "limit": 0}, {"offset": -1}, {"revision": "0" * 64}):
+        out.append(call(query, "schema_compare", arguments))
     return out
 
 
@@ -99,6 +134,30 @@ def byte_limit_document() -> dict[str, Any]:
         "models": [], "relationships": [], "links": [], "derivedLinks": [], "diagnostics": [], "comparisons": [],
         "migrations": [], "inferredAssociations": [],
     }
+
+
+def comparison_byte_limit_document() -> dict[str, Any]:
+    """Two connections whose 40 column comments (2 KB each, with non-ASCII text) all differ, compared once: the
+    changed-column differences span several 64 KiB pages."""
+    sys.path.insert(0, str(ROOT / "src"))
+    from laranex_schema_viewer import model as m
+    from laranex_schema_viewer.contract import compare_scopes, document_to_json
+
+    features = {f: "complete" for f in m.FEATURES}
+
+    def connection(name: str) -> m.Connection:
+        columns = tuple(m.Column(name=f"c{n:02d}", type="text", nullable=True, provenance=m.DATABASE,
+                                 comment=f"{name} {n:02d} " + "Zürich ✓ " * 110) for n in range(40))
+        return m.Connection(id=f"connection:{name}", name=name, driver="postgresql", default_schema=None,
+                            coverage=m.ConnectionCoverage(database=m.coverage(features)),
+                            tables=(m.Table(id=f"{name}:notes", name="notes", provenance=m.DATABASE,
+                                            columns=columns),))
+
+    document = m.Document(source="database", generator=m.Generator(name="python-schema-viewer"),
+                          connections=(connection("primary"), connection("replica")))
+    comparison = compare_scopes(document, m.Scope(connection="connection:primary"),
+                                m.Scope(connection="connection:replica"))
+    return document_to_json(m.replace(document, comparisons=(comparison,)))
 
 
 def recordings() -> dict[str, Any]:
@@ -126,6 +185,17 @@ def recordings() -> dict[str, Any]:
                                                           "offset": steps[-1]["result"]["nextOffset"],
                                                           "revision": query.revision}))
         out["byte-limit.json"] = {"document": document, "revision": query.revision, "calls": steps}
+    document = comparison_byte_limit_document()
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "commented.json"
+        path.write_text(canonical_json(document))
+        query = SnapshotQuery(path)
+        arguments = {"section": "differences", "limit": 100}
+        steps = [call(query, "schema_compare", arguments)]
+        while "result" in steps[-1] and steps[-1]["result"]["nextOffset"] is not None:
+            steps.append(call(query, "schema_compare", {**arguments, "offset": steps[-1]["result"]["nextOffset"],
+                                                        "revision": query.revision}))
+        out["comparison-byte-limit.json"] = {"document": document, "revision": query.revision, "calls": steps}
     return {name: canonical_json(value) for name, value in out.items()}
 
 

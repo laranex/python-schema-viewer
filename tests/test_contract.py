@@ -3,8 +3,8 @@
 tests/fixtures/contract is vendored unchanged from laranex-schema-viewer-ui by scripts/sync_contract.py; its manifest
 records the source commit and every file's SHA-256. The Python implementation validates them independently: every
 valid document passes strict validation and serializes back to the same bytes, every invalid one fails with the
-expected rule, and the graph and migration conformance cases give the expected results. Comparison and inference
-conformance belong to the intelligence milestone; their cases are vendored but not run yet.
+expected rule, and the graph, comparison and migration conformance cases give the expected results. Inference
+conformance belongs to a later milestone; its cases are vendored but not run yet.
 """
 
 import hashlib
@@ -15,6 +15,7 @@ from pathlib import Path
 from laranex_schema_viewer import model as m
 from laranex_schema_viewer.contract import (assert_document, build_graph, canonical_json, document_to_json,
                                             finalize, from_json, revision, to_json, validate_document)
+from laranex_schema_viewer.contract.comparison import SeverityOverride, compare_scopes
 from laranex_schema_viewer.contract.migration import migration_history, migration_state
 from laranex_schema_viewer.contract.shape import json_schema
 from laranex_schema_viewer.contract.validate import InvalidDocumentError, UnsupportedDocumentError
@@ -124,6 +125,38 @@ class Conformance(unittest.TestCase):
                 relationships = [from_json(m.Relationship, r) for r in case["input"]["relationships"]]
                 links, derived = build_graph(connections, relationships)
                 self.assertEqual({"links": to_json(links), "derivedLinks": to_json(derived)}, case["expected"])
+
+    def test_comparison(self):
+        paths = cases("conformance/comparison")
+        self.assertEqual(len(paths), 14)
+        for path in paths:
+            case = load(path)
+            with self.subTest(path.name):
+                given = case["input"]
+                document = m.Document(source=given["document"]["source"], generator=m.Generator(name="conformance"),
+                                      connections=tuple(from_json(m.Connection, c)
+                                                        for c in given["document"]["connections"]))
+                overrides = [SeverityOverride(object_type=o["objectType"], change=o["change"],
+                                              severity=o["severity"], field=o.get("field"))
+                             for o in given["overrides"]]
+                comparison = compare_scopes(document, from_json(m.Scope, given["baseline"]),
+                                            from_json(m.Scope, given["target"]), overrides=overrides,
+                                            limit=given["limit"])
+                self.assertEqual(canonical_json(to_json(comparison)), canonical_json(case["expected"]))
+
+    def test_stored_comparisons_are_reproduced(self):
+        # The options the shared fixtures were computed with (laranex-schema-viewer-ui tests/fixtures/intelligence.ts).
+        overrides = {"comparison-multi-connection.json": [SeverityOverride(object_type="column", change="changed",
+                                                                           field="type", severity="error")]}
+        for path in cases("fixtures/valid"):
+            data = load(path)
+            document = assert_document(data, strict=True)
+            for stored in document.comparisons:
+                with self.subTest(path.name, comparison=stored.id):
+                    limit = len(stored.differences) if stored.omitted else None
+                    comparison = compare_scopes(document, stored.baseline, stored.target, limit=limit,
+                                                overrides=overrides.get(path.name, ()))
+                    self.assertEqual(to_json(comparison), to_json(stored))
 
     def test_migrations(self):
         paths = cases("conformance/migrations")

@@ -65,5 +65,20 @@ def create_server(path: str | Path):
         """Read declared ORM relationships (kind orm) or physical foreign keys (kind foreign_key), never mixed."""
         return invoke(query.relationships, table, kind, limit=limit, offset=offset, revision=revision)
 
+    @server.tool(annotations=annotations)
+    def schema_compare(section: Literal["comparisons", "differences"] = "comparisons",
+                       comparison: str | None = None, baseline: str | None = None, target: str | None = None,
+                       object_type: Literal["table", "column", "primaryKey", "index", "foreignKey",
+                                            "constraint"] | None = None,
+                       change: Literal["missing", "extra", "changed"] | None = None,
+                       severity: Literal["error", "warning", "info"] | None = None,
+                       certainty: Literal["certain", "likely"] | None = None,
+                       limit: Limit = 25, offset: Offset = 0, revision: str | None = None) -> dict:
+        """Read the schema comparisons stored in the document (section comparisons) or their differences (section
+        differences), by comparison ID or by baseline/target scope (CONNECTION or CONNECTION:SCHEMA), and filter
+        differences by object_type, change, severity and certainty. Never computes or connects."""
+        return invoke(query.compare, section, comparison, baseline, target, object_type, change, severity, certainty,
+                      limit=limit, offset=offset, revision=revision)
+
     return server
 

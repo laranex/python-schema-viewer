@@ -26,6 +26,7 @@ output = "schema-viewer.json"
 | `orm` | `auto`, `sqlalchemy`, `django`, `tortoise`, or `peewee`, like `--orm` |
 | `settings` | Django settings module, like `--settings` |
 | `source` | `declared`, `database` or `combined`, like `--source` |
+| `[[comparisons]]` | Scope pairs `build` and `compare` compare, with `baseline`, `target`, `limit` and `overrides`; see [schema comparison](./comparison.md#configure-comparisons) |
 
 ## Build
 
@@ -53,6 +54,8 @@ Every build writes one [laranex-schema 2.0](https://laranex.github.io/schema-vie
 | `--database-connection NAME` | Config `database_connection`, else the only declared connection | Connection the database belongs to |
 | `--database NAME=ENV_VAR` | Config `[tool.laranex-schema-viewer.databases.NAME]` | Inspect connection `NAME`, whose URL is in `ENV_VAR`; repeatable. Replaces the three options above; see [several connections](./database.md#several-connections) |
 | `--allow-write-privileges` | Off | Inspect with a role that could change the database, in read-only sessions |
+| `--compare BASELINE=TARGET` | Config `[[tool.laranex-schema-viewer.comparisons]]` | Compare two inspected scopes, each `CONNECTION` or `CONNECTION:SCHEMA` (a target schema `*` expands to every inspected schema); repeatable. Replaces the configured comparisons; needs `--source database` or `combined`. See [schema comparison](./comparison.md) |
+| `--compare-limit N` | `500` | Differences listed per `--compare` comparison; the rest are counted as omitted |
 
 Application code is imported in a separate extraction worker with a filtered environment: database URLs, passwords and tokens are not passed to it. `env_passthrough`, `[tool.laranex-schema-viewer.env]`, `allow_writes` and `container_runtime` configure it. Operations the worker blocks are printed as warnings. See [build security](./security.md) for what each level guarantees.
 
@@ -74,6 +77,22 @@ laranex-schema-viewer serve
 
 Keep the loopback default for local inspection. The server serves allowlisted viewer assets and the selected document, which it validates on startup and on each request. A file of another format or version stops `serve` with an error; rebuild it.
 
+## Compare
+
+```bash
+laranex-schema-viewer compare app:tenant_template=app:*
+```
+
+Compares scopes of a saved document without a database or application imports, and prints a summary (`--json`: the comparison objects). `--write` stores them in the document atomically. See [schema comparison](./comparison.md#compare-a-saved-document).
+
+| Option | Default |
+| --- | --- |
+| `BASELINE=TARGET` | Config `[[tool.laranex-schema-viewer.comparisons]]`; repeatable |
+| `--snapshot PATH` | Config `output`, else `schema-viewer.json` |
+| `--limit N` | `500`, for comparisons named on the command line |
+| `--json` | Off |
+| `--write` | Off |
+
 ## MCP
 
 ```bash
@@ -89,4 +108,5 @@ laranex-schema-viewer --version
 laranex-schema-viewer --help
 laranex-schema-viewer init --help
 laranex-schema-viewer build --help
+laranex-schema-viewer compare --help
 ```

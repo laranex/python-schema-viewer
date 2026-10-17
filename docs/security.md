@@ -2,7 +2,7 @@
 
 `build` has to import your models, and importing a module runs its code. Python Schema Viewer runs that code in a separate **extraction worker** and limits what reaches it. This page lists what is guaranteed and what is only best-effort. Keep the two apart when deciding where to run a build.
 
-`serve` and `mcp` read a saved document only. They never import application code or connect to a database, at any isolation level. [Database introspection](./database.md) runs in a second worker with different powers, described [below](#database-introspection).
+`serve`, `mcp` and `compare` read a saved document only. They never import application code or connect to a database, at any isolation level. [Database introspection](./database.md) runs in a second worker with different powers, described [below](#database-introspection).
 
 ## Threat model
 
@@ -83,6 +83,10 @@ The introspection worker reads the database's catalogs. It is a separate process
 - The worker sends only catalog statements: `SELECT`, `WITH`, `SHOW`, session `SET`, read-only `PRAGMA`. Anything else raises before it reaches the driver. This is a second line behind the read-only session, not a replacement for it.
 - The MySQL and MariaDB privilege check reads `SHOW GRANTS`. Privileges that reach the user through roles cannot be listed there, so roles are refused rather than trusted. PostgreSQL's check covers role attributes, the database, the inspected schemas and their tables, but not sequences, functions or other schemas.
 - A read-only transaction still lets a role read every row it has `SELECT` on. Introspection never does, but only a role without those privileges guarantees it. On MySQL and MariaDB, `information_schema` requires some privilege on each table.
+
+## Schema comparisons
+
+Comparisons never reach a database. `build` computes them in the parent process from the document the introspection workers returned, after those workers have exited, so no new database code path exists; `compare` reads a saved document and `pyproject.toml`. Neither imports application code, an ORM or a database driver, and a test runs `compare --write` under an audit hook that refuses sockets, subprocesses and SQLite connections. Comparison configuration and `--compare` name connections and schemas only: a URL-shaped scope is refused without echoing it, and comparison output contains no URL or credential. `--write` validates the document strictly and replaces it atomically.
 
 ## Upgrading
 
