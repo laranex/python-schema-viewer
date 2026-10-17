@@ -1,6 +1,6 @@
 # Supported ORMs
 
-Each ORM has its own adapter and optional extra. All adapters produce the same snapshot format, so the viewer, MCP tools, and agent skills work the same for every ORM.
+Each ORM has its own adapter and optional extra. All adapters produce the same laranex-schema 2.0 document, so the viewer, MCP tools, and agent skills work the same for every ORM.
 
 | ORM | Extra | Tested versions | Selection |
 | --- | --- | --- | --- |
@@ -28,4 +28,4 @@ When imported modules declare models for more than one ORM, `build` stops and as
 
 Foreign keys and ORM relationships stay separate for every ORM: a relationship without a database constraint never creates a foreign key, and a foreign key without a declared relationship never creates an ORM edge.
 
-Anything an adapter cannot represent is recorded in the snapshot's `diagnostics` instead of being guessed. See each ORM's page for the details.
+Anything an adapter cannot represent is recorded in the document's `diagnostics` instead of being guessed. See each ORM's page for the details.

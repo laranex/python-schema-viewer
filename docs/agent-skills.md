@@ -16,13 +16,13 @@ npx skills add /absolute/path/to/python-schema-viewer/skills --list
 
 | Skill | Use it for |
 | --- | --- |
-| `python-schema-viewer` | Install the package, build snapshots, and open the ERD |
+| `python-schema-viewer` | Install the package, build documents, and open the ERD |
 | `schema-discovery` | Inspect tables, columns, indexes, and mapped models |
 | `relationship-analysis` | Analyze foreign keys separately from ORM declarations |
 | `schema-diagnostics` | Investigate extraction diagnostics and missing coverage |
 | `schema-viewer-mcp` | Configure and query the read-only stdio MCP server |
 
-Canonical distributable sources live under `skills/<name>/SKILL.md`. Each folder is self-contained; schema discovery includes a bundled snapshot reference. Contributor architecture, testing, and security instructions belong in root `AGENTS.md`.
+Canonical distributable sources live under `skills/<name>/SKILL.md`. Each folder is self-contained; schema discovery includes a bundled document reference. Contributor architecture, testing, and security instructions belong in root `AGENTS.md`.
 
 ### Choose agents and skills
 
@@ -58,13 +58,13 @@ See [MCP client configuration](./mcp.md) for Codex and Claude Code settings.
    python -m pip install 'laranex-schema-viewer[mcp]'
    ```
 
-2. Select an existing valid snapshot. Build separately with the appropriate ORM extra only when importing the application's models is part of the task.
+2. Select an existing valid laranex-schema 2.0 document. Build separately with the appropriate ORM extra only when importing the application's models is part of the task.
 3. Configure your client's stdio MCP server with the absolute executable and `mcp --snapshot /absolute/path/to/schema-viewer.json` arguments.
 4. Install a skill and ask the agent to use it. Discover actual tool names from the client; prefixes can vary.
 
 | Skill | MCP workflow |
 | --- | --- |
-| `python-schema-viewer` | Configure the package and snapshot server, then verify `schema_overview` |
+| `python-schema-viewer` | Configure the package and MCP server, then verify `schema_overview` |
 | `schema-discovery` | `schema_overview` → `schema_search` → `schema_get_table` / `schema_get_model` |
 | `relationship-analysis` | `schema_get_relationships` with `kind="foreign_key"` and `kind="orm"` separately |
 | `schema-diagnostics` | Inspect tool evidence; read diagnostic messages from JSON because MCP exposes only their count |
@@ -72,19 +72,19 @@ See [MCP client configuration](./mcp.md) for Codex and Claude Code settings.
 
 For example, ask: “Use schema-discovery with my MCP server to find tasks, then use relationship-analysis to compare its foreign keys with its ORM declarations.” The agent must use returned opaque IDs, not guess IDs from table names.
 
-Tools return `revision` and `next_offset`. Keep filters and revision unchanged while paging until `next_offset` is null. The server pins one snapshot until restart; rebuild separately and restart to load a new revision. Missing MCP access falls back to the selected JSON snapshot without starting the application or rebuilding automatically.
+Tools return `revision` and `nextOffset`. Keep filters and revision unchanged while paging until `nextOffset` is null. The server pins one document until restart; rebuild separately and restart to load a new revision. Missing MCP access falls back to the selected JSON document without starting the application or rebuilding automatically.
 
 ### Usage examples
 
 After installation, ask your agent to use a skill by name:
 
-- “Use schema-discovery to list the tables and indexes in my saved snapshot.”
+- “Use schema-discovery to list the tables and indexes in my saved schema document.”
 - “Use relationship-analysis to explain the tasks-to-users foreign key and ORM declarations separately.”
 - “Use schema-diagnostics to investigate missing tables and recorded extraction errors.”
-- “Use schema-viewer-mcp to configure the snapshot server and find the users table.”
+- “Use schema-viewer-mcp to configure the schema MCP server and find the users table.”
 
 Codex also supports explicit `$schema-discovery` invocation; Claude Code exposes skills through its skill interface. Installation is not MCP registration: configure the server separately, and install the Python package separately when needed.
 
-Skills prefer available read-only MCP tools and fall back to the selected JSON snapshot. They do not authorize database access, migrations, automatic model imports, or publishing snapshots. A snapshot describes declared metadata and can be stale.
+Skills prefer available read-only MCP tools and fall back to the selected JSON document. They do not authorize database access, migrations, automatic model imports, or publishing documents. A document can be stale.
 
 See [MCP integration](./mcp.md) for client configuration.

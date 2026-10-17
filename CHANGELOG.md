@@ -4,6 +4,33 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+**Upgrading:** every build now writes a laranex-schema 2.0 document, and `serve` and `mcp` read laranex-schema 2.x only. Version 1 snapshots and laranex-schema 1.0 documents are no longer read or converted: rebuild them with `laranex-schema-viewer build`. MCP responses changed shape; see [the response format](docs/mcp.md#response-format).
+
+### Added
+
+- The laranex-schema 2.0 contract of laranex-schema-viewer-ui 0.3.0-dev.0: a typed schema model (`laranex_schema_viewer.model`, frozen dataclasses independent of the JSON), canonical serialization to and from 2.0 JSON (`contract.serialize`, the only code that knows the document's field names), a port of the shared validator with its messages (strict producers accept exactly 2.0; lenient readers accept 2.x and reject 1.x), the graph builder, diagnostic ids, and the migration status rules the validator recomputes. The distributed JSON Schema is the shared one (`laranex_schema_viewer/contract/schema.json`).
+- The shared fixtures and conformance cases are vendored in `tests/fixtures/contract` by `scripts/sync_contract.py`, with a manifest of their source commit and hashes that a test checks. All 13 valid documents pass strict validation and serialize back to identical bytes, all 52 invalid ones fail with their expected rule, and the 15 graph and 14 migration cases pass.
+- MCP conformance recordings for every shared valid document (`tests/fixtures/mcp-conformance`, written by `scripts/record_mcp_conformance.py`), so other implementations can check the response format.
+- `schema_get_table` sections `links`, `derived_links` and `diagnostics`; `schema_search` also finds indexes, foreign keys and constraints by name.
+
+### Changed
+
+- **Breaking:** `build` writes laranex-schema 2.0 for every source, by default to `schema-viewer.json`. ORM adapters and database introspection build the schema model directly; the extraction worker returns 2.0 JSON, which the parent validates strictly.
+- **Breaking:** connection drivers use the contract's names: `postgresql` (no longer `pgsql`), `mysql`, `mariadb`, `sqlite`. Index options ORMs declare for PostgreSQL are keyed `postgresql` (Tortoise's `postgres` included).
+- **Breaking:** MCP responses use the document's own objects with camelCase fields instead of version 1 projections, and one envelope: `revision`, `total`, `offset`, `limit`, `items` and `nextOffset` (formerly `next_offset`). `schema_overview` reports the source, generator, connections with driver and coverage, counts (including drift and diagnostics by category, severity and certainty) and table summaries; foreign-key results are `{table, foreignKey}` entries. Tool names and arguments are unchanged. See [MCP](docs/mcp.md#response-format).
+- Declared indexes list each key part once: a column, with its order, or an expression. They previously listed a column key as an expression (`users.email`) and again as a column, which also made combined builds report index key parts as drift.
+- An unresolved foreign key gets one diagnostic naming it, with its own message, and a model-level diagnostic labels the field it is about.
+- The declared document records the detected ORM in `generator.orm` and its extensions namespace even when `--orm` is not given.
+- The vendored viewer is laranex-schema-viewer-ui 0.3.0-dev.0, which reads laranex-schema 2.x.
+- Pydantic is no longer a dependency of the package (the `mcp` extra still brings it in).
+
+### Removed
+
+- **Breaking:** the version 1 snapshot format: its Pydantic models (`laranex_schema_viewer.document`, `SchemaDocument`), its JSON Schema, `read_snapshot`/`write_snapshot`, the `convert` command, `build --format` and the `format` configuration key, and the conversion from version 1 (`unified.from_v1`). Use `laranex_schema_viewer.read_document` and `write_document`.
+- Reading laranex-schema 1.0 documents.
+
+Schema comparisons, migration tracks and inferred associations are part of the 2.0 document but are not computed yet; their arrays are empty.
+
 ## [0.4.0] - 2026-10-17
 
 **Upgrading:** `build` now imports your models in an isolated worker by default. The worker gets a filtered environment without credentials, and import-time database connections, network access, subprocesses and file writes fail. Projects whose models depend on those need configuration or small fixes; see [Upgrading from 0.3](docs/security.md#upgrading). There is no in-process mode. Version 1 snapshots stay the default output, and `serve` and `mcp` still open them.

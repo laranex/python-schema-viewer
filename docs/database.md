@@ -1,14 +1,12 @@
 # Database introspection
 
-`build` can read a live database's catalogs as well as your models. It can also compare the two and report where they drift apart. The output is a [laranex-schema 1.0](https://laranex.github.io/schema-viewer-ui/contract) document, which [laranex-schema-viewer-ui](https://laranex.github.io/schema-viewer-ui/) displays.
+`build` can read a live database's catalogs as well as your models. It can also compare the two and report where they drift apart. Every source writes a [laranex-schema 2.0](https://laranex.github.io/schema-viewer-ui/contract) document, which `serve`, `mcp` and [laranex-schema-viewer-ui](https://laranex.github.io/schema-viewer-ui/) read.
 
 | `--source` | Reads | Writes |
 | --- | --- | --- |
-| `declared` (default) | Your models, in the [extraction worker](./security.md) | A version 1 snapshot, or laranex-schema with `--format laranex-schema` |
-| `database` | The database catalogs, in the introspection worker | laranex-schema, with database provenance |
-| `combined` | Both, then reconciles them | laranex-schema, with provenance, drift and diagnostics |
-
-`serve` and `mcp` still read version 1 snapshots, so keep a declared build for them.
+| `declared` (default) | Your models, in the [extraction worker](./security.md) | Declared provenance and coverage |
+| `database` | The database catalogs, in the introspection worker | Database provenance and coverage |
+| `combined` | Both, then reconciles them | Provenance, drift and diagnostics from both |
 
 ## Quick start
 
@@ -23,7 +21,6 @@ The URL is read only from the environment variable named by `--database-url-env`
 | Option | Config key | Purpose |
 | --- | --- | --- |
 | `--source` | `source` | `declared`, `database` or `combined` |
-| `--format` | `format` | `v1` or `laranex-schema`; database and combined builds always write laranex-schema |
 | `--database-url-env NAME` | `database_url_env` | The variable holding the URL |
 | `--schema NAME` (repeatable) | `database_schemas` | Schemas to read; default: the connection's default schema. Ignored by SQLite |
 | `--database-connection NAME` | `database_connection` | The declared connection the database belongs to; default: the only one, else `default` |
@@ -53,7 +50,7 @@ laranex-schema-viewer build --source combined \
 
 - Each connection is read by its own introspection worker, one after the other. A worker receives only its own connection's URL, on stdin, and every connection gets the same read-only session and privilege check. If one connection fails, the build fails and writes nothing.
 - Connections may use different drivers: PostgreSQL, MySQL, MariaDB and SQLite can be mixed.
-- The output has one connection per name, each with its own driver, default schema and coverage. Table ids are qualified by connection, so a `users` table on two connections stays two tables, with separate links and diagnostics.
+- The output has one connection per name, each with its own driver (`postgresql`, `mysql`, `mariadb` or `sqlite`), default schema and coverage. Table ids are qualified by connection, so a `users` table on two connections stays two tables, with separate links and diagnostics.
 - URLs are never accepted in the configuration or as arguments. A `url` key, or an `url_env` variable listed in `env_passthrough` or `[tool.laranex-schema-viewer.env]`, stops the build.
 - The single-database options (`--database-url-env`, `--schema`, `--database-connection` and their configuration keys) keep working unchanged, but cannot be mixed with `--database` or `[tool.laranex-schema-viewer.databases]`; the build stops and says which options conflict.
 
@@ -61,7 +58,7 @@ laranex-schema-viewer build --source combined \
 
 Each table in a declared build belongs to a namespace, and in a combined build each database connection is reconciled with one of them: the namespace named by its `namespace` key, else the namespace with the connection's own name. When there is exactly one database connection and one declared namespace, they belong together whatever their names. The combined connection takes the database connection's name. Table ids keep the declared namespace; ids are opaque, so this changes nothing a reader relies on.
 
-Run `laranex-schema-viewer build --format laranex-schema` and read the `connections[].name` values to see your declared namespaces. They depend on the ORM:
+Run a declared `laranex-schema-viewer build` and read the `connections[].name` values to see your declared namespaces. They depend on the ORM:
 
 | ORM | Declared namespace | What to map |
 | --- | --- | --- |
@@ -131,8 +128,6 @@ In a combined build, tables match by schema and name; the default schema counts 
 
 `likely` means the comparison normalizes type names or SQL text, for example `VARCHAR(255)` and `character varying(255)`, or casts in a default, and could be wrong. The indexes MySQL creates for foreign keys, and the indexes behind primary keys and unique constraints, are matched to their keys and are not reported as extra.
 
-## Upgrading
+## Not yet produced
 
-- Version 1 snapshots are unchanged and remain the default output. Existing `build`, `serve` and `mcp` usage keeps working.
-- `laranex-schema-viewer convert schema-viewer.json --output schema.json [--orm sqlalchemy]` converts a saved snapshot to laranex-schema 1.0.
-- The isolated extraction worker is new in this release. See [build security](./security.md#upgrading) for what changes for existing builds.
+laranex-schema 2.0 documents also hold schema comparisons, migration tracks and inferred associations. This version writes those arrays empty; computing them is planned. Drift between your models and the database is reported as above, with drift entries and diagnostics, not as comparisons.

@@ -18,7 +18,7 @@ Check `--project-root`, your virtual environment, and application dependencies. 
 
 ## Tables are missing
 
-Confirm that all relevant modules load, use repeated `--module` options or `--recursive`, and inspect the snapshot's `diagnostics`. Compare actual runtime metadata with your expected table identities. Counting source declarations alone does not establish successful extraction.
+Confirm that all relevant modules load, use repeated `--module` options or `--recursive`, and inspect the document's `diagnostics`. Compare actual runtime metadata with your expected table identities. Counting source declarations alone does not establish successful extraction.
 
 Bare metadata targets describe tables; mapped model and ORM relationship discovery also needs loaded mappers.
 
@@ -28,17 +28,17 @@ Check mapper configuration and referenced classes. A foreign key without a decla
 
 ## PostgreSQL details
 
-The snapshot preserves declared schema names, type strings, timezone metadata, partial predicates, and expression indexes. It does not connect to PostgreSQL to verify deployed types, extensions, permissions, or actual index creation. Null schema remains unqualified.
+A declared document preserves schema names, type strings, timezone metadata, partial predicates, and expression indexes. It does not connect to PostgreSQL to verify deployed types, extensions, permissions, or actual index creation. Null schema remains unqualified.
 
 ## MCP cannot start or shows old information
 
-Use absolute executable and snapshot paths. Install the `mcp` extra into the executable's environment. A missing, invalid, oversized, or unsupported-version snapshot fails startup. Rebuild separately, then restart the MCP server to load the new revision.
+Use absolute executable and document paths. Install the `mcp` extra into the executable's environment. A missing, invalid, or oversized file, or one that is not a laranex-schema 2.x document, fails startup; files written by earlier versions of this package must be rebuilt. Rebuild separately, then restart the MCP server to load the new revision.
 
 ## What the MVP does not do
 
-- Reflect a live database or compare migrations with production.
+- Compare schemas between databases or tenant schemas, report migration status, or infer associations from foreign keys. The document has places for them, but this version leaves them empty.
 - Query application data or infer undeclared ORM relationships.
 - Guarantee that metadata from failed imports is complete.
 - Persist viewer layouts or generate schema migrations.
 
-Snapshots can contain sensitive names, comments, and default expressions. Review them before sharing; publish synthetic examples only.
+Documents can contain sensitive names, comments, and default expressions. Review them before sharing; publish synthetic examples only.

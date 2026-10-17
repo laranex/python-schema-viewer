@@ -28,9 +28,9 @@ The adapter reads the `apps` mapping and only the URL scheme or engine name of t
 
 ## What is extracted
 
-| Tortoise declaration | Snapshot |
+| Tortoise declaration | Document |
 | --- | --- |
-| `Meta.table`, `Meta.schema`, `table_description`, field `description` | Table name, schema, and comments; the app label is the namespace |
+| `Meta.table`, `Meta.schema`, `table_description`, field `description` | Table name, schema, and comments; the app label is the connection name |
 | Fields | Columns with the dialect's SQL type, nullability, and defaults |
 | `ForeignKeyField`, `OneToOneField` with `db_constraint=True` | Database foreign keys with their `on_delete` action, which Tortoise writes into the DDL |
 | Forward and backward relations | ORM relationships; `related_name=False` hides the backward side |
@@ -43,6 +43,6 @@ Constraints in `Meta.constraints` are applied by Tortoise migrations, not by `ge
 ## Reported limitations
 
 - Tortoise has no composite primary keys or multi-table inheritance; abstract models contribute their fields to each concrete table.
-- Without a config target, column types are Tortoise's generic SQL types and partial-index conditions are keyed as `tortoise`.
+- Without a config target, column types are Tortoise's generic SQL types and partial-index conditions are keyed as `tortoise` in the index's `dialectOptions`; with one, under the dialect's name (`postgresql`, `mysql`, `sqlite`).
 - Index names that Tortoise generates during schema creation are not known in advance and are left empty.
 - Unknown constraint classes are reported as `unsupported_constraint`.

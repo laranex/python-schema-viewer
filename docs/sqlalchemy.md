@@ -26,6 +26,6 @@ The target syntax is `module:attribute`. A declarative base or registry exposes 
 
 ## Preserved metadata
 
-Ordered composite primary and foreign keys, schema-qualified names, type strings, timezone metadata, constraints, and index definitions are represented in the snapshot. PostgreSQL partial and expression indexes preserve their declared expressions and predicates.
+Ordered composite primary and foreign keys, schema-qualified names, type strings, timezone metadata, constraints, and index definitions are represented in the document. Index key parts are columns (with `desc()` and `nulls_first()`/`nulls_last()` order) or SQL expressions. PostgreSQL partial indexes, `INCLUDE` columns and methods are kept under the index's `dialectOptions`, because metadata can target several dialects.
 
 The tool does not infer ORM relationships from foreign keys or execute callable defaults. Missing mapper dependencies and import failures require investigation; see [Troubleshooting](./troubleshooting.md).

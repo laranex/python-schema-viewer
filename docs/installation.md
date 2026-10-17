@@ -30,13 +30,13 @@ source .venv/bin/activate
 uv pip install 'laranex-schema-viewer[sqlmodel,mcp]'
 ```
 
-To use only the viewer and MCP server on saved snapshots, install the command globally:
+To use only the viewer and MCP server on saved documents, install the command globally:
 
 ```bash
 uv tool install 'laranex-schema-viewer[mcp]'
 ```
 
-Building a snapshot imports your models, so run `build` in an environment that has your application's dependencies, such as `uv run` inside the application.
+Building a document imports your models, so run `build` in an environment that has your application's dependencies, such as `uv run` inside the application.
 
 ## Choose your extras
 
@@ -48,6 +48,7 @@ Building a snapshot imports your models, so run `build` in an environment that h
 | `tortoise` | Tortoise ORM 1.x models through `Tortoise.init_models` |
 | `peewee` | Peewee 3.19+ and 4.x models |
 | `mcp` | Read-only stdio MCP server |
+| `postgresql`, `mysql` | Drivers for [database introspection](./database.md); SQLite needs none |
 | `dev` | ORM, MCP, lint, and Python build dependencies for contributors |
 
 Install only the extras you need. For example, SQLAlchemy without MCP:
@@ -56,7 +57,7 @@ Install only the extras you need. For example, SQLAlchemy without MCP:
 python -m pip install 'laranex-schema-viewer[sqlalchemy]'
 ```
 
-Build using an environment that can import your application's dependencies. Once a snapshot exists, the viewer can run without importing the application.
+Build using an environment that can import your application's dependencies. Once a document exists, the viewer can run without importing the application.
 
 ## Install from source
 

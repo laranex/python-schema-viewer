@@ -34,13 +34,13 @@ Database connections are blocked while settings load and models are read. Column
 
 ## What is extracted
 
-| Django declaration | Snapshot |
+| Django declaration | Document |
 | --- | --- |
 | `Meta.db_table`, `db_table_comment`, `db_comment` | Table name and comments |
 | Concrete fields | Columns with backend types, nullability, Python and `db_default` defaults |
 | `primary_key=True`, `CompositePrimaryKey` (Django 5.2+) | Primary key, including composite keys |
 | `ForeignKey`, `OneToOneField` with `db_constraint=True` | Database foreign keys; delete actions only for Django 6.1+ `DB_CASCADE`, `DB_SET_NULL`, and `DB_SET_DEFAULT` |
-| `ForeignKey`, `OneToOneField`, reverse accessors | ORM relationships; one-to-one has `uselist: false` |
+| `ForeignKey`, `OneToOneField`, reverse accessors | ORM relationships; a one-to-one reverse accessor has cardinality `one-to-one` and is not a collection |
 | `ManyToManyField` | Many-to-many relationships through the automatic or explicit `through` table |
 | `unique`, `unique_together`, `UniqueConstraint`, `CheckConstraint` | Unique and check constraints; conditional or expression `UniqueConstraint` becomes a unique index, as Django creates it |
 | `db_index`, `Meta.indexes` | Indexes with descending order, expressions, conditions, `include`, and PostgreSQL index types |

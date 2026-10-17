@@ -16,25 +16,27 @@ laranex-schema-viewer build \
   --recursive --output schema-viewer.json
 ```
 
-Model imports execute trusted Python code. Recursive imports are restricted to the build process; serving a snapshot never discovers or reloads models.
+Model imports execute trusted Python code. Recursive imports are restricted to the build process; serving a document never discovers or reloads models.
 
-## Snapshot structure
+## Document structure
 
-The versioned JSON document contains:
+`build` writes a [laranex-schema 2.0](https://laranex.github.io/schema-viewer-ui/contract) document. Its fields are camelCase:
 
 | Field | Meaning |
 | --- | --- |
-| `format`, `version` | Snapshot identity and format version |
-| `scope` | `declared_metadata`, not a reflected database |
-| `tables` | Columns, keys, indexes, and constraints |
-| `models` | Mapped Python model identities and table links |
+| `format`, `version` | `"laranex-schema"` and `"2.0"` |
+| `source`, `generator` | `declared` for a build from models; the producing package and the ORM |
+| `connections` | One per ORM namespace, each with its coverage and `tables`: columns, keys, indexes, foreign keys, and constraints |
+| `models` | Mapped Python model identities and the tables they map |
 | `relationships` | Explicit ORM relationship declarations |
-| `diagnostics` | Recorded extraction warnings and errors |
+| `links`, `derivedLinks` | Graph edges relating foreign keys and relationships, built by the shared rules |
+| `diagnostics` | What extraction could not represent |
+| `comparisons`, `migrations`, `inferredAssociations` | Empty in this version |
 
-IDs are opaque. Use returned IDs rather than constructing them from table names. Null `schema_name` means unqualified, not automatically PostgreSQL `public`.
+IDs are opaque. Use returned IDs rather than constructing them from table names. A null `schema` means unqualified, not automatically PostgreSQL `public`.
 
 ## Check completeness
 
 Compare extracted table identities with the metadata objects populated by the same imports. Count static declarations separately from loaded tables: failed imports, duplicate metadata, conditional definitions, and mapper errors can explain differences.
 
-A saved snapshot is a point-in-time artifact. Rebuild after changing models, then restart MCP to load the new revision.
+A saved document is a point-in-time artifact. Rebuild after changing models, then restart MCP to load the new revision.
