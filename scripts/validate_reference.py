@@ -29,6 +29,11 @@ def action(value: str | None) -> str | None:
     return str(value).upper().replace("_", " ") if value else None
 
 
+def literal_sql(expression: object) -> str:
+    """SQL text with bound values inlined, as extraction records expressions."""
+    return str(expression.compile(compile_kwargs={"literal_binds": True}))  # type: ignore[attr-defined]
+
+
 def manifest(root: Path) -> dict[str, str]:
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in root.rglob("*") if p.is_file() and ".git" not in p.parts}
@@ -203,7 +208,7 @@ def main() -> None:
                 for index in actual.indexes:
                     expression_indexes += any(not isinstance(e, Column) for e in index.expressions)
                     extracted = indexes[index.name]
-                    assert [e.name if isinstance(e, Column) else str(e) for e in index.expressions] == [
+                    assert [e.name if isinstance(e, Column) else literal_sql(e) for e in index.expressions] == [
                         p.column if p.column is not None else p.expression for p in extracted.parts]
                     assert bool(index.unique) == extracted.unique
                     for dialect, options in index.dialect_options.items():
