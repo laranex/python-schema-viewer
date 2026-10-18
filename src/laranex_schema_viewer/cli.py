@@ -101,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
         from .server import is_loopback
 
         if not is_loopback(args.host) and not args.unsafe_allow_remote:
-            parser.error(f"--host {args.host} is not a loopback address. The viewer has no authentication or TLS: "
+            serve.error(f"--host {args.host} is not a loopback address. The viewer has no authentication or TLS: "
                          "keep it on 127.0.0.1 and put an authenticated HTTPS reverse proxy in front of it "
                          "(see docs/cli.md#serve), or pass --unsafe-allow-remote")
     if args.command == "check":
