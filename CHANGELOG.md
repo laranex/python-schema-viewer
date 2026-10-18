@@ -6,7 +6,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 **Upgrading:** `serve --host` now refuses a host that is not loopback (`127.0.0.0/8`, `::1`, `localhost`) with a usage error (exit 2). To reach the viewer from another machine, keep it on `127.0.0.1` behind an authenticated HTTPS reverse proxy or an access-controlled tunnel; see [serve](docs/cli.md#serve).
 
+### Added
+
+- `laranex-schema-viewer scan`: finds schema snapshots by content in the Git index (staged bytes, also files tracked before they were ignored), the files Git would add, build artifact directories and, with `--history`, every reachable version, judges them against a path and SHA-256 allowlist (`.laranex-schema-allowlist.json` by default), prints a count summary and writes the `laranex-schema-scan` 1.0 report on request. Exit codes 0 clean, 1 confirmed, 2 failed or incomplete, 3 uncertain. A standard-library port of laranex-schema-viewer-ui 0.4.0's scanner (`laranex_schema_viewer.contract.scan`), checked against all 45 shared scan conformance cases and the shared report and allowlist JSON Schemas; on this repository its report is byte-identical to `contract/scan.mjs`'s. See [scan](docs/cli.md#scan).
+- A pre-commit framework hook, `laranex-schema-scan` (`.pre-commit-hooks.yaml`), and documented plain Git hook and CI recipes.
+- `init` appends an idempotent, commented block to `.gitignore` with `/schema-viewer.json`, `/schema-viewer.html` and the configured output, and reports what it added.
+
 ### Security
+
+- `build` refuses, before extracting or writing anything, an output path that the Git index tracks (exit 1, with a `git rm --cached` hint), and warns on stderr when the output is in a Git work tree and not ignored.
+- CI scans the repository, the unpacked wheel and sdist (no schema documents), the built documentation site (only the allowlisted synthetic demo) and, in the release workflow, the distributions it publishes; any non-zero exit fails, and the report is kept for 7 days on failure. The repository's own allowlist (`.laranex-schema-allowlist.json`, written by `scripts/write_allowlist.py` from an explicit directory list) lists the synthetic demo document, its published copy and two MCP recordings that embed synthetic documents; a test keeps it current.
 
 - Every viewer response, including the 403 (host not allowed), 404, 501 and 503 (document unavailable or invalid) errors and the HTTP parser's own errors, is sent with `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the Content-Security-Policy. Error bodies are plain text with only the status, never schema data.
 - `serve --unsafe-allow-remote` is the only way to bind a non-loopback host. It is never on by default, has no configuration key, and prints a warning on every start: no authentication, no TLS, anyone who can reach the address can read the schema, and the `Host` check is not access control.
@@ -17,6 +26,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - **Breaking:** `serve` refuses non-loopback hosts unless `--unsafe-allow-remote` is given (see above).
 - Documentation never recommends committing schema documents, even to a private repository; the viewer page lists every download (schema files, images, the offline HTML page, the whole document), says that each one made from a private schema is sensitive, states who is responsible for exported files, and describes the 0.3.0 viewer's limitations. The CI example keeps its artifacts for 7 days.
+- The packaged viewer is laranex-schema-viewer-ui 0.4.0. It loads the snapshot only from its own origin and bypasses the HTTP cache; `serve` already serves `/snapshot.json` beside the viewer, so nothing changes for it. `scripts/fetch_ui.py` also installs and checks the new shared scan files (`scan-report.schema.json`, `allowlist.schema.json`, `synthetic.json` and `conformance/scan`) into `tests/fixtures/contract`.
 - CI (`.github/workflows/tests.yml`) runs a small matrix on pull requests and branch pushes (Python 3.10 and 3.14; the databases on 3.14) and the full one on pushes to `main`, manual runs and the release gate (`publish.yml`): Python 3.10 to 3.15, and the databases on 3.10 and 3.14, so both SQLAlchemy 2.0 and 2.1 are tested against PostgreSQL, MySQL and MariaDB. Jobs check out without persisted credentials and have timeouts.
 
 ## [0.5.0] - 2026-10-18

@@ -11,7 +11,7 @@ every file it lists, and the shared contract files must be present. Only then ar
 
     src/laranex_schema_viewer/static/viewer/   the viewer build (dist/viewer), with the UI's LICENSE.txt and NOTICE.txt
     src/laranex_schema_viewer/contract/        schema.json and gate-report.schema.json
-    tests/fixtures/contract/                   the schemas, fixtures and conformance cases (contract/)
+    tests/fixtures/contract/                   the schemas, fixtures, conformance cases and synthetic.json (contract/)
 
 ui.stamp.json records the source (the URL, or the local file's name), its integrity, whether that matched the lock, and every installed file's SHA-256.
 A local tarball that does not match the lock is installed only with --allow-unverified and stamped unverified; the
@@ -39,11 +39,13 @@ from hatch_build import (CONTRACT_MAJOR, FIXTURES, LOCK, SCHEMAS, STAMP, VIEWER,
 
 MAX_TARBALL = 32 * 1024 * 1024
 MAX_UNPACKED = 128 * 1024 * 1024
-CONTRACT_FILES = ("schema.json", "gate-report.schema.json")
+CONTRACT_FILES = ("schema.json", "gate-report.schema.json", "scan-report.schema.json", "allowlist.schema.json",
+                  "synthetic.json")
 CONTRACT_DIRECTORIES = ("fixtures/valid", "fixtures/invalid", "fixtures/gate/valid", "fixtures/gate/invalid",
                         "conformance/graph", "conformance/comparison", "conformance/requests",
                         "conformance/coverage-gaps", "conformance/overrides", "conformance/comparison-diagnostics",
-                        "conformance/store", "conformance/migrations", "conformance/inference", "conformance/gate")
+                        "conformance/store", "conformance/migrations", "conformance/inference", "conformance/gate",
+                        "conformance/scan")
 
 
 class FetchError(Exception):

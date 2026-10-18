@@ -11,7 +11,7 @@ from dataclasses import replace
 from . import __version__
 from .config import (CHECK_CERTAINTIES, CHECK_SEVERITIES, DEFAULT_CHECK_CERTAINTY, DEFAULT_CHECK_SEVERITY,
                      DEFAULT_COMPARISON_LIMIT, DEFAULT_SNAPSHOT, SOURCES, ComparisonConfig, DatabaseConfig,
-                     ProjectConfig, add_config, comparison_option, config_section, database_option,
+                     ProjectConfig, add_config, add_gitignore, comparison_option, config_section, database_option,
                      detect_django_settings, detect_model_module, load_config, resolve_snapshot)
 
 DATABASE_URL_ENV = "LARANEX_SCHEMA_DATABASE_URL"
@@ -95,6 +95,12 @@ def main(argv: list[str] | None = None) -> int:
                        help=f"Differences listed per comparison named here; default {DEFAULT_COMPARISON_LIMIT}")
     check.add_argument("--json", action="store_true", help="Print the laranex-schema-gate 1.0 report instead of a summary")
     check.add_argument("--output", type=Path, metavar="FILE", help="Also write the JSON report to FILE, atomically")
+    from .scan import DESCRIPTION as SCAN_DESCRIPTION, add_arguments as add_scan_arguments
+
+    scan = commands.add_parser(
+        "scan", allow_abbrev=False, description=SCAN_DESCRIPTION,
+        help="Scan the repository and build output for schema snapshots, for CI and pre-commit hooks")
+    add_scan_arguments(scan)
     mcp = commands.add_parser("mcp", help="Run read-only MCP tools over a saved document, on stdio")
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
@@ -106,6 +112,10 @@ def main(argv: list[str] | None = None) -> int:
             return 2  # argparse's usage-error code
     if args.command == "check":
         return run_check(args)
+    if args.command == "scan":
+        from .scan import command
+
+        return command(args, scan)
     try:
         if args.command == "init":
             def ask(question: str, default: str) -> str:
@@ -131,7 +141,11 @@ def main(argv: list[str] | None = None) -> int:
             section = config_section(modules, recursive, output, orm="django" if settings else None,
                                      settings=settings)
             path = add_config(args.project_root, section)
-            print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
+            print(f"Added [tool.laranex-schema-viewer] to {path}.")
+            added = add_gitignore(args.project_root, output)
+            print(f"Added {', '.join(added)} to {args.project_root / '.gitignore'}: schema snapshots must never be "
+                  "committed." if added else "The .gitignore already ignores the schema snapshots.")
+            print("Next: laranex-schema-viewer build")
         elif args.command == "build":
             run_build(args)
         elif args.command == "compare":
@@ -170,6 +184,7 @@ def run_build(args: argparse.Namespace) -> None:
     config = load_config(args.project_root)
     source = args.source or config.source or "declared"
     output = args.output or config.output or DEFAULT_SNAPSHOT
+    check_output(output)
     timeout = args.timeout or config.timeout or IsolationConfig.timeout
     databases = database_connections(args, config)
     comparisons = comparison_specs(args.compare, args.compare_limit, config)
@@ -278,6 +293,24 @@ def run_build(args: argparse.Namespace) -> None:
     print(f"Saved laranex-schema 2.0 ({document.source}): {len(document.tables())} tables, "
           f"{len(document.models)} models, {len(document.relationships)} ORM relationships, {summary} diagnostics, "
           f"to {output}")
+
+
+def check_output(output: Path) -> None:
+    """Refuse an output path the Git index tracks, before anything is extracted or written; warn when one in a Git work
+    tree is not ignored. Outside a Git work tree, nothing is checked."""
+    import shlex
+
+    from .scan import output_status
+
+    status = output_status(output)
+    if status == "tracked":
+        raise ValueError(f"{output} is tracked by Git, and a schema snapshot must never be committed. Stop tracking it "
+                         f"(the file is kept) with `git rm --cached -- {shlex.quote(str(output))}`, add it to "
+                         ".gitignore, commit that, then build again")
+    if status == "unignored":
+        print(f"Warning: {output} is in a Git work tree and not ignored, so it could be committed. Add it to "
+              ".gitignore (`laranex-schema-viewer init` adds the default paths); never commit a schema snapshot",
+              file=sys.stderr)
 
 
 def comparison_specs(options: list[str], limit: int | None, config: ProjectConfig) -> tuple[ComparisonConfig, ...]:
