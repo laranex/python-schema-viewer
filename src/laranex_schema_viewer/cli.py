@@ -60,8 +60,9 @@ def main(argv: list[str] | None = None) -> int:
     serve.add_argument("--host", default="127.0.0.1",
                        help="A loopback address (127.0.0.0/8, ::1) or localhost; default 127.0.0.1")
     serve.add_argument("--unsafe-allow-remote", action="store_true",
-                       help="Allow a non-loopback --host. UNSAFE: no authentication, no TLS; anyone who can reach it "
-                            "reads the schema. Prefer an authenticated HTTPS reverse proxy in front of 127.0.0.1")
+                       help="Bind a non-loopback --host anyway. UNSAFE: no authentication, no TLS; anyone who can "
+                            "reach it reads the schema. Use an authenticated HTTPS reverse proxy with the server on "
+                            "loopback instead")
     serve.add_argument("--port", type=int, default=8765)
     compare = commands.add_parser("compare", help="Compare scopes of a saved document, without a database")
     compare.add_argument("comparisons", nargs="*", metavar="BASELINE=TARGET",
@@ -98,12 +99,11 @@ def main(argv: list[str] | None = None) -> int:
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
     if args.command == "serve":
-        from .server import is_loopback
+        from .server import REMOTE_REFUSAL, is_loopback
 
         if not is_loopback(args.host) and not args.unsafe_allow_remote:
-            serve.error(f"--host {args.host} is not a loopback address. The viewer has no authentication or TLS: "
-                         "keep it on 127.0.0.1 and put an authenticated HTTPS reverse proxy in front of it "
-                         "(see docs/cli.md#serve), or pass --unsafe-allow-remote")
+            print(REMOTE_REFUSAL.format(host=args.host), file=sys.stderr)
+            return 2  # argparse's usage-error code
     if args.command == "check":
         return run_check(args)
     try:
@@ -137,12 +137,10 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "compare":
             run_compare(args)
         elif args.command == "serve":
-            from .server import REMOTE_WARNING, create_server
+            from .server import create_server
 
             snapshot = resolve_snapshot(args.snapshot, Path.cwd())
             with create_server(snapshot, args.host, args.port, allow_remote=args.unsafe_allow_remote) as server:
-                if not is_loopback(args.host):
-                    print(REMOTE_WARNING.format(host=args.host, port=server.server_port), file=sys.stderr, flush=True)
                 print(f"Laranex Schema Viewer: http://{args.host}:{server.server_port}", flush=True)
                 server.serve_forever()
         else:

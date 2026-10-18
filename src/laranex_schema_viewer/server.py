@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
@@ -22,19 +23,27 @@ TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=u
          ".svg": "image/svg+xml", ".ico": "image/x-icon", ".json": "application/json; charset=utf-8"}
 POLICY = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; "
           "base-uri 'none'; frame-ancestors 'none'")
-REMOTE_WARNING = ("Warning: --unsafe-allow-remote serves the schema to anyone who can reach {host}:{port}, with no "
-                  "authentication and no TLS. Host checking is not access control. Keep the server on 127.0.0.1 and "
-                  "put an authenticated HTTPS reverse proxy or an access-controlled tunnel in front of it instead.")
+# The same texts as node-schema-viewer's.
+REMOTE_REFUSAL = ("Error: --host {host} is not a loopback address (127.0.0.0/8, ::1, localhost). The viewer has no "
+                  "authentication and no TLS: keep it on loopback behind an authenticated HTTPS reverse proxy or "
+                  "tunnel, or pass --unsafe-allow-remote to bind it anyway")
+REMOTE_WARNING = ("Warning: --unsafe-allow-remote: serving on {host}, which is not loopback, with no authentication and "
+                  "no TLS. Anyone who can reach this address can read the schema; Host checking is not access control. "
+                  "Use an authenticated HTTPS reverse proxy with the server on loopback instead.")
 
 
 def is_loopback(host: str) -> bool:
-    """127.0.0.0/8, ::1 and the name localhost; any other host or name may be reachable from other machines."""
+    """`localhost` (any case) and IP literals in 127.0.0.0/8 or ::1, IPv4-mapped ones included. Anything else (0.0.0.0,
+    ::, [::1], localhost., other names, numeric forms such as 2130706433) may be reachable from other machines."""
     if host.lower() == "localhost":
         return True
     try:
-        return ipaddress.ip_address(host).is_loopback
+        address = ipaddress.ip_address(host)
     except ValueError:
         return False
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+        address = address.ipv4_mapped
+    return address.is_loopback
 
 
 def viewer_routes() -> dict[str, tuple[str, str]]:
@@ -51,11 +60,14 @@ def viewer_routes() -> dict[str, tuple[str, str]]:
 
 
 def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765, allow_remote: bool = False):
-    if not (is_loopback(host) or allow_remote):
-        raise ValueError(f"{host!r} is not a loopback address; the viewer has no authentication and binds to "
-                         "loopback only (see docs/cli.md#serve)")
+    """The viewer server, bound and listening. A host that is not loopback needs allow_remote, and then warns on
+    stderr every time."""
+    if not is_loopback(host) and not allow_remote:
+        raise ValueError(REMOTE_REFUSAL.format(host=host).removeprefix("Error: "))
     path = Path(snapshot).resolve()
     read_document(path)  # Fail before binding if the document is missing, invalid or of another version.
+    if not is_loopback(host):
+        print(REMOTE_WARNING.format(host=host), file=sys.stderr, flush=True)
     viewer = files("laranex_schema_viewer").joinpath("static/viewer")
     routes = viewer_routes()
 
