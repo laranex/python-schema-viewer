@@ -2,10 +2,12 @@
 
 It serves the packaged laranex-schema-viewer-ui build (static/viewer, files listed in its manifest only) and the
 configured laranex-schema 2.x document as /snapshot.json, validated and in canonical form, reloaded on each request.
+It binds to loopback only, unless the caller explicitly allows a remote host: it has no authentication and no TLS.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
@@ -20,6 +22,19 @@ TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=u
          ".svg": "image/svg+xml", ".ico": "image/x-icon", ".json": "application/json; charset=utf-8"}
 POLICY = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; "
           "base-uri 'none'; frame-ancestors 'none'")
+REMOTE_WARNING = ("Warning: --unsafe-allow-remote serves the schema to anyone who can reach {host}:{port}, with no "
+                  "authentication and no TLS. Host checking is not access control. Keep the server on 127.0.0.1 and "
+                  "put an authenticated HTTPS reverse proxy or an access-controlled tunnel in front of it instead.")
+
+
+def is_loopback(host: str) -> bool:
+    """127.0.0.0/8, ::1 and the name localhost; any other host or name may be reachable from other machines."""
+    if host.lower() == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
 
 
 def viewer_routes() -> dict[str, tuple[str, str]]:
@@ -35,13 +50,27 @@ def viewer_routes() -> dict[str, tuple[str, str]]:
     return routes
 
 
-def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765):
+def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765, allow_remote: bool = False):
+    if not (is_loopback(host) or allow_remote):
+        raise ValueError(f"{host!r} is not a loopback address; the viewer has no authentication and binds to "
+                         "loopback only (see docs/cli.md#serve)")
     path = Path(snapshot).resolve()
     read_document(path)  # Fail before binding if the document is missing, invalid or of another version.
     viewer = files("laranex_schema_viewer").joinpath("static/viewer")
     routes = viewer_routes()
 
     class Handler(BaseHTTPRequestHandler):
+        # Errors carry only their status, never schema data or request details.
+        error_message_format = "%(code)d %(message)s\n"
+        error_content_type = "text/plain; charset=utf-8"
+
+        def end_headers(self):
+            # Every response, errors included (send_error, and the base class's 400, 414 and 501).
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", POLICY)
+            super().end_headers()
+
         def do_GET(self):
             self.respond()
 
@@ -70,9 +99,6 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
             self.send_response(200)
             self.send_header("Content-Type", mime)
             self.send_header("Content-Length", str(len(content)))
-            self.send_header("Cache-Control", "no-store")
-            self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Security-Policy", POLICY)
             self.end_headers()
             if not head:
                 self.wfile.write(content)
