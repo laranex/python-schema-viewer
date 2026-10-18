@@ -437,6 +437,18 @@ class ScanCli(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("not_a_repository", result.stderr)
 
+    def test_the_pre_commit_hook_runs_the_command_from_source(self):
+        hooks = (ROOT / ".pre-commit-hooks.yaml").read_text(encoding="utf-8")
+        self.assertIn("- id: laranex-schema-scan\n", hooks)
+        self.assertIn("  entry: scripts/pre-commit-scan.py\n  language: script\n  args: [--tracked]\n", hooks)
+        script = ROOT / "scripts" / "pre-commit-scan.py"
+        self.assertTrue(os.access(script, os.X_OK))
+        env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+        result = subprocess.run([sys.executable, "-I", str(script), "--tracked"], cwd=ROOT, env=env,
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(result.stdout.startswith("laranex-schema-scan: "))
+
 
 @unittest.skipUnless(GIT, "git is not installed")
 class SnapshotProtection(unittest.TestCase):

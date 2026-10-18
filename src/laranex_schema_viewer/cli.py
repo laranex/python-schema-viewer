@@ -95,25 +95,12 @@ def main(argv: list[str] | None = None) -> int:
                        help=f"Differences listed per comparison named here; default {DEFAULT_COMPARISON_LIMIT}")
     check.add_argument("--json", action="store_true", help="Print the laranex-schema-gate 1.0 report instead of a summary")
     check.add_argument("--output", type=Path, metavar="FILE", help="Also write the JSON report to FILE, atomically")
+    from .scan import DESCRIPTION as SCAN_DESCRIPTION, add_arguments as add_scan_arguments
+
     scan = commands.add_parser(
-        "scan", allow_abbrev=False,
-        help="Scan the repository and build output for schema snapshots, for CI and pre-commit hooks",
-        description="Finds laranex-schema documents by content and judges them against the allowlist (default: "
-                    ".laranex-schema-allowlist.json at the Git top level, if present). Prints counts only; paths and "
-                    "reasons are in the laranex-schema-scan report. Exit codes: 0 clean; 1 a confirmed exposure; 2 the "
-                    "scan failed or is incomplete; 3 an uncertain exposure (2 > 1 > 3 > 0).")
-    scan.add_argument("--tracked", action="store_true",
-                      help="Every file in the Git index, read from the index (staged bytes, and files tracked before "
-                           "they were ignored)")
-    scan.add_argument("--untracked", action="store_true", help="Files Git would add: untracked and not ignored")
-    scan.add_argument("--artifacts", action="append", default=[], metavar="DIR",
-                      help="A build output directory, every file, ignore rules not applied; repeatable")
-    scan.add_argument("--history", action="store_true",
-                      help="Every version of a .json, .html or .htm file reachable from any ref (fails on a shallow "
-                           "clone)")
-    scan.add_argument("--allowlist", metavar="FILE", help="A laranex-schema-allowlist file")
-    scan.add_argument("--report", metavar="FILE", help="Write the laranex-schema-scan report (JSON) to FILE")
-    scan.add_argument("--json", action="store_true", help="Print the report instead of the summary")
+        "scan", allow_abbrev=False, description=SCAN_DESCRIPTION,
+        help="Scan the repository and build output for schema snapshots, for CI and pre-commit hooks")
+    add_scan_arguments(scan)
     mcp = commands.add_parser("mcp", help="Run read-only MCP tools over a saved document, on stdio")
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
@@ -126,7 +113,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "check":
         return run_check(args)
     if args.command == "scan":
-        return run_scan(args, scan)
+        from .scan import command
+
+        return command(args, scan)
     try:
         if args.command == "init":
             def ask(question: str, default: str) -> str:
@@ -392,23 +381,6 @@ def run_check(args: argparse.Namespace) -> int:
         return report["exitCode"]
     except (Exception, KeyboardInterrupt) as error:
         print(f"Error: {error or type(error).__name__}", file=sys.stderr)
-        return 2
-
-
-def run_scan(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
-    """The snapshot scanner. Returns its exit code; a usage error exits 2 without a report, as scan.mjs does."""
-    from .scan import ScanOptions, run
-
-    if not (args.tracked or args.untracked or args.history or args.artifacts):
-        parser.print_usage(sys.stderr)
-        print(f"{parser.prog}: error: name at least one scope", file=sys.stderr)
-        return 2
-    options = ScanOptions(tracked=args.tracked, untracked=args.untracked, history=args.history,
-                          artifacts=args.artifacts, allowlist=args.allowlist, report=args.report, json=args.json)
-    try:
-        return run(options, stdout=sys.stdout, stderr=sys.stderr)
-    except (Exception, KeyboardInterrupt) as error:
-        print(f"{parser.prog}: error: {type(error).__name__}", file=sys.stderr)
         return 2
 
 

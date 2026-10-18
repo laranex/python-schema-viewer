@@ -10,6 +10,8 @@ laranex-schema-viewer init
 
 Asks for model modules, recursive import, and the output path (or, in a Django project with `manage.py`, the settings module and optional apps), then appends a `[tool.laranex-schema-viewer]` section to `pyproject.toml`, creating the file if needed. Suggested values come from model detection; press Enter to accept them. `--yes` accepts every suggestion without prompting. `init` never overwrites an existing section and does not import application code.
 
+`init` also appends a commented block to the project root's `.gitignore` (creating it if needed) with anchored patterns for the default snapshot `/schema-viewer.json`, the viewer's offline download `/schema-viewer.html` and, when it differs and lies inside the project root, the configured output (for example `/out/schema.json`). It adds only the patterns the file does not already contain, prints what it added, and running it again adds nothing.
+
 ```toml
 [tool.laranex-schema-viewer]
 modules = ["app.models"]
@@ -36,6 +38,8 @@ laranex-schema-viewer build
 ```
 
 Every build writes one [laranex-schema 2.0](https://laranex.github.io/schema-viewer-ui/contract) document in canonical JSON (sorted keys, two-space indentation, no timestamps), validated strictly before it replaces the previous file. A failed build leaves the previous file in place.
+
+A schema snapshot must never be committed. Before extracting anything, `build` asks Git about its output path: when the Git index tracks it, `build` stops with exit code 1 and writes nothing, and tells you to untrack it with `git rm --cached -- PATH` (the file is kept) and ignore it; when the path is in a Git work tree but not ignored (`git check-ignore`), `build` writes it and prints a warning on stderr. Outside a Git work tree, or without Git, nothing is checked.
 
 | Option | Default | Purpose |
 | --- | --- | --- |
@@ -121,6 +125,73 @@ The CI schema drift gate, a thin layer over the port of the shared reference gat
 | `--json` | Off |
 | `--output FILE` | None |
 
+## Scan
+
+```bash
+laranex-schema-viewer scan --tracked --untracked --artifacts dist
+```
+
+Finds schema snapshots by content, not by file name, so a private schema is not committed or published by accident: laranex-schema documents at the top level or nested up to six levels deep, documents embedded in HTML (and, in artifact directories, in JavaScript bundles and source maps), and the legacy formats. It is a port of the shared scanner (`contract/scan.mjs` of laranex-schema-viewer-ui), with the same options, scopes, summary line, report and exit codes; the rules are the [snapshot scanning](https://laranex.github.io/schema-viewer-ui/contract#snapshot-scanning) section of the contract, and the 45 shared conformance cases pass. It reads only files and Git objects (Git runs as a subprocess, without a shell): no network, database or application code. Name at least one scope; without one, `scan` prints "name at least one scope" and exits 2.
+
+| Option | Scans |
+| --- | --- |
+| `--tracked` | Every `.json`, `.html` and `.htm` file in the Git index, read from the index: the staged bytes, also of a file tracked before it was ignored |
+| `--untracked` | The same files that Git would add: untracked and not ignored |
+| `--artifacts DIR` | Every file under a build output directory, ignore rules not applied, JavaScript (`.js`, `.mjs`, `.cjs`) and source maps (`.map`) included; repeatable |
+| `--history` | Every version of a candidate file reachable from any ref; a shallow clone fails the scan |
+| `--allowlist FILE` | The allowlist; default `.laranex-schema-allowlist.json` at the Git top level, if present |
+| `--report FILE` | Also write the `laranex-schema-scan` 1.0 report (JSON) |
+| `--json` | Print the report instead of the summary |
+
+The command prints a one-line count summary, never file content; paths and reasons are only in the report, which holds paths, commits, SHA-256 digests and fixed codes. Exit code 0 clean, 1 a confirmed exposure (a snapshot, an allowlisted file whose content changed, or allowlisted content at another path), 2 the scan failed or is incomplete (not a Git work tree, Git failed, an invalid or unreadable allowlist, a missing artifact directory, an unreadable file or one over 64 MiB, a symbolic link to a directory in an artifact directory, no history, a usage error, a report that cannot be written), 3 an uncertain finding (for example a truncated document). 2 wins over 1, 1 over 3. CI should fail on every non-zero exit.
+
+An approved synthetic fixture, or a snapshot committed on purpose, is listed in the allowlist by exact path and SHA-256 (of the bytes with CRLF read as LF); nothing inside a document marks it as synthetic, and listing a file is a review decision, not proof that it is harmless. An entry that matches no file is reported as stale (a warning). Allowlists may include others under a `root`, such as laranex-schema-viewer-ui's `contract/synthetic.json`:
+
+```json
+{
+  "format": "laranex-schema-allowlist",
+  "version": "1.0",
+  "entries": [{"path": "tests/fixtures/blog.json", "sha256": "…"}]
+}
+```
+
+Not detected, and so still your responsibility to keep out of version control: SVG, PNG, DBML, Mermaid and Markdown exports, compressed or encoded payloads (such as base64+gzip offline pages), and files with other extensions. Gate reports (`check --output`) are not snapshots, but they describe the schema too: keep them as access-restricted CI artifacts with a short retention.
+
+### Before each commit
+
+A plain Git hook, `.git/hooks/pre-commit` (executable), scans what is staged:
+
+```sh
+#!/bin/sh
+exec laranex-schema-viewer scan --tracked
+```
+
+With the [pre-commit](https://pre-commit.com) framework, add the hook this repository publishes to `.pre-commit-config.yaml`. It runs the scanner from the pinned release's source with the `python3` on `PATH` (3.10 or later) and Git, so it needs neither the package installed nor network access at commit time:
+
+```yaml
+repos:
+  - repo: https://github.com/laranex/python-schema-viewer
+    rev: vX.Y.Z  # a release that has the hook
+    hooks:
+      - id: laranex-schema-scan
+        # args: [--tracked, --untracked]  # the default is [--tracked]
+```
+
+### In CI
+
+Scan the checkout and everything you publish, fail on any non-zero exit, and keep the report only when it fails:
+
+```yaml
+- run: laranex-schema-viewer scan --tracked --untracked --artifacts dist --report scan-report.json
+- if: failure()
+  uses: actions/upload-artifact@v7
+  with:
+    name: scan-report
+    path: scan-report.json
+    if-no-files-found: ignore
+    retention-days: 7
+```
+
 ## MCP
 
 ```bash
@@ -138,4 +209,5 @@ laranex-schema-viewer init --help
 laranex-schema-viewer build --help
 laranex-schema-viewer compare --help
 laranex-schema-viewer check --help
+laranex-schema-viewer scan --help
 ```

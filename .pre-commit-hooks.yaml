@@ -1,0 +1,16 @@
+# The snapshot scanner as a pre-commit framework hook: https://pre-commit.com
+#   repos:
+#     - repo: https://github.com/laranex/python-schema-viewer
+#       rev: vX.Y.Z
+#       hooks:
+#         - id: laranex-schema-scan
+# It scans the staged files (the Git index) and fails the commit on any non-zero exit. See docs/cli.md#scan.
+- id: laranex-schema-scan
+  name: Scan for laranex-schema snapshots
+  description: Fails when the Git index holds a schema snapshot that the allowlist does not list
+  entry: scripts/pre-commit-scan.py
+  language: script
+  args: [--tracked]
+  pass_filenames: false
+  always_run: true
+  stages: [pre-commit, pre-push, manual]

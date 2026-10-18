@@ -8,7 +8,9 @@ Also the build's check that its output is not tracked or left unignored in a Git
 
 from __future__ import annotations
 
+import argparse
 import os
+import sys
 import stat
 import subprocess
 from collections.abc import Callable, Sequence
@@ -22,6 +24,10 @@ from .contract.scan import (SCAN_SIZE_LIMIT, ResolvedAllowlist, ScanFile, ScanIn
 
 DEFAULT_ALLOWLIST = ".laranex-schema-allowlist.json"
 PROGRAM = "laranex-schema-viewer scan"
+DESCRIPTION = ("Finds laranex-schema documents by content and judges them against the allowlist (default: "
+               ".laranex-schema-allowlist.json at the Git top level, if present). Prints counts only; paths and "
+               "reasons are in the laranex-schema-scan report. Exit codes: 0 clean; 1 a confirmed exposure; 2 the scan "
+               "failed or is incomplete; 3 an uncertain exposure (2 > 1 > 3 > 0).")
 # Blob reads are batched so that one batch holds at most this many bytes.
 BATCH_BYTES = 256 * 1024 * 1024
 
@@ -370,3 +376,40 @@ def output_status(path: str | os.PathLike[str]) -> str | None:
         return "tracked"
     ignored = _run(["git", "-C", top, "check-ignore", "-q", "--", relative])
     return "unignored" if ignored is not None and ignored.returncode == 1 else None
+
+
+def add_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--tracked", action="store_true",
+                        help="Every file in the Git index, read from the index (staged bytes, and files tracked before "
+                             "they were ignored)")
+    parser.add_argument("--untracked", action="store_true", help="Files Git would add: untracked and not ignored")
+    parser.add_argument("--artifacts", action="append", default=[], metavar="DIR",
+                        help="A build output directory, every file, ignore rules not applied; repeatable")
+    parser.add_argument("--history", action="store_true",
+                        help="Every version of a .json, .html or .htm file reachable from any ref (fails on a shallow "
+                             "clone)")
+    parser.add_argument("--allowlist", metavar="FILE", help="A laranex-schema-allowlist file")
+    parser.add_argument("--report", metavar="FILE", help="Write the laranex-schema-scan report (JSON) to FILE")
+    parser.add_argument("--json", action="store_true", help="Print the report instead of the summary")
+
+
+def command(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
+    """The scan command's exit code; a usage error exits 2 without a report, as scan.mjs does."""
+    if not (args.tracked or args.untracked or args.history or args.artifacts):
+        parser.print_usage(sys.stderr)
+        print(f"{parser.prog}: error: name at least one scope", file=sys.stderr)
+        return 2
+    options = ScanOptions(tracked=args.tracked, untracked=args.untracked, history=args.history,
+                          artifacts=args.artifacts, allowlist=args.allowlist, report=args.report, json=args.json)
+    try:
+        return run(options, stdout=sys.stdout, stderr=sys.stderr)
+    except (Exception, KeyboardInterrupt) as error:
+        print(f"{parser.prog}: error: {type(error).__name__}", file=sys.stderr)
+        return 2
+
+
+def main(argv: list[str] | None = None) -> int:
+    """The command alone, without the rest of the CLI (the pre-commit hook runs it from the package source)."""
+    parser = argparse.ArgumentParser(prog=PROGRAM, description=DESCRIPTION, allow_abbrev=False)
+    add_arguments(parser)
+    return command(parser.parse_args(argv), parser)
