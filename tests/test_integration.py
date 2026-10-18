@@ -141,6 +141,12 @@ class IntegrationTests(unittest.TestCase):
         cases["503 missing"] = get("/snapshot.json")
         for case, (head, body) in cases.items():
             with self.subTest(case):
+                if case == "400" and not head.startswith(b"HTTP/"):
+                    # Python 3.10 answers a malformed request version HTTP/0.9-style: only a body, with no status line
+                    # or headers to add to. It still carries no schema.
+                    for name in [*names, b"secret_table", b"laranex-schema", str(self.path).encode()]:
+                        self.assertNotIn(name, head + body)
+                    continue
                 self.assertTrue(head.startswith(b"HTTP/1.0 " + case[:3].encode()), head)
                 self.assertIn(b"\r\nCache-Control: no-store", head)
                 self.assertIn(b"\r\nX-Content-Type-Options: nosniff", head)
