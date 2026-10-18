@@ -1,16 +1,68 @@
 name: tests
+
+# Two matrices (AGENTS.md, "CI and supported versions"):
+# - pr: pull requests and branch pushes. Python 3.10 (the requires-python floor: SQLAlchemy 2.0, Django 5.2) and
+#   3.14 (the newest version every ORM extra declares: SQLAlchemy 2.1, Django 6.x); the databases on 3.14.
+# - release: pushes to main, manual runs and publish.yml: every Python version the classifiers list, and the
+#   databases on both SQLAlchemy lines (2.0 on 3.10, 2.1 on 3.14).
 on:
   push:
   pull_request:
-  workflow_call:
-jobs:
-  python:
-    runs-on: ubuntu-latest
-    strategy:
+  workflow_dispatch:
+    inputs:
       matrix:
-        python: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.15']
+        description: Which matrix to run
+        type: choice
+        options: [release, pr]
+        default: release
+  workflow_call:
+    inputs:
+      matrix:
+        description: pr or release
+        type: string
+        default: release
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Select the matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      python: ${{ steps.select.outputs.python }}
+      databases: ${{ steps.select.outputs.databases }}
+    steps:
+      - id: select
+        env:
+          MODE: ${{ inputs.matrix || (github.event_name == 'push' && github.ref == 'refs/heads/main' && 'release') || 'pr' }}
+        run: |
+          case "$MODE" in
+            release) python='["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]'; databases='["3.10", "3.14"]' ;;
+            pr) python='["3.10", "3.14"]'; databases='["3.14"]' ;;
+            *) echo "Unknown matrix: $MODE (expected pr or release)"; exit 1 ;;
+          esac
+          {
+            echo "python=$python"
+            echo "databases=$databases"
+          } >> "$GITHUB_OUTPUT"
+
+  python:
+    # Lint, the suite (contract, MCP conformance, process-level isolation and the other security regression tests;
+    # servers skipped), the sdist and wheel, and the wheel check.
+    name: Python ${{ matrix.python }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ${{ fromJSON(needs.plan.outputs.python) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
@@ -21,9 +73,17 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python -m build
       - run: python scripts/check_wheel.py
+
   databases:
     # Introspection, read-only enforcement and reconciliation against disposable servers (synthetic schemas only).
+    name: Databases, Python ${{ matrix.python }}
+    needs: plan
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ${{ fromJSON(needs.plan.outputs.databases) }}
     services:
       postgres:
         image: postgres:17.6
@@ -46,27 +106,34 @@ jobs:
       LSV_TEST_MARIADB_URL: mysql+pymysql://root:lsv-admin@127.0.0.1:53307/lsv
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.13'
+          python-version: ${{ matrix.python }}
       - name: Fetch the shared UI from the npm tarball ui.lock.json pins
         run: python scripts/fetch_ui.py
       - run: pip install -e '.[dev]'
       - run: python -m unittest tests.test_introspection tests.test_reconcile tests.test_cli_database tests.test_multiconnection -v
+
   viewer:
     # The fetched shared viewer in headless Chrome (preinstalled on ubuntu-latest) for declared, database and
-    # combined documents.
+    # combined documents. The viewer does not depend on the Python version, so one run covers it.
+    name: Viewer in headless Chrome
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.14'
       - name: Fetch the shared UI from the npm tarball ui.lock.json pins
         run: python scripts/fetch_ui.py
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
       - run: pip install -e '.[dev]'
       - run: python -m unittest tests.test_browser -v
         env:

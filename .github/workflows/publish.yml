@@ -13,7 +13,10 @@ concurrency:
 
 jobs:
   tests:
+    # The release gate: the full supported-version matrix.
     uses: ./.github/workflows/tests.yml
+    with:
+      matrix: release
 
   build:
     needs: tests

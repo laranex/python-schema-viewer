@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+
+- CI (`.github/workflows/tests.yml`) runs a small matrix on pull requests and branch pushes (Python 3.10 and 3.14; the databases on 3.14) and the full one on pushes to `main`, manual runs and the release gate (`publish.yml`): Python 3.10 to 3.15, and the databases on 3.10 and 3.14, so both SQLAlchemy 2.0 and 2.1 are tested against PostgreSQL, MySQL and MariaDB. Jobs check out without persisted credentials and have timeouts.
+
 ## [0.5.0] - 2026-10-18
 
 **Upgrading:** every build now writes a laranex-schema 2.0 document, and `serve` and `mcp` read laranex-schema 2.x only. Version 1 snapshots and laranex-schema 1.0 documents are no longer read or converted: rebuild them with `laranex-schema-viewer build`. MCP responses changed shape; see [the response format](docs/mcp.md#response-format).
