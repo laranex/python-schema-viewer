@@ -23,7 +23,7 @@ Replace `sqlmodel` with your ORM's extra: `sqlalchemy`, `django`, `tortoise`, or
 
 With [uv](https://docs.astral.sh/uv/), add it to your application instead: `uv add --dev 'laranex-schema-viewer[sqlmodel,mcp]'`, then prefix commands with `uv run`. The `python3` bundled with macOS is 3.9 and is not supported; see [installation](https://laranex.github.io/python-schema-viewer/installation.html).
 
-Open **http://127.0.0.1:8765** to search tables, inspect indexes and relationships, and navigate the graph. The viewer is the shared [Laranex Schema Viewer UI](https://laranex.github.io/python-schema-viewer/viewer.html), vendored prebuilt: it needs no Node.js or web framework and loads nothing from the internet.
+Open **http://127.0.0.1:8765** to search tables, inspect indexes and relationships, and navigate the graph. The viewer is the shared [Laranex Schema Viewer UI](https://laranex.github.io/python-schema-viewer/viewer.html), packaged prebuilt: it needs no Node.js or web framework and loads nothing from the internet.
 
 Build only trusted modules: imports and mapper callbacks execute application code. A declared document describes model metadata, not deployed database state; review documents before sharing.
 

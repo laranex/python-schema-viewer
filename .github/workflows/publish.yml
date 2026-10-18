@@ -26,6 +26,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install build
+      - name: Fetch the shared UI from the npm tarball ui.lock.json pins (the build hook refuses anything else)
+        run: python scripts/fetch_ui.py
       - name: Check release tag matches package version
         run: |
           version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")

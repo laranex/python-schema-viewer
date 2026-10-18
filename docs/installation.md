@@ -61,12 +61,15 @@ Build using an environment that can import your application's dependencies. Once
 
 ## Install from source
 
-To contribute or try unreleased changes, install an editable checkout:
+To contribute or try unreleased changes, install an editable checkout. The prebuilt viewer and the shared contract files are not in the repository: `scripts/fetch_ui.py` downloads the `laranex-schema-viewer-ui` npm tarball that `ui.lock.json` pins and checks its SHA-512 first. Builds never download anything and stop with "run python scripts/fetch_ui.py" until it has run.
 
 ```bash
 git clone https://github.com/laranex/python-schema-viewer.git
 cd python-schema-viewer
+python scripts/fetch_ui.py
 python -m pip install -e '.[dev]'
 ```
+
+Installing from the PyPI sdist needs neither the fetch step nor Node.js: the sdist contains the verified assets.
 
 Continue with [Quick start](./quick-start.md).

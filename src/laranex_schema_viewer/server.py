@@ -1,6 +1,6 @@
 """Small snapshot-only HTTP server, independent of web frameworks.
 
-It serves the vendored laranex-schema-viewer-ui build (static/viewer, files listed in its manifest only) and the
+It serves the packaged laranex-schema-viewer-ui build (static/viewer, files listed in its manifest only) and the
 configured laranex-schema 2.x document as /snapshot.json, validated and in canonical form, reloaded on each request.
 """
 

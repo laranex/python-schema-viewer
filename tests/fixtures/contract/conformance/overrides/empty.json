@@ -1,9 +1,0 @@
-{
-  "description": "No overrides are valid",
-  "expected": {
-    "errors": []
-  },
-  "input": {
-    "overrides": []
-  }
-}
