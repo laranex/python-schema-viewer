@@ -63,14 +63,15 @@ artifacts = [
   "/src/laranex_schema_viewer/contract/gate-report.schema.json",
 ]
 
+# The sdist holds only what builds the wheel (offline, without Node.js): no tests, fixtures, docs or demo documents.
 [tool.hatch.build.targets.sdist]
-exclude = ["/.agents", "/.claude", "/.validation"]
+only-include = ["/src", "/hatch_build.py", "/ui.lock.json", "/ui.stamp.json", "/README.md", "/CHANGELOG.md", "/SECURITY.md",
+                "/LICENSE", "/NOTICE"]
 artifacts = [
   "/ui.stamp.json",
   "/src/laranex_schema_viewer/static/viewer/",
   "/src/laranex_schema_viewer/contract/schema.json",
   "/src/laranex_schema_viewer/contract/gate-report.schema.json",
-  "/tests/fixtures/contract/",
 ]
 
 [tool.ruff]

@@ -1,8 +1,11 @@
 """Check the built distribution: the shared UI assets of the tarball ui.lock.json pins (the viewer files its manifest
 lists and the JSON Schemas, byte for byte as ui.stamp.json records them, and nothing else there), workers, type marker
-and CLI, and nothing of the removed version 1 snapshot format."""
+and CLI, and nothing of the removed version 1 snapshot format. When an sdist is given or in dist/, check that it holds
+only what builds the wheel: the package source, the build hook, the lock, the stamp and the runtime assets, and no
+tests, fixtures, docs or demo documents."""
 
 import configparser
+import tarfile
 import hashlib
 import json
 import os
@@ -16,12 +19,37 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+SDIST_TOP_LEVEL = {"src", "hatch_build.py", "pyproject.toml", "PKG-INFO", "ui.lock.json", "ui.stamp.json", "README.md",
+                   "CHANGELOG.md", "SECURITY.md", "LICENSE", "NOTICE", ".gitignore"}
+
+
+def check_sdist(path: Path, stamp: dict) -> int:
+    """The sdist's members, below its top directory, are exactly what builds the wheel; returns its file count."""
+    with tarfile.open(path) as sdist:
+        members = {m.name.split("/", 1)[1]: m for m in sdist.getmembers() if m.isfile()}
+        stray = sorted(n for n in members if n.split("/", 1)[0] not in SDIST_TOP_LEVEL
+                       or (n.startswith("src/") and not n.startswith("src/laranex_schema_viewer/")))
+        assert not stray, f"the sdist holds files the wheel build does not need: {stray}"
+        runtime = {n: d for n, d in stamp["files"].items() if n.startswith("src/")}
+        packaged = {n for n in members if n.endswith(".json") and n.startswith("src/")} | {
+            n for n in members if n.startswith("src/laranex_schema_viewer/static/")}
+        assert packaged == set(runtime), sorted(packaged ^ set(runtime))
+        for name, digest in runtime.items():
+            assert hashlib.sha256(sdist.extractfile(members[name]).read()).hexdigest() == digest, name
+        assert json.loads(sdist.extractfile(members["ui.stamp.json"]).read()) == stamp, "the sdist's stamp differs"
+        return len(members)
+
+
 def main():
-    wheels = [Path(a) for a in sys.argv[1:]] or list(Path("dist").glob("*.whl"))
+    paths = [Path(a) for a in sys.argv[1:]] or [*Path("dist").glob("*.whl"), *Path("dist").glob("*.tar.gz")]
+    wheels = [p for p in paths if p.suffix == ".whl"]
+    sdists = [p for p in paths if p.name.endswith(".tar.gz")]
     assert len(wheels) == 1, "Build exactly one wheel first, or pass its path"
+    assert len(sdists) <= 1, "Pass at most one sdist"
     lock = json.loads((ROOT / "ui.lock.json").read_text())
     stamp = json.loads((ROOT / "ui.stamp.json").read_text())
     assert stamp["verified"] and stamp["integrity"] == lock["integrity"], "the UI assets are not the locked tarball's"
+    sdist = f"; {sdists[0].name}: {check_sdist(sdists[0], stamp)} files, no tests or fixtures" if sdists else ""
     with zipfile.ZipFile(wheels[0]) as wheel:
         names = wheel.namelist()
         # The shared viewer: every file its manifest lists, byte for byte, and nothing from the old viewer.
@@ -85,7 +113,7 @@ def main():
             assert result.returncode == 0, result.stderr
     print(f"{wheels[0].name}: viewer {manifest['version']} ({len(manifest['files'])} files, {len(runtime)} UI assets "
           "matching ui.stamp.json), laranex-schema 2.0 "
-          "and gate report schemas, workers, CLI entry point, no version 1 format, and isolated import: passed")
+          f"and gate report schemas, workers, CLI entry point, no version 1 format, and isolated import{sdist}: passed")
 
 
 if __name__ == "__main__":

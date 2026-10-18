@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import shutil
 import tarfile
 import tempfile
 import unittest
@@ -156,6 +157,36 @@ class FetchUI(unittest.TestCase):
         (self.root / STAMP).unlink()
         with self.assertRaisesRegex(AssetError, "run python scripts/fetch_ui.py"):
             check_assets(self.root)
+
+    def test_builds_check_the_runtime_assets_without_the_test_fixtures(self):
+        # An sdist carries the stamp and the runtime assets but not tests/fixtures/contract; its wheel must still build,
+        # and every runtime asset must still be checked exactly.
+        self.fetch(tarball(package_files()))
+        fixtures = self.root / "tests/fixtures/contract"
+        (fixtures / "extra.json").write_text("{}")
+        (fixtures / "schema.json").write_text("changed")
+        for target in ("sdist", "wheel"):
+            check_build(self.root, target, "standard", environ={})
+        with self.assertRaisesRegex(AssetError, "does not list"):
+            check_assets(self.root)
+        shutil.rmtree(self.root / "tests")
+        for target in ("sdist", "wheel"):
+            check_build(self.root, target, "standard", environ={})
+        with self.assertRaisesRegex(AssetError, "does not list"):
+            check_assets(self.root)
+        viewer = self.root / "src/laranex_schema_viewer/static/viewer"
+        schema = self.root / "src/laranex_schema_viewer/contract/gate-report.schema.json"
+        for change, undo in (
+                (lambda: (viewer / "extra.js").write_text(""), lambda: (viewer / "extra.js").unlink()),
+                (lambda: (viewer / "app.js").write_text("changed"),
+                 lambda: (viewer / "app.js").write_text("console.log(1)")),
+                (lambda: schema.write_text("changed"), lambda: schema.write_text("{}")),
+                (lambda: schema.unlink(), lambda: schema.write_text("{}"))):
+            change()
+            with self.assertRaises(AssetError):
+                check_build(self.root, "wheel", "standard", environ={})
+            undo()
+            check_build(self.root, "wheel", "standard", environ={})
 
     def test_the_build_checks_follow_the_lock(self):
         self.fetch(tarball(package_files()))
