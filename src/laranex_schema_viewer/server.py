@@ -2,11 +2,14 @@
 
 It serves the packaged laranex-schema-viewer-ui build (static/viewer, files listed in its manifest only) and the
 configured laranex-schema 2.x document as /snapshot.json, validated and in canonical form, reloaded on each request.
+It binds to loopback only, unless the caller explicitly allows a remote host: it has no authentication and no TLS.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
@@ -20,6 +23,27 @@ TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=u
          ".svg": "image/svg+xml", ".ico": "image/x-icon", ".json": "application/json; charset=utf-8"}
 POLICY = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; "
           "base-uri 'none'; frame-ancestors 'none'")
+# The same texts as node-schema-viewer's.
+REMOTE_REFUSAL = ("Error: --host {host} is not a loopback address (127.0.0.0/8, ::1, localhost). The viewer has no "
+                  "authentication and no TLS: keep it on loopback behind an authenticated HTTPS reverse proxy or "
+                  "tunnel, or pass --unsafe-allow-remote to bind it anyway")
+REMOTE_WARNING = ("Warning: --unsafe-allow-remote: serving on {host}, which is not loopback, with no authentication and "
+                  "no TLS. Anyone who can reach this address can read the schema; Host checking is not access control. "
+                  "Use an authenticated HTTPS reverse proxy with the server on loopback instead.")
+
+
+def is_loopback(host: str) -> bool:
+    """`localhost` (any case) and IP literals in 127.0.0.0/8 or ::1, IPv4-mapped ones included. Anything else (0.0.0.0,
+    ::, [::1], localhost., other names, numeric forms such as 2130706433) may be reachable from other machines."""
+    if host.lower() == "localhost":
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+        address = address.ipv4_mapped
+    return address.is_loopback
 
 
 def viewer_routes() -> dict[str, tuple[str, str]]:
@@ -35,13 +59,30 @@ def viewer_routes() -> dict[str, tuple[str, str]]:
     return routes
 
 
-def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765):
+def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 8765, allow_remote: bool = False):
+    """The viewer server, bound and listening. A host that is not loopback needs allow_remote, and then warns on
+    stderr every time."""
+    if not is_loopback(host) and not allow_remote:
+        raise ValueError(REMOTE_REFUSAL.format(host=host).removeprefix("Error: "))
     path = Path(snapshot).resolve()
     read_document(path)  # Fail before binding if the document is missing, invalid or of another version.
+    if not is_loopback(host):
+        print(REMOTE_WARNING.format(host=host), file=sys.stderr, flush=True)
     viewer = files("laranex_schema_viewer").joinpath("static/viewer")
     routes = viewer_routes()
 
     class Handler(BaseHTTPRequestHandler):
+        # Errors carry only their status, never schema data or request details.
+        error_message_format = "%(code)d %(message)s\n"
+        error_content_type = "text/plain; charset=utf-8"
+
+        def end_headers(self):
+            # Every response, errors included (send_error, and the base class's 400, 414 and 501).
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", POLICY)
+            super().end_headers()
+
         def do_GET(self):
             self.respond()
 
@@ -70,9 +111,6 @@ def create_server(snapshot: str | Path, host: str = "127.0.0.1", port: int = 876
             self.send_response(200)
             self.send_header("Content-Type", mime)
             self.send_header("Content-Length", str(len(content)))
-            self.send_header("Cache-Control", "no-store")
-            self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Security-Policy", POLICY)
             self.end_headers()
             if not head:
                 self.wfile.write(content)

@@ -170,9 +170,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: schema
+          retention-days: 7
           path: |
             schema-viewer.json
             gate-report.json
 ```
 
-The job fails on exit 1 (drift) and on exit 2 (an incomplete or invalid check). For a production-like comparison, inspect with a read-only role ([database introspection](./database.md)); the gate itself needs no database access at all. To check a document committed earlier instead, skip the database and run `check --snapshot path/to/schema-viewer.json`.
+The job fails on exit 1 (drift) and on exit 2 (an incomplete or invalid check). For a production-like comparison, inspect with a read-only role ([database introspection](./database.md)); the gate itself needs no database access at all. To check a document saved earlier instead (for example, one another job uploaded as an artifact), skip the database and run `check --snapshot path/to/schema-viewer.json`. Never commit the document. It and the gate report describe the schema: keep them as CI artifacts that only people who may see the schema can download, with a short retention.

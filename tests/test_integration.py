@@ -8,7 +8,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
@@ -102,6 +102,114 @@ class IntegrationTests(unittest.TestCase):
         self.assertIn(b"503", request("/snapshot.json"))
         self.path.write_text(json.dumps({"format": "laranex-schema", "version": "1.0"}))
         self.assertIn(b"503", request("/snapshot.json"))
+
+    def test_every_response_carries_the_security_headers_and_errors_carry_no_schema(self):
+        from laranex_schema_viewer.server import POLICY
+
+        with patch("laranex_schema_viewer.server.ThreadingHTTPServer") as constructor:
+            create_server(self.path)
+            handler = constructor.call_args.args[1]
+
+        def request(raw: bytes) -> tuple[bytes, bytes]:
+            output = io.BytesIO()
+
+            class Connection:
+                def makefile(self, *args):
+                    return io.BytesIO(raw)
+
+                def sendall(self, data):
+                    output.write(data)
+
+            handler(Connection(), ("127.0.0.1", 10000), None)
+            head, _, body = output.getvalue().partition(b"\r\n\r\n")
+            return head, body
+
+        def get(target, host="localhost", method="GET"):
+            return request(f"{method} {target} HTTP/1.0\r\nHost: {host}\r\n\r\n".encode())
+
+        names = [t.name.encode() for t in example_document().tables()]
+        self.assertTrue(names)
+        valid = self.path.read_bytes()
+        cases = {"200": get("/snapshot.json"), "200 page": get("/"), "403": get("/snapshot.json", host="evil.example"),
+                 "404": get("/snapshot.json/x"), "501": get("/snapshot.json", method="POST"),
+                 "400": request(b"GET /snapshot.json HTTP/1.0 extra\r\n\r\n")}
+        self.path.write_text("{\"format\": \"laranex-schema\", \"version\": \"2.0\", \"secret_table\": 1")
+        cases["503 invalid"] = get("/snapshot.json")
+        self.path.write_text(json.dumps({**json.loads(valid), "version": "9.0"}))
+        cases["503 version"] = get("/snapshot.json")
+        self.path.unlink()
+        cases["503 missing"] = get("/snapshot.json")
+        for case, (head, body) in cases.items():
+            with self.subTest(case):
+                self.assertTrue(head.startswith(b"HTTP/1.0 " + case[:3].encode()), head)
+                self.assertIn(b"\r\nCache-Control: no-store", head)
+                self.assertIn(b"\r\nX-Content-Type-Options: nosniff", head)
+                self.assertIn(f"\r\nContent-Security-Policy: {POLICY}".encode(), head)
+                if not case.startswith("200"):
+                    for name in [*names, b"secret_table", b"laranex-schema", str(self.path).encode()]:
+                        self.assertNotIn(name, body)
+                    self.assertIn(b"Content-Type: text/plain; charset=utf-8", head)
+                    self.assertTrue(body.startswith(f"{case[:3]} ".encode()), body)
+        self.assertEqual(cases["200"][1], valid)
+        self.assertEqual(cases["503 missing"][1], b"503 Snapshot unavailable or invalid\n")
+
+    def test_serve_binds_to_loopback_only_unless_explicitly_unsafe(self):
+        from laranex_schema_viewer import cli
+        from laranex_schema_viewer.server import REMOTE_REFUSAL, REMOTE_WARNING, is_loopback
+
+        for host in ("127.0.0.1", "127.8.9.10", "::1", "::ffff:127.0.0.1", "localhost", "LocalHost"):
+            self.assertTrue(is_loopback(host), host)
+        refused = ("0.0.0.0", "", "::", "[::1]", "localhost.", "192.168.1.10", "::ffff:10.0.0.1", "example.com",
+                   "127.1", "2130706433", "0x7f000001")
+        for host in refused:
+            self.assertFalse(is_loopback(host), host)
+            with self.assertRaisesRegex(ValueError, "is not a loopback address"):
+                create_server(self.path, host=host, port=0)
+
+        def serve(*args, snapshot=self.path):
+            stdout, stderr = io.StringIO(), io.StringIO()
+            fake = MagicMock(server_port=8765)
+            fake.__enter__.return_value = fake
+            fake.serve_forever.side_effect = KeyboardInterrupt
+            with patch("laranex_schema_viewer.server.create_server", return_value=fake) as created, \
+                    patch("sys.stdout", stdout), patch("sys.stderr", stderr):
+                code = cli.main(["serve", "--snapshot", str(snapshot), *args])
+            return code, created, stdout.getvalue(), stderr.getvalue()
+
+        code, created, out, err = serve()
+        self.assertEqual((code, err), (0, ""))
+        self.assertEqual(created.call_args.args[1:3], ("127.0.0.1", 8765))
+        self.assertEqual(created.call_args.kwargs, {"allow_remote": False})
+        self.assertIn("http://127.0.0.1:8765", out)
+        for host in ("0.0.0.0", "192.168.1.10", "example.com"):
+            with self.subTest(refused=host):
+                # Refused before the snapshot is read: a missing one makes no difference.
+                code, created, out, err = serve("--host", host, snapshot=self.path.with_name("missing.json"))
+                self.assertEqual((code, err, out), (2, REMOTE_REFUSAL.format(host=host) + "\n", ""))
+                created.assert_not_called()
+        code, created, out, err = serve("--host", "0.0.0.0", "--unsafe-allow-remote")
+        self.assertEqual(code, 0, err)
+        self.assertEqual(created.call_args.args[1:3], ("0.0.0.0", 8765))
+        self.assertEqual(created.call_args.kwargs, {"allow_remote": True})
+
+        # The server itself warns on every start with a remote host, after the document validates and before binding.
+        def start(host, path=self.path):
+            stderr = io.StringIO()
+            with patch("laranex_schema_viewer.server.ThreadingHTTPServer") as constructor, patch("sys.stderr", stderr):
+                constructor.return_value.server_bind.side_effect = lambda: stderr.write("<bound>")
+                create_server(path, host=host, port=0, allow_remote=True)
+            return stderr.getvalue()
+
+        for _ in range(2):
+            self.assertEqual(start("0.0.0.0"), REMOTE_WARNING.format(host="0.0.0.0") + "\n<bound>")
+        for text in ("no authentication and no TLS", "Anyone who can reach this address can read the schema",
+                     "Host checking is not access control", "authenticated HTTPS reverse proxy"):
+            self.assertIn(text, REMOTE_WARNING)
+        self.assertEqual(start("127.0.0.1"), "<bound>")
+        self.path.write_text("invalid")
+        with self.assertRaises(ValueError), patch("sys.stderr", io.StringIO()) as stderr:
+            create_server(self.path, host="0.0.0.0", port=0, allow_remote=True)
+        self.assertEqual(stderr.getvalue(), "")
 
     def test_serve_and_mcp_refuse_other_versions_clearly(self):
         rebuild = "rebuild it with `laranex-schema-viewer build`, which writes laranex-schema 2.0"

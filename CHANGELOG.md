@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+**Upgrading:** `serve --host` now refuses a host that is not loopback (`127.0.0.0/8`, `::1`, `localhost`) with a usage error (exit 2). To reach the viewer from another machine, keep it on `127.0.0.1` behind an authenticated HTTPS reverse proxy or an access-controlled tunnel; see [serve](docs/cli.md#serve).
+
+### Security
+
+- Every viewer response, including the 403 (host not allowed), 404, 501 and 503 (document unavailable or invalid) errors and the HTTP parser's own errors, is sent with `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and the Content-Security-Policy. Error bodies are plain text with only the status, never schema data.
+- `serve --unsafe-allow-remote` is the only way to bind a non-loopback host. It is never on by default, has no configuration key, and prints a warning on every start: no authentication, no TLS, anyone who can reach the address can read the schema, and the `Host` check is not access control.
+- The sdist ships only what builds the wheel: the package source, the build hook, `ui.lock.json`, `ui.stamp.json`, the viewer and the two runtime JSON Schemas, and the top-level notices. It no longer contains the tests, the shared contract fixtures (`tests/fixtures/contract`), the MCP conformance recordings, the docs or the documentation demo document. The build hook checks the runtime assets it packages, unchanged in strictness, so a wheel still builds from the sdist offline without Node.js; `scripts/check_wheel.py` also checks the sdist's contents.
+- `.gitignore` ignores `/schema-viewer.json` and the viewer's offline download `/schema-viewer.html` at the repository root.
+
+### Changed
+
+- **Breaking:** `serve` refuses non-loopback hosts unless `--unsafe-allow-remote` is given (see above).
+- Documentation never recommends committing schema documents, even to a private repository; the viewer page lists every download (schema files, images, the offline HTML page, the whole document), says that each one made from a private schema is sensitive, states who is responsible for exported files, and describes the 0.3.0 viewer's limitations. The CI example keeps its artifacts for 7 days.
+
 ## [0.5.0] - 2026-10-18
 
 **Upgrading:** every build now writes a laranex-schema 2.0 document, and `serve` and `mcp` read laranex-schema 2.x only. Version 1 snapshots and laranex-schema 1.0 documents are no longer read or converted: rebuild them with `laranex-schema-viewer build`. MCP responses changed shape; see [the response format](docs/mcp.md#response-format).

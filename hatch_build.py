@@ -2,10 +2,12 @@
 
 `python scripts/fetch_ui.py` installs the assets of the pinned laranex-schema-viewer-ui npm tarball and records them
 in ui.stamp.json. This hook only reads files: it never downloads anything, so a wheel builds from the sdist (which
-carries ui.lock.json, ui.stamp.json and the assets) offline, without Node.js.
+carries ui.lock.json, ui.stamp.json and the runtime assets, but not the test fixtures) offline, without Node.js.
 
-Every file the stamp lists must exist with its recorded SHA-256, no other file may sit in the asset locations, the
-stamp must name the locked package, version and integrity, and the viewer manifest must match its files. Assets from a
+The runtime assets (the viewer and the two JSON Schemas) are what sdists and wheels contain, so a build checks those:
+every runtime file the stamp lists must exist with its recorded SHA-256, no other file may sit in the runtime asset
+locations, the stamp must name the locked package, version and integrity, and the viewer manifest must match its
+files. The fetch script and the tests check the whole stamp, the contract test fixtures included. Assets from a
 local tarball that does not match the lock are unverified: sdists and wheels are never built from them. Only an
 editable install accepts them, and only with LSV_ALLOW_UNVERIFIED_UI=1.
 """
@@ -41,16 +43,22 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def asset_files(root: Path) -> list[str]:
-    """Every file in the asset locations, as POSIX paths relative to root."""
+def is_runtime(name: str) -> bool:
+    """Whether a stamped file is a runtime asset (packaged in sdists and wheels), not a contract test fixture."""
+    return name in SCHEMAS or name.startswith(VIEWER + "/")
+
+
+def asset_files(root: Path, runtime_only: bool = False) -> list[str]:
+    """Every file in the asset locations (only the runtime ones with runtime_only), as POSIX paths relative to root."""
     found = [s for s in SCHEMAS if (root / s).exists()]
-    for directory in (VIEWER, FIXTURES):
+    for directory in (VIEWER,) if runtime_only else (VIEWER, FIXTURES):
         found += [p.relative_to(root).as_posix() for p in (root / directory).rglob("*") if not p.is_dir()]
     return sorted(found)
 
 
-def check_assets(root: Path, allow_unverified: bool = False) -> dict:
-    """The stamp, after checking the installed assets against it, the lock and the viewer manifest."""
+def check_assets(root: Path, allow_unverified: bool = False, runtime_only: bool = False) -> dict:
+    """The stamp, after checking the installed assets (only the runtime ones with runtime_only) against it, the lock
+    and the viewer manifest."""
     try:
         lock = json.loads((root / LOCK).read_text())
         stamp = json.loads((root / STAMP).read_text())
@@ -65,7 +73,9 @@ def check_assets(root: Path, allow_unverified: bool = False) -> dict:
         raise AssetError(f"The installed UI assets come from an unverified tarball ({stamp.get('source')}); "
                          f"{FETCH} without --tarball, or with the locked tarball")
     files = stamp.get("files", {})
-    if asset_files(root) != sorted(files):
+    if runtime_only:
+        files = {name: digest for name, digest in files.items() if is_runtime(name)}
+    if asset_files(root, runtime_only) != sorted(files):
         raise AssetError(f"The UI asset locations hold files ui.stamp.json does not list, or miss some; {FETCH}")
     for name, digest in files.items():
         if (root / name).is_symlink() or sha256(root / name) != digest:
@@ -84,9 +94,11 @@ def check_assets(root: Path, allow_unverified: bool = False) -> dict:
 
 
 def check_build(root: Path, target: str, version: str, environ=os.environ) -> None:
-    """Unverified assets reach only editable installs that ask for them; sdists and wheels never contain them."""
+    """Unverified assets reach only editable installs that ask for them; sdists and wheels never contain them. Neither
+    contains the contract test fixtures, so only the runtime assets are checked (a wheel built from an sdist has no
+    fixtures to check)."""
     editable = target == "wheel" and version == "editable"
-    check_assets(root, allow_unverified=editable and environ.get(OVERRIDE) == "1")
+    check_assets(root, allow_unverified=editable and environ.get(OVERRIDE) == "1", runtime_only=True)
 
 
 class UIAssetsHook(BuildHookInterface):

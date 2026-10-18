@@ -8,7 +8,10 @@ build/
 .ruff_cache/
 .coverage
 htmlcov/
-schema-viewer.json
+
+# Schema documents built here and the viewer's offline HTML download describe a schema: never commit them
+/schema-viewer.json
+/schema-viewer.html
 
 # Documentation development and generated demo assets
 node_modules/
