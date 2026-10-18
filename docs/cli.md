@@ -79,6 +79,8 @@ laranex-schema-viewer serve
 
 The server serves allowlisted viewer assets and the selected document, which it validates on startup and on each request. A file of another format or version stops `serve` with an error; rebuild it. Every response, errors included, is sent with `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and a restrictive Content-Security-Policy, and error responses carry only their status.
 
+`serve` is the one exception to authentication in development: it has none, and is meant for a single developer on their own machine. Never share it.
+
 The viewer has no authentication and no TLS, so `serve` binds only to loopback. Another `--host` (`0.0.0.0`, a LAN address, a host name) is refused with exit code 2. To reach the viewer from another machine, keep `serve` on loopback and put an authenticated HTTPS reverse proxy or an access-controlled tunnel in front of it. In a container, the container's loopback is not reachable through a published port, so `serve` there needs `--host 0.0.0.0 --unsafe-allow-remote` (and warns); publish the port to the host's loopback only (`-p 127.0.0.1:8765:8765`), so that nothing beyond the host can reach it.
 
 `--unsafe-allow-remote` binds a non-loopback host anyway. It is never on by default, has no configuration key, and prints a warning to stderr on every start: anyone who can reach the address can read the whole schema, and the `Host` check is not access control. It is not a secure way to share the viewer.

@@ -8,6 +8,8 @@ laranex-schema-viewer serve --snapshot schema-viewer.json
 
 Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is packaged prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
 
+`serve` is the one exception to authentication in development: it has none, and is meant for a single developer on their own machine. Never share it. It listens on loopback only; to open it from anywhere else, keep it on loopback behind an authenticated HTTPS reverse proxy or an access-controlled tunnel ([serve](./cli.md#serve)).
+
 The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The packaged build is laranex-schema-viewer-ui 0.3.0, from the npm tarball pinned (with its SHA-512) in `ui.lock.json`. A file of another format or version stops `serve` with an error asking for a rebuild.
 
 ## Explore the diagram

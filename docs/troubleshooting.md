@@ -32,7 +32,7 @@ A declared document preserves schema names, type strings, timezone metadata, par
 
 ## serve refuses the host
 
-`Error: --host 0.0.0.0 is not a loopback address` (exit 2): the viewer has no authentication or TLS, so it listens on loopback only. Keep the default `127.0.0.1` and reach it from another machine through an authenticated HTTPS reverse proxy or an SSH tunnel; see [serve](./cli.md#serve). `--unsafe-allow-remote` overrides the refusal and is not a secure deployment.
+`Error: --host 0.0.0.0 is not a loopback address` (exit 2): the viewer has no authentication or TLS, so it listens on loopback only. Keep the default `127.0.0.1` and reach it from another machine through an authenticated HTTPS reverse proxy or an SSH tunnel; see [serve](./cli.md#serve). `--unsafe-allow-remote` overrides the refusal and is unsafe, not a deployment option: `serve` has no authentication and is meant for a single developer on their own machine.
 
 ## MCP cannot start or shows old information
 
