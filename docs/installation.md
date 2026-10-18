@@ -4,6 +4,8 @@
 
 Use Python 3.10 or newer and an isolated virtual environment. Each supported ORM is an optional installation extra.
 
+CI tests Python 3.10 and 3.14 on every pull request and 3.10 to 3.15 before each release, with PostgreSQL, MySQL and MariaDB on both SQLAlchemy 2.0 (Python 3.10) and 2.1 (Python 3.11 and later). On Python 3.10 and 3.11 the `django` extra installs Django 5.2; on 3.12 and later, Django 6.
+
 Check your interpreter first with `python3 --version`. The `python3` bundled with macOS is Python 3.9, which pip skips this package for; use a newer Python from [python.org](https://www.python.org/downloads/), Homebrew, or [uv](#install-with-uv).
 
 ```bash

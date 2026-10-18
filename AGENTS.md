@@ -59,13 +59,22 @@ python -m build && python scripts/check_wheel.py    # check_wheel also compares 
 - ORM tests skip when that ORM is missing; report skips and untested versions accurately. No type checker is configured.
 - Database tests: `docker compose -f tests/databases/compose.yaml up -d`, then export `LSV_TEST_POSTGRES_URL`, `LSV_TEST_MYSQL_URL` and `LSV_TEST_MARIADB_URL` as shown in `tests/test_introspection.py`. Without them, only SQLite runs. Schemas are synthetic; never point these tests at a real database.
 - Browser tests (`tests/test_browser.py`, skipped unless `LSV_BROWSER=1`) build declared, database, combined, two-connection combined and compared documents from synthetic fixtures (and serve the shared comparison, migration and inference fixtures), serve each, and run `scripts/browser-smoke.mjs` in headless Chrome over the DevTools Protocol (no Playwright/Puppeteer). Set `CHROME_BIN` if Chrome is not found. Against a viewer you started yourself: `VIEWER_URL=http://127.0.0.1:8765/ EXPECT='{"source":"declared"}' npm run test:browser`.
+- CI and supported versions: `.github/workflows/tests.yml` tests representative supported Python versions, chosen by what the dependency ranges actually resolve to, not every release. A `plan` job picks the matrix: `release` for pushes to `main`, `workflow_dispatch` (default) and `workflow_call` (`publish.yml` passes `matrix: release`), `pr` for everything else.
+
+  | Job | `pr` | `release` |
+  | --- | --- | --- |
+  | Lint, suite (process-level isolation and the other security regression tests, contract, MCP conformance), `python -m build`, `check_wheel.py` | 3.10, 3.14 | 3.10, 3.11, 3.12, 3.13, 3.14, 3.15 |
+  | Databases (PostgreSQL, MySQL, MariaDB as services in one job) | 3.14 | 3.10, 3.14 |
+  | Viewer in headless Chrome | 3.14 | 3.14 |
+
+  3.10 is the `requires-python` floor, where `[dev]` resolves SQLAlchemy 2.0 (2.1 needs 3.11) and Django 5.2 (6.x needs 3.12). 3.14 is the newest version every ORM extra declares, with SQLAlchemy 2.1 and Django 6.x; the database jobs run on both because introspection uses SQLAlchemy's Inspector. Release adds every other version in the classifiers, including 3.15 (released 2026-10-09; not yet declared by Django, SQLModel, Tortoise or MCP). When a new Python is released, add it to the classifiers and `release`; move `pr`'s newest version to it once every ORM extra declares it. When the floor changes (3.10 reached end of life on 2026-10-01), raise `requires-python`, the classifiers, ruff's `target-version` and both matrices together. Container isolation tests (`LSV_TEST_CONTAINER_IMAGE`) do not run in CI.
 - Reference validation: `PYTHONDONTWRITEBYTECODE=1 python scripts/validate_reference.py /absolute/path/to/backend --module app.models`. Keep outputs outside the application; measure actual counts.
 - For schema questions prefer read-only MCP tools, then saved JSON. Saved metadata does not prove deployed schema or freshness.
 
 ## Releases and changelog
 
 - Record user-visible changes under `## [Unreleased]` in `CHANGELOG.md`; on release, move them under the new version and date.
-- Publishing a GitHub release `vX.Y.Z` runs `.github/workflows/publish.yml`: the full `tests.yml` workflow on the release commit, tag/version match, a check that the version is not already on PyPI, then Trusted Publishing. Do not bypass these gates.
+- Publishing a GitHub release `vX.Y.Z` runs `.github/workflows/publish.yml`: `tests.yml` with the `release` matrix on the release commit, tag/version match, a check that the version is not already on PyPI, then Trusted Publishing. Do not bypass these gates.
 
 ## Distributable skills
 
