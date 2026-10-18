@@ -155,7 +155,7 @@ An approved synthetic fixture, or a snapshot committed on purpose, is listed in 
 }
 ```
 
-Not detected, and so still your responsibility to keep out of version control: SVG, PNG, DBML, Mermaid and Markdown exports, compressed or encoded payloads (such as base64+gzip offline pages), and files with other extensions. Gate reports (`check --output`) are not snapshots, but they describe the schema too: keep them as access-restricted CI artifacts with a short retention.
+Not detected, and so still your responsibility to keep out of version control: SVG, PNG, DBML, Mermaid and Markdown exports, compressed or encoded payloads (such as base64+gzip offline pages), and files with other extensions. Gate reports (`check --output`) are not snapshots, but they describe the schema too: keep them as access-restricted CI artifacts with a short retention ([schema drift gate](./check.md#github-actions)). If a snapshot was committed or published, follow the [incident response](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md#incident-response) in the security policy, starting with `scan --history`.
 
 ### Before each commit
 

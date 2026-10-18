@@ -176,4 +176,9 @@ jobs:
             gate-report.json
 ```
 
-The job fails on exit 1 (drift) and on exit 2 (an incomplete or invalid check). For a production-like comparison, inspect with a read-only role ([database introspection](./database.md)); the gate itself needs no database access at all. To check a document saved earlier instead (for example, one another job uploaded as an artifact), skip the database and run `check --snapshot path/to/schema-viewer.json`. Never commit the document. It and the gate report describe the schema: keep them as CI artifacts that only people who may see the schema can download, with a short retention.
+The job fails on exit 1 (drift) and on exit 2 (an incomplete or invalid check). For a production-like comparison, inspect with a read-only role ([database introspection](./database.md)); the gate itself needs no database access at all. To check a document saved earlier instead (for example, one another job uploaded as an artifact), skip the database and run `check --snapshot path/to/schema-viewer.json`. Never commit the document. It and the gate report describe the schema, so treat both as sensitive CI artifacts:
+
+- **Access.** Upload them only where just the people who may see the schema can download them. A public repository's workflow artifacts can be downloaded by anyone who can read the repository, so do not upload the document or the report there; print the summary in the log instead.
+- **Retention.** Keep them only as long as a failing job needs investigating (`retention-days: 7` above), and delete them sooner when a job has been resolved.
+
+The gate report is not a schema snapshot, so `scan` does not flag it, but it carries table, column and schema names in its labels. See the [security policy](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md#schema-snapshots-are-sensitive).

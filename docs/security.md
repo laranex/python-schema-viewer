@@ -4,6 +4,8 @@
 
 `serve`, `mcp` and `compare` read a saved document only. They never import application code or connect to a database, at any isolation level. [Database introspection](./database.md) runs in a second worker with different powers, described [below](#database-introspection).
 
+This page covers builds. The package's [security policy](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md) covers the rest: who enforces what, the development-only viewer and `serve`, MCP, why snapshots and exports are sensitive, the [snapshot scan](./cli.md#scan), its limitations, incident response, and how to report a vulnerability. The cross-framework viewer policy is the shared [viewer security page](https://laranex.github.io/schema-viewer-ui/security.html).
+
 ## Threat model
 
 The code being imported is your application: models, settings modules, and everything they import, including mapper callbacks and Django `AppConfig.ready()`. Usually it is trusted but careless: an import that opens a database, creates tables, writes a log file, calls a service, or reads `DATABASE_URL`. Sometimes it is a dependency or a pull request you have not reviewed.

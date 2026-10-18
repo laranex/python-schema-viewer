@@ -53,4 +53,5 @@ For MCP clients, configure a stdio server with the absolute executable path and 
 
 - No export or hints commands exist; migration status and inferred associations are not produced yet (their document arrays are empty).
 - The server is local and unauthenticated; do not expose it or publish documents without authorization.
+- Documents and viewer downloads reveal the schema: never commit them, even to a private repository. `init` ignores the default document and offline page; `laranex-schema-viewer scan --tracked --untracked` finds committed ones.
 - Package contribution rules live in the package repository's `AGENTS.md`, not in this skill.

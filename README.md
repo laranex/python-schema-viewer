@@ -27,6 +27,15 @@ Open **http://127.0.0.1:8765** to search tables, inspect indexes and relationshi
 
 Build only trusted modules: imports and mapper callbacks execute application code. A declared document describes model metadata, not deployed database state; review documents before sharing.
 
+## Security notice
+
+- The viewer is a development tool: never expose it in production. `serve` has no authentication and is for one developer on loopback only; reach it from elsewhere only through an authenticated HTTPS reverse proxy or tunnel.
+- Schema snapshots and every export of them (offline HTML, JSON, DBML, Mermaid, Markdown, SVG, PNG), and gate reports, reveal your schema. Never commit or publish them, even in a private repository.
+- If you serve the viewer or a document any other way, protect every delivery path server-side: page, assets, document, downloads and caches.
+- Run `laranex-schema-viewer scan --tracked --untracked` in a pre-commit hook and in CI, and fail on any non-zero exit.
+
+See [SECURITY.md](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md) and the shared [viewer security policy](https://laranex.github.io/schema-viewer-ui/security.html).
+
 ## Documentation
 
 - [Installation](https://laranex.github.io/python-schema-viewer/installation.html) and [quick start](https://laranex.github.io/python-schema-viewer/quick-start.html)
@@ -39,7 +48,7 @@ Install agent skills with `npx skills add laranex/python-schema-viewer`; see the
 
 ## Contributing
 
-See [AGENTS.md](https://github.com/laranex/python-schema-viewer/blob/main/AGENTS.md) for architecture, development commands, testing, and documentation maintenance. [Validation](https://github.com/laranex/python-schema-viewer/blob/main/docs/validation.md) and [skill verification](https://github.com/laranex/python-schema-viewer/blob/main/docs/agent-skills-validation.md) describe test coverage and limitations. Report vulnerabilities as described in [SECURITY.md](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md). Release notes are in the [changelog](https://github.com/laranex/python-schema-viewer/blob/main/CHANGELOG.md).
+See [CONTRIBUTING.md](https://github.com/laranex/python-schema-viewer/blob/main/CONTRIBUTING.md) for synthetic fixtures, the allowlist and the pre-commit scan, and [AGENTS.md](https://github.com/laranex/python-schema-viewer/blob/main/AGENTS.md) for architecture, development commands, testing, and documentation maintenance. [Validation](https://github.com/laranex/python-schema-viewer/blob/main/docs/validation.md) and [skill verification](https://github.com/laranex/python-schema-viewer/blob/main/docs/agent-skills-validation.md) describe test coverage and limitations. Report vulnerabilities as described in [SECURITY.md](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md). Release notes are in the [changelog](https://github.com/laranex/python-schema-viewer/blob/main/CHANGELOG.md).
 
 Documentation Markdown lives in `docs/`; VitePress tooling lives in `.gh-page/`:
 
