@@ -16,7 +16,7 @@ The viewer reads laranex-schema 2.x documents: declared (`build`), database (`bu
 - Search tables, columns, models and relationships; browse tables, relationships or columns in the side panel.
 - Select a table for its columns, primary key, indexes (unique, composite, partial with predicate, expression, method, included columns), constraints, foreign keys in both directions, ORM relationships and models.
 - Focus a table's neighbors to a chosen depth; the selection is kept in the URL.
-- Switch light/dark themes (remembered), and download the JSON document or a PNG/SVG image of the diagram.
+- Switch light/dark themes (remembered), and open the **Download** dialog (<kbd>E</kbd>; see [downloads](#downloads)).
 - On a phone-width screen the side panel becomes a bottom sheet.
 
 ## Foreign keys and ORM relationships
@@ -29,18 +29,18 @@ Self references and composite foreign keys keep their column pairs. Relationship
 
 A document built from several database connections (see [database introspection](./database.md#several-connections)) holds one connection per name, each with its own driver:
 
-- **All connections** (the default): each connection is laid out on its own inside a labelled frame showing its name, driver and table count, so a `users` table on two connections is drawn twice, never merged. Relationships between connections run between the frames.
+- **All connections** (the default): each connection is laid out on its own inside a labelled frame showing its name, driver, table count and diagnostic count, so a `users` table on two connections is drawn twice, never merged. Relationships between connections run between the frames. A frame grows to contain a table dragged out of it.
 - **One connection**: pick it in the header's **Connection** menu (on a phone, in the ⋯ menu), or step through all connections and each connection with <kbd>[</kbd> and <kbd>]</kbd>. Tables on other connections that the shown tables' relationships reach stay on the diagram as dashed reference nodes marked *On connection NAME · driver*. They cannot be moved or folded; clicking one opens that table on its own connection.
 - Every table label names its connection, for example `analytics · users`: on cards, in Browse, search results, Details headings, edge details, the phone sheet and image exports.
 - A relationship between two connections is always drawn as an ORM relationship with no constraint (dashed), marked `cross-connection`. Foreign keys never cross connections.
 - Deep links: `#connection=<id>` opens one connection (an unknown id opens all of them), and `#table=<id>` opens that table, also on its own connection when `#connection=` names another one. Connection ids look like `connection:analytics`; table ids are opaque and qualified by connection.
 - Coverage is listed per connection, and drift and reconciliation diagnostics name their connection.
 
-Known limitations of the shared viewer (laranex-schema-viewer-ui 0.2.0):
+Known limitations of the shared viewer (laranex-schema-viewer-ui 0.3.0):
 
-- Frames are placed by the automatic layout. Dragging a table does not move or resize its connection's frame, and frames themselves cannot be dragged. **Arrange again** lays out the tables and their frames afresh.
-- The intermediate (`via`) tables of a relationship through other tables are not drawn as reference nodes when they sit on another connection; only the relationship's two ends are.
-- Frames show the connection's name, driver and table count only; the per-connection hint counts Laravel Schema Viewer shows in its frames are not reproduced.
+- A frame grows to contain a table dragged out of it but does not push other frames away, so frames can overlap. **Arrange again** lays out the tables and their frames afresh.
+- Unfolding a card keeps every position, so a taller card can overlap the one below it. Dragged positions are not remembered across reloads (only the theme is).
+- There is no dense mode for very large schemas: every line keeps its full weight.
 
 ## What each source shows
 
@@ -63,6 +63,19 @@ In a combined document the viewer also shows where the two sides disagree:
 - **Inferred associations**: foreign-key edges an inferred association uses are annotated as inferred; nothing is drawn that the document does not link.
 
 This package stores comparisons; it writes migration tracks and inferred associations empty, so those two views show only documents from other producers.
+
+## Downloads
+
+The **Download** dialog (<kbd>E</kbd>, or the phone's ⋯ menu) offers:
+
+- **Schema files** of one connection, with a preview and conversion warnings: JSON (a laranex-schema 2.0 document of that connection), DBML, Mermaid and Markdown.
+- **Diagram images**: SVG and PNG of the whole diagram or what is on screen.
+- **This page as HTML** (`schema-viewer.html`): the viewer with the whole document embedded, which opens in any browser from a file, offline.
+- **The whole document** as served (`schema-viewer.json`).
+
+Every download made from a private schema is as sensitive as the document itself: each one shows table, column, index and relationship names, and the HTML page and JSON files hold the complete metadata. Never commit them, attach them to public issues, or publish them; share them only with people who may see the schema.
+
+Responsibility: Laranex Schema Viewer provides safe defaults, protects the documents it generates (a loopback-only server, `no-store` responses) and serves the viewer securely. Once you intentionally download or export a standalone file (offline HTML, JSON, DBML, Markdown, Mermaid, SVG or PNG), storing, sharing and distributing it is the responsibility of you and the repository owner; the package does not track or control such files. The software is provided "as is", under the [MIT license](https://github.com/laranex/python-schema-viewer/blob/main/LICENSE).
 
 ## Current boundaries
 

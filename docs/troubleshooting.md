@@ -30,6 +30,10 @@ Check mapper configuration and referenced classes. A foreign key without a decla
 
 A declared document preserves schema names, type strings, timezone metadata, partial predicates, and expression indexes. It does not connect to PostgreSQL to verify deployed types, extensions, permissions, or actual index creation. Null schema remains unqualified.
 
+## serve refuses the host
+
+`Error: --host 0.0.0.0 is not a loopback address` (exit 2): the viewer has no authentication or TLS, so it listens on loopback only. Keep the default `127.0.0.1` and reach it from another machine through an authenticated HTTPS reverse proxy or an SSH tunnel; see [serve](./cli.md#serve). `--unsafe-allow-remote` overrides the refusal and is not a secure deployment.
+
 ## MCP cannot start or shows old information
 
 Use absolute executable and document paths. Install the `mcp` extra into the executable's environment. A missing, invalid, or oversized file, or one that is not a laranex-schema 2.x document, fails startup; files written by earlier versions of this package must be rebuilt. Rebuild separately, then restart the MCP server to load the new revision.
