@@ -4,11 +4,11 @@ This page covers what is specific to the Python package. The cross-framework pol
 
 ## Supported versions
 
-Laranex Schema Viewer is alpha software. Security fixes are made on the `main` branch only and ship in the next release on PyPI; earlier releases are not patched.
+During the 0.x development phase only the latest released version on PyPI receives security fixes. Fixes are made on `main` and ship in a new release; there are no backports to older 0.x releases or to prereleases.
 
 ## Reporting a vulnerability
 
-Do not open a public issue for a suspected vulnerability. Report it privately through [GitHub private vulnerability reporting](https://github.com/laranex/python-schema-viewer/security/advisories/new) and include the affected version or commit, reproduction steps, and the impact you observed. If that form is not available to you, open a public issue that asks for a private contact, without any details of the vulnerability.
+Do not open a public issue for a suspected vulnerability. Report it privately through [GitHub private vulnerability reporting](https://github.com/laranex/python-schema-viewer/security/advisories/new) and include the affected version or commit, reproduction steps, and the impact you observed.
 
 Expect an acknowledgement within seven days. Please allow time for a fix before public disclosure.
 
