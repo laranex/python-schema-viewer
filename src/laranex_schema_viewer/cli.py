@@ -11,7 +11,7 @@ from dataclasses import replace
 from . import __version__
 from .config import (CHECK_CERTAINTIES, CHECK_SEVERITIES, DEFAULT_CHECK_CERTAINTY, DEFAULT_CHECK_SEVERITY,
                      DEFAULT_COMPARISON_LIMIT, DEFAULT_SNAPSHOT, SOURCES, ComparisonConfig, DatabaseConfig,
-                     ProjectConfig, add_config, comparison_option, config_section, database_option,
+                     ProjectConfig, add_config, add_gitignore, comparison_option, config_section, database_option,
                      detect_django_settings, detect_model_module, load_config, resolve_snapshot)
 
 DATABASE_URL_ENV = "LARANEX_SCHEMA_DATABASE_URL"
@@ -95,6 +95,25 @@ def main(argv: list[str] | None = None) -> int:
                        help=f"Differences listed per comparison named here; default {DEFAULT_COMPARISON_LIMIT}")
     check.add_argument("--json", action="store_true", help="Print the laranex-schema-gate 1.0 report instead of a summary")
     check.add_argument("--output", type=Path, metavar="FILE", help="Also write the JSON report to FILE, atomically")
+    scan = commands.add_parser(
+        "scan", allow_abbrev=False,
+        help="Scan the repository and build output for schema snapshots, for CI and pre-commit hooks",
+        description="Finds laranex-schema documents by content and judges them against the allowlist (default: "
+                    ".laranex-schema-allowlist.json at the Git top level, if present). Prints counts only; paths and "
+                    "reasons are in the laranex-schema-scan report. Exit codes: 0 clean; 1 a confirmed exposure; 2 the "
+                    "scan failed or is incomplete; 3 an uncertain exposure (2 > 1 > 3 > 0).")
+    scan.add_argument("--tracked", action="store_true",
+                      help="Every file in the Git index, read from the index (staged bytes, and files tracked before "
+                           "they were ignored)")
+    scan.add_argument("--untracked", action="store_true", help="Files Git would add: untracked and not ignored")
+    scan.add_argument("--artifacts", action="append", default=[], metavar="DIR",
+                      help="A build output directory, every file, ignore rules not applied; repeatable")
+    scan.add_argument("--history", action="store_true",
+                      help="Every version of a .json, .html or .htm file reachable from any ref (fails on a shallow "
+                           "clone)")
+    scan.add_argument("--allowlist", metavar="FILE", help="A laranex-schema-allowlist file")
+    scan.add_argument("--report", metavar="FILE", help="Write the laranex-schema-scan report (JSON) to FILE")
+    scan.add_argument("--json", action="store_true", help="Print the report instead of the summary")
     mcp = commands.add_parser("mcp", help="Run read-only MCP tools over a saved document, on stdio")
     mcp.add_argument("--snapshot", type=Path, help="Default: pyproject.toml output, else schema-viewer.json")
     args = parser.parse_args(argv)
@@ -106,6 +125,8 @@ def main(argv: list[str] | None = None) -> int:
             return 2  # argparse's usage-error code
     if args.command == "check":
         return run_check(args)
+    if args.command == "scan":
+        return run_scan(args, scan)
     try:
         if args.command == "init":
             def ask(question: str, default: str) -> str:
@@ -131,7 +152,11 @@ def main(argv: list[str] | None = None) -> int:
             section = config_section(modules, recursive, output, orm="django" if settings else None,
                                      settings=settings)
             path = add_config(args.project_root, section)
-            print(f"Added [tool.laranex-schema-viewer] to {path}. Next: laranex-schema-viewer build")
+            print(f"Added [tool.laranex-schema-viewer] to {path}.")
+            added = add_gitignore(args.project_root, output)
+            print(f"Added {', '.join(added)} to {args.project_root / '.gitignore'}: schema snapshots must never be "
+                  "committed." if added else "The .gitignore already ignores the schema snapshots.")
+            print("Next: laranex-schema-viewer build")
         elif args.command == "build":
             run_build(args)
         elif args.command == "compare":
@@ -170,6 +195,7 @@ def run_build(args: argparse.Namespace) -> None:
     config = load_config(args.project_root)
     source = args.source or config.source or "declared"
     output = args.output or config.output or DEFAULT_SNAPSHOT
+    check_output(output)
     timeout = args.timeout or config.timeout or IsolationConfig.timeout
     databases = database_connections(args, config)
     comparisons = comparison_specs(args.compare, args.compare_limit, config)
@@ -280,6 +306,24 @@ def run_build(args: argparse.Namespace) -> None:
           f"to {output}")
 
 
+def check_output(output: Path) -> None:
+    """Refuse an output path the Git index tracks, before anything is extracted or written; warn when one in a Git work
+    tree is not ignored. Outside a Git work tree, nothing is checked."""
+    import shlex
+
+    from .scan import output_status
+
+    status = output_status(output)
+    if status == "tracked":
+        raise ValueError(f"{output} is tracked by Git, and a schema snapshot must never be committed. Stop tracking it "
+                         f"(the file is kept) with `git rm --cached -- {shlex.quote(str(output))}`, add it to "
+                         ".gitignore, commit that, then build again")
+    if status == "unignored":
+        print(f"Warning: {output} is in a Git work tree and not ignored, so it could be committed. Add it to "
+              ".gitignore (`laranex-schema-viewer init` adds the default paths); never commit a schema snapshot",
+              file=sys.stderr)
+
+
 def comparison_specs(options: list[str], limit: int | None, config: ProjectConfig) -> tuple[ComparisonConfig, ...]:
     """Comparisons named on the command line (with ``limit``), or else the configured ones."""
     if limit is not None and limit < 0:
@@ -348,6 +392,23 @@ def run_check(args: argparse.Namespace) -> int:
         return report["exitCode"]
     except (Exception, KeyboardInterrupt) as error:
         print(f"Error: {error or type(error).__name__}", file=sys.stderr)
+        return 2
+
+
+def run_scan(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
+    """The snapshot scanner. Returns its exit code; a usage error exits 2 without a report, as scan.mjs does."""
+    from .scan import ScanOptions, run
+
+    if not (args.tracked or args.untracked or args.history or args.artifacts):
+        parser.print_usage(sys.stderr)
+        print(f"{parser.prog}: error: name at least one scope", file=sys.stderr)
+        return 2
+    options = ScanOptions(tracked=args.tracked, untracked=args.untracked, history=args.history,
+                          artifacts=args.artifacts, allowlist=args.allowlist, report=args.report, json=args.json)
+    try:
+        return run(options, stdout=sys.stdout, stderr=sys.stderr)
+    except (Exception, KeyboardInterrupt) as error:
+        print(f"{parser.prog}: error: {type(error).__name__}", file=sys.stderr)
         return 2
 
 

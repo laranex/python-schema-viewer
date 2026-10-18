@@ -54,9 +54,12 @@ def kind_of(value: Any) -> str:
     return "object" if isinstance(value, dict) else type(value).__name__
 
 
-def string(min_length: int | None = None, pattern: str | None = None) -> Shape:
+def string(min_length: int | None = None, pattern: str | None = None, python_pattern: str | None = None) -> Shape:
+    """A string; ``pattern`` is the JavaScript pattern the schema and messages show, ``python_pattern`` its Python
+    translation where a trailing $ is not the only difference."""
     # JavaScript's $ never matches before a trailing newline; Python's does.
-    compiled = re.compile(pattern[:-1] + r"\Z" if pattern and pattern.endswith("$") else pattern) if pattern else None
+    compiled = re.compile(python_pattern or (pattern[:-1] + r"\Z" if pattern and pattern.endswith("$") else pattern)
+                          ) if pattern else None
     schema: dict[str, Any] = {"type": "string"}
     if min_length is not None:
         schema["minLength"] = min_length

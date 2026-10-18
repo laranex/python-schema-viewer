@@ -1,0 +1,22 @@
+{
+  "entries": [
+    {
+      "path": ".gh-page/.vitepress/dist/demo/snapshot.json",
+      "sha256": "faca2b2f4733e8504fe7e4489e9d9f3df90efe4f26fbca52d2c3186059025b8d"
+    },
+    {
+      "path": ".gh-page/demo/schema.json",
+      "sha256": "faca2b2f4733e8504fe7e4489e9d9f3df90efe4f26fbca52d2c3186059025b8d"
+    },
+    {
+      "path": "tests/fixtures/mcp-conformance/byte-limit.json",
+      "sha256": "cc68f9b3f23a4e1ec08d407a676286b0c503312deb5291767131ee02296ffc9d"
+    },
+    {
+      "path": "tests/fixtures/mcp-conformance/comparison-byte-limit.json",
+      "sha256": "a7cdf1568da6e11c98305e6606713c246d1e142ab29242346dfc058b3863ef5b"
+    }
+  ],
+  "format": "laranex-schema-allowlist",
+  "version": "1.0"
+}

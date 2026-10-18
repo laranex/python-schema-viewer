@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field
@@ -17,6 +18,9 @@ else:
 
 SECTION = "laranex-schema-viewer"
 DEFAULT_SNAPSHOT = Path("schema-viewer.json")
+# What `init` adds to .gitignore: the default snapshot and the viewer's offline download, and the configured output.
+GITIGNORE_DEFAULTS = ("/schema-viewer.json", "/schema-viewer.html")
+GITIGNORE_COMMENT = "# Laranex Schema Viewer: schema snapshots describe a private schema; never commit them"
 MAX_DETECTION_DEPTH = 4
 MODULE_NAME = re.compile(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)*")
 DJANGO_SETTINGS = re.compile(r"""DJANGO_SETTINGS_MODULE["']\s*,\s*["']([A-Za-z_][\w.]*)["']""")
@@ -378,3 +382,34 @@ def add_config(project_root: Path, section: str) -> Path:
     path.write_text(existing.rstrip("\n") + "\n\n" + section if existing.strip() else section)
     load_config(project_root)
     return path
+
+
+def gitignore_pattern(project_root: Path, output: str) -> str | None:
+    """An anchored .gitignore pattern for an output path inside the project root, or None for one outside it."""
+    path = Path(output)
+    if path.is_absolute():
+        try:
+            path = path.relative_to(project_root.resolve())
+        except ValueError:
+            return None
+    relative = os.path.normpath(path).replace(os.sep, "/")
+    if relative in (".", "..") or relative.startswith("../") or "\n" in relative:
+        return None
+    escaped = re.sub(r"([\\*?\[])", r"\\\1", relative)
+    return "/" + (escaped[:-1] + "\\ " if escaped.endswith(" ") else escaped)
+
+
+def add_gitignore(project_root: Path, output: str) -> list[str]:
+    """Append the snapshot patterns .gitignore lacks, under a comment, and return them (none when all are present)."""
+    path = project_root / ".gitignore"
+    existing = path.read_text() if path.is_file() else ""
+    wanted = list(GITIGNORE_DEFAULTS)
+    pattern = gitignore_pattern(project_root, output)
+    if pattern and pattern not in wanted:
+        wanted.append(pattern)
+    present = {line.strip() for line in existing.splitlines()}
+    missing = [line for line in wanted if line not in present]
+    if missing:
+        block = "\n".join([GITIGNORE_COMMENT, *missing]) + "\n"
+        path.write_text(existing.rstrip("\n") + "\n\n" + block if existing.strip() else block)
+    return missing
