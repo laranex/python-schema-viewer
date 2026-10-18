@@ -6,9 +6,9 @@ Open a saved document with:
 laranex-schema-viewer serve --snapshot schema-viewer.json
 ```
 
-Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is vendored prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
+Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is packaged prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
 
-The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The vendored build is laranex-schema-viewer-ui 0.3.0-dev.0 (commit 0902ccb), which reads laranex-schema 2.x. A file of another format or version stops `serve` with an error asking for a rebuild.
+The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The packaged build is laranex-schema-viewer-ui 0.3.0, from the npm tarball pinned (with its SHA-512) in `ui.lock.json`. A file of another format or version stops `serve` with an error asking for a rebuild.
 
 ## Explore the diagram
 

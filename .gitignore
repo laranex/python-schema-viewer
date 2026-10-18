@@ -29,3 +29,10 @@ node_modules/
 .fseventsd/
 .VolumeIcon.icns
 
+
+# Shared UI assets installed by scripts/fetch_ui.py from the tarball ui.lock.json pins
+/ui.stamp.json
+/src/laranex_schema_viewer/static/viewer/
+/src/laranex_schema_viewer/contract/schema.json
+/src/laranex_schema_viewer/contract/gate-report.schema.json
+/tests/fixtures/contract/

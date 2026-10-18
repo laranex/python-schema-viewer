@@ -1,12 +1,12 @@
 """The Python contract layer against the shared laranex-schema 2.0 fixtures and conformance cases.
 
-tests/fixtures/contract is vendored unchanged from laranex-schema-viewer-ui by scripts/sync_contract.py; its manifest
-records the source commit and every file's SHA-256. The Python implementation validates them independently: every
+tests/fixtures/contract is installed unchanged from the laranex-schema-viewer-ui npm tarball that ui.lock.json pins by
+scripts/fetch_ui.py, which records every file's SHA-256 in ui.stamp.json. The Python implementation validates them independently: every
 valid document passes strict validation and serializes back to the same bytes, every invalid one fails with the
 expected rule, the graph, comparison, request, coverage-gap, override, comparison-diagnostic, store and migration
 conformance cases give byte-identical results, and the gate conformance cases give byte-identical reports through
 gate_document. Inference conformance belongs to a later
-milestone; its cases are vendored but not run yet.
+milestone; its cases are fetched but not run yet.
 """
 
 import hashlib
@@ -26,9 +26,10 @@ from laranex_schema_viewer.contract.migration import migration_history, migratio
 from laranex_schema_viewer.contract.shape import json_schema
 from laranex_schema_viewer.contract.validate import InvalidDocumentError, UnsupportedDocumentError
 
+from hatch_build import check_assets
+
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "tests" / "fixtures" / "contract"
-MANIFEST = json.loads((CONTRACT / "manifest.json").read_text())
 
 
 def load(path: Path):
@@ -45,15 +46,14 @@ def compared_document(data) -> m.Document:
                       connections=tuple(from_json(m.Connection, c) for c in data["connections"]))
 
 
-class VendoredCopy(unittest.TestCase):
-    def test_files_match_the_manifest(self):
-        found = sorted(str(p.relative_to(CONTRACT)) for p in CONTRACT.rglob("*.json") if p.name != "manifest.json")
-        self.assertEqual(found, sorted(MANIFEST["files"]), "files were added or removed; run scripts/sync_contract.py")
-        for name, digest in MANIFEST["files"].items():
-            with self.subTest(name):
-                self.assertEqual(hashlib.sha256((CONTRACT / name).read_bytes()).hexdigest(), digest,
-                                 f"{name} was edited; vendored fixtures change only through scripts/sync_contract.py")
-        self.assertEqual((MANIFEST["source"], len(MANIFEST["commit"])), ("laranex-schema-viewer-ui", 40))
+class FetchedAssets(unittest.TestCase):
+    def test_files_match_the_stamp_and_the_lock(self):
+        # Every installed file has the SHA-256 ui.stamp.json records, and the stamp names the locked package and
+        # version. A local build installed with --allow-unverified is accepted here, but never by sdist/wheel builds.
+        stamp = check_assets(ROOT, allow_unverified=True)
+        lock = json.loads((ROOT / "ui.lock.json").read_text())
+        self.assertEqual((stamp["name"], stamp["version"]), (lock["name"], lock["version"]))
+        self.assertTrue(any(name.startswith("tests/fixtures/contract/conformance/") for name in stamp["files"]))
 
     def test_the_package_distributes_the_same_schema(self):
         package = ROOT / "src" / "laranex_schema_viewer" / "contract" / "schema.json"

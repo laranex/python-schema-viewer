@@ -52,11 +52,26 @@ dev = ["SQLAlchemy>=2.0,<3", "sqlmodel>=0.0.22,<0.1", "Django>=4.2,<7", "tortois
 [project.scripts]
 laranex-schema-viewer = "laranex_schema_viewer.cli:main"
 
+# hatch_build.py checks the shared UI assets that scripts/fetch_ui.py installs (git-ignored, so listed as artifacts).
+[tool.hatch.build.hooks.custom]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/laranex_schema_viewer"]
+artifacts = [
+  "/src/laranex_schema_viewer/static/viewer/",
+  "/src/laranex_schema_viewer/contract/schema.json",
+  "/src/laranex_schema_viewer/contract/gate-report.schema.json",
+]
 
 [tool.hatch.build.targets.sdist]
 exclude = ["/.agents", "/.claude", "/.validation"]
+artifacts = [
+  "/ui.stamp.json",
+  "/src/laranex_schema_viewer/static/viewer/",
+  "/src/laranex_schema_viewer/contract/schema.json",
+  "/src/laranex_schema_viewer/contract/gate-report.schema.json",
+  "/tests/fixtures/contract/",
+]
 
 [tool.ruff]
 target-version = "py310"
