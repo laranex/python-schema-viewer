@@ -17,6 +17,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - **Breaking:** `serve` refuses non-loopback hosts unless `--unsafe-allow-remote` is given (see above).
 - Documentation never recommends committing schema documents, even to a private repository; the viewer page lists every download (schema files, images, the offline HTML page, the whole document), says that each one made from a private schema is sensitive, states who is responsible for exported files, and describes the 0.3.0 viewer's limitations. The CI example keeps its artifacts for 7 days.
+- The packaged viewer is laranex-schema-viewer-ui 0.4.0. It loads the snapshot only from its own origin and bypasses the HTTP cache; `serve` already serves `/snapshot.json` beside the viewer, so nothing changes for it. `scripts/fetch_ui.py` also installs and checks the new shared scan files (`scan-report.schema.json`, `allowlist.schema.json`, `synthetic.json` and `conformance/scan`) into `tests/fixtures/contract`.
 - CI (`.github/workflows/tests.yml`) runs a small matrix on pull requests and branch pushes (Python 3.10 and 3.14; the databases on 3.14) and the full one on pushes to `main`, manual runs and the release gate (`publish.yml`): Python 3.10 to 3.15, and the databases on 3.10 and 3.14, so both SQLAlchemy 2.0 and 2.1 are tested against PostgreSQL, MySQL and MariaDB. Jobs check out without persisted credentials and have timeouts.
 
 ## [0.5.0] - 2026-10-18

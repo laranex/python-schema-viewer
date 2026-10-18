@@ -31,7 +31,7 @@ def package_files(version=VERSION, **changes) -> dict[str, bytes]:
     files = {"package.json": json.dumps({"name": NAME, "version": version}).encode(),
              "LICENSE": b"MIT", "NOTICE": b"notice",
              "dist/viewer/manifest.json": json.dumps(manifest).encode(),
-             "contract/schema.json": b"{}", "contract/gate-report.schema.json": b"{}",
+             **{f"contract/{name}": b"{}" for name in fetch_ui.CONTRACT_FILES},
              "contract/check.mjs": b"// not installed"}
     files.update({f"dist/viewer/{p}": c for p, c in viewer.items()})
     files.update({f"contract/{d}/case.json": b"{}" for d in fetch_ui.CONTRACT_DIRECTORIES})

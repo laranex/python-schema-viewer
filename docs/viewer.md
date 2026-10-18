@@ -10,7 +10,7 @@ Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer 
 
 `serve` is the one exception to authentication in development: it has none, and is meant for a single developer on their own machine. Never share it. It listens on loopback only; to open it from anywhere else, keep it on loopback behind an authenticated HTTPS reverse proxy or an access-controlled tunnel ([serve](./cli.md#serve)).
 
-The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The packaged build is laranex-schema-viewer-ui 0.3.0, from the npm tarball pinned (with its SHA-512) in `ui.lock.json`. A file of another format or version stops `serve` with an error asking for a rebuild.
+The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The packaged build is laranex-schema-viewer-ui 0.4.0, from the npm tarball pinned (with its SHA-512) in `ui.lock.json`. A file of another format or version stops `serve` with an error asking for a rebuild.
 
 ## Explore the diagram
 
@@ -38,7 +38,7 @@ A document built from several database connections (see [database introspection]
 - Deep links: `#connection=<id>` opens one connection (an unknown id opens all of them), and `#table=<id>` opens that table, also on its own connection when `#connection=` names another one. Connection ids look like `connection:analytics`; table ids are opaque and qualified by connection.
 - Coverage is listed per connection, and drift and reconciliation diagnostics name their connection.
 
-Known limitations of the shared viewer (laranex-schema-viewer-ui 0.3.0):
+Known limitations of the shared viewer (laranex-schema-viewer-ui 0.4.0):
 
 - A frame grows to contain a table dragged out of it but does not push other frames away, so frames can overlap. **Arrange again** lays out the tables and their frames afresh.
 - Unfolding a card keeps every position, so a taller card can overlap the one below it. Dragged positions are not remembered across reloads (only the theme is).
