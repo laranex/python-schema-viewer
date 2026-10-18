@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-18
+
 **Upgrading:** every build now writes a laranex-schema 2.0 document, and `serve` and `mcp` read laranex-schema 2.x only. Version 1 snapshots and laranex-schema 1.0 documents are no longer read or converted: rebuild them with `laranex-schema-viewer build`. MCP responses changed shape; see [the response format](docs/mcp.md#response-format).
 
 ### Added
@@ -117,7 +119,8 @@ Migration tracks and inferred associations are part of the 2.0 document but are 
 - Distributable agent skills, installable with `npx skills add laranex/python-schema-viewer`.
 - Documentation site and security policy.
 
-[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/laranex/python-schema-viewer/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/laranex/python-schema-viewer/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/laranex/python-schema-viewer/compare/v0.2.0...v0.3.0

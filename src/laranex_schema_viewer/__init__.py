@@ -4,4 +4,4 @@ from .model import Document
 from .snapshot import Snapshot, read_document, write_document
 
 __all__ = ["Document", "Snapshot", "read_document", "write_document"]
-__version__ = "0.4.0"
+__version__ = "0.5.0"
