@@ -8,7 +8,7 @@ laranex-schema-viewer serve --snapshot schema-viewer.json
 
 Visit **http://127.0.0.1:8765**. `serve` shows the shared Laranex Schema Viewer UI (`laranex-schema-viewer-ui`), the same viewer the Laravel package uses. It is packaged prebuilt in the Python package, so no Node.js or frontend build is needed at runtime, and it loads nothing from outside the local server.
 
-`serve` is the one exception to authentication in development: it has none, and is meant for a single developer on their own machine. Never share it. It listens on loopback only; to open it from anywhere else, keep it on loopback behind an authenticated HTTPS reverse proxy or an access-controlled tunnel ([serve](./cli.md#serve)).
+`serve` is the one exception to authentication in development: it has none, and is meant for a single developer on their own machine. Never share it. It listens on loopback only; to open it from anywhere else, keep it on loopback behind an authenticated HTTPS reverse proxy or an access-controlled tunnel ([serve](./cli.md#serve)). The viewer is a development tool: never expose it in production. If you serve it or a document any other way, protect the page, every asset, the document and every download server-side, as the [security policy](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md#protecting-the-page-alone-is-insufficient) describes.
 
 The viewer reads laranex-schema 2.x documents: declared (`build`), database (`build --source database`) and combined (`build --source combined`). The packaged build is laranex-schema-viewer-ui 0.4.0, from the npm tarball pinned (with its SHA-512) in `ui.lock.json`. A file of another format or version stops `serve` with an error asking for a rebuild.
 
@@ -77,7 +77,7 @@ The **Download** dialog (<kbd>E</kbd>, or the phone's ⋯ menu) offers:
 
 Every download made from a private schema is as sensitive as the document itself: each one shows table, column, index and relationship names, and the HTML page and JSON files hold the complete metadata. Never commit them, attach them to public issues, or publish them; share them only with people who may see the schema.
 
-Responsibility: Laranex Schema Viewer provides safe defaults, protects the documents it generates (a loopback-only server, `no-store` responses) and serves the viewer securely. Once you intentionally download or export a standalone file (offline HTML, JSON, DBML, Markdown, Mermaid, SVG or PNG), storing, sharing and distributing it is the responsibility of you and the repository owner; the package does not track or control such files. The software is provided "as is", under the [MIT license](https://github.com/laranex/python-schema-viewer/blob/main/LICENSE).
+Responsibility: Laranex Schema Viewer provides safe defaults, protects the documents it generates (a loopback-only server, `no-store` responses) and serves the viewer securely. Once you intentionally download or export a standalone file (offline HTML, JSON, DBML, Markdown, Mermaid, SVG or PNG), storing, sharing and distributing it is the responsibility of you and the repository owner; the package does not track or control such files. `scan` detects JSON and HTML downloads by content, but not SVG, PNG, DBML, Mermaid or Markdown ([limitations](https://github.com/laranex/python-schema-viewer/blob/main/SECURITY.md#limitations)). The software is provided "as is", under the [MIT license](https://github.com/laranex/python-schema-viewer/blob/main/LICENSE).
 
 ## Current boundaries
 
