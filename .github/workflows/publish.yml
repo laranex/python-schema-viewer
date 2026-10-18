@@ -40,6 +40,23 @@ jobs:
           fi
       - run: python -m build
       - run: python scripts/check_wheel.py
+      - name: Scan the wheel and the sdist that will be published for schema snapshots
+        env:
+          PYTHONPATH: src
+        run: |
+          mkdir -p build/scan/wheel build/scan/sdist
+          python -m zipfile -e dist/*.whl build/scan/wheel
+          tar -xzf dist/*.tar.gz -C build/scan/sdist
+          python -m laranex_schema_viewer scan --artifacts build/scan/wheel --artifacts build/scan/sdist \
+            --report build/scan-report.json
+      - name: Upload the scan report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: scan-report-release
+          path: build/scan-report.json
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v7
         with:
           name: dist
