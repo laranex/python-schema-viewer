@@ -167,5 +167,114 @@ class Stdio(unittest.TestCase):
         asyncio.run(asyncio.wait_for(check(), timeout=30))
 
 
+# Strings an SDK could mistake for JSON; IDs and revisions are opaque, so each must reach the query service unchanged.
+JSON_LOOKING = ("null", "true", "false", "0", "1.5", "[]", "[1]", '{"a":1}', '["default",null,"missing"]', '""', "",
+                " null")
+OPTIONAL_STRINGS = {"schema_overview": ("revision",), "schema_search": ("revision",),
+                    "schema_get_table": ("revision",), "schema_get_model": ("revision",),
+                    "schema_get_relationships": ("table", "revision"),
+                    "schema_compare": ("comparison", "baseline", "target", "revision")}
+REQUIRED = {"schema_search": {"query_text": "user"}, "schema_get_table": {"table": None}, "schema_get_model": {"model": None}}
+
+
+@unittest.skipUnless(importlib.util.find_spec("mcp") and importlib.util.find_spec("sqlalchemy"),
+                     "the mcp extra or SQLAlchemy is not installed")
+class StdioArguments(unittest.TestCase):
+    """Arguments over a genuine SDK client and stdio reach the query service exactly as sent: JSON-array table and
+    model IDs (SQLAlchemy's) and JSON-looking strings stay strings, never lists or null."""
+
+    def documents(self, tmp):
+        from laranex_schema_viewer.adapters.sqlalchemy import SQLAlchemyAdapter
+        from tests.fixtures import sqlalchemy_models as models
+        from tests.test_multiconnection import declared
+
+        single = SQLAlchemyAdapter({"default": models.Base.metadata}, [models.User, models.Team, models.Audit],
+                                   ROOT).extract()
+        multi = declared()
+        multi = store_comparisons(multi, compute(multi, [comparison_option("default=analytics")]))
+        paths = {"combined-multi-connection": FIXTURES / "combined-multi-connection.json"}
+        for name, document in (("single", single), ("multi", multi)):
+            paths[name] = Path(tmp) / f"{name}.json"
+            write_document(document, paths[name])
+        return paths
+
+    def cases(self, query):
+        table, model = next(iter(query.tables)), next(iter(query.models))
+        yield "schema_get_relationships", {}
+        for kind in ("orm", "foreign_key"):
+            for id in query.tables:
+                yield "schema_get_relationships", {"table": id, "kind": kind, "limit": 100}
+            yield "schema_get_relationships", {"table": None, "kind": kind}
+            yield "schema_get_relationships", {"table": '["default",null,"missing"]', "kind": kind}
+        first = recorder.call(query, "schema_get_relationships", {"table": table, "limit": 1})["result"]
+        if first["nextOffset"] is not None:
+            yield "schema_get_relationships", {"table": table, "limit": 1, "offset": first["nextOffset"],
+                                               "revision": query.revision}
+        for id in query.tables:
+            yield "schema_get_table", {"table": id, "section": "relationships"}
+        for id in query.models:
+            yield "schema_get_model", {"model": id}
+        yield "schema_get_model", {"model": '["model","missing"]'}
+        for comparison in query.comparisons:
+            yield "schema_compare", {"section": "differences", "comparison": comparison, "limit": 100}
+        yield "schema_compare", {"baseline": "default", "target": "analytics"}
+        for tool, names in OPTIONAL_STRINGS.items():
+            required = {k: v or (table if k == "table" else model) for k, v in REQUIRED.get(tool, {}).items()}
+            for name in names:
+                yield tool, {**required, name: None}
+                for value in JSON_LOOKING:
+                    yield tool, {**required, name: value}
+
+    async def check_document(self, path):
+        from mcp import Client
+        from mcp.client.stdio import StdioServerParameters
+
+        query = SnapshotQuery(path)
+        params = StdioServerParameters(
+            command=sys.executable, args=["-m", "laranex_schema_viewer", "mcp", "--snapshot", str(path)],
+            env={"PYTHONPATH": str(ROOT / "src"), "PYTHONDONTWRITEBYTECODE": "1"},
+        )
+        async with Client(params, read_timeout_seconds=30) as client:
+            for tool in (await client.list_tools()).tools:
+                self.assertIsNone(tool.output_schema)
+                for name in OPTIONAL_STRINGS[tool.name]:
+                    self.assertEqual(tool.input_schema["properties"][name],
+                                     {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None,
+                                      "title": name.title()})
+            for tool, arguments in self.cases(query):
+                with self.subTest(path.name, tool=tool, arguments=arguments):
+                    expected = recorder.call(query, tool, {k: v for k, v in arguments.items() if v is not None})
+                    result = await client.call_tool(tool, arguments)
+                    [content] = result.content
+                    self.assertIsNone(result.structured_content)
+                    if "result" in expected:
+                        self.assertFalse(result.is_error, content.text)
+                        self.assertEqual(json.loads(content.text), expected["result"])
+                    else:
+                        self.assertTrue(result.is_error)
+                        self.assertEqual(content.text, f"Error executing tool {tool}: {expected['error']}")
+            filtered = await client.call_tool("schema_get_relationships",
+                                              {"table": next(iter(query.tables)), "kind": "foreign_key"})
+            self.assertEqual(json.loads(filtered.content[0].text)["table"], next(iter(query.tables)))
+            for tool, arguments in (("schema_get_relationships", {"table": ["default", None, "users"]}),
+                                    ("schema_get_relationships", {"table": 1}),
+                                    ("schema_get_relationships", {"table": True}),
+                                    ("schema_get_relationships", {"kind": "null"}),
+                                    ("schema_overview", {"revision": {"a": 1}}),
+                                    ("schema_overview", {"limit": "5"}),
+                                    ("schema_compare", {"comparison": 1}),
+                                    ("schema_compare", {"section": "differences", "severity": "null"}),
+                                    ("schema_compare", {"section": "differences", "object_type": "[]"})):
+                with self.subTest(path.name, tool=tool, arguments=arguments):
+                    result = await client.call_tool(tool, arguments)
+                    self.assertTrue(result.is_error)
+                    self.assertIn(f"validation error for {tool}Arguments", result.content[0].text)
+
+    def test_ids_and_json_looking_strings_reach_the_query_service_unchanged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for path in self.documents(tmp).values():
+                asyncio.run(asyncio.wait_for(self.check_document(path), timeout=120))
+
+
 if __name__ == "__main__":
     unittest.main()

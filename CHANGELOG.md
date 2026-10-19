@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- MCP: string arguments reach the tools exactly as sent. The MCP SDK parsed every string argument of an optional parameter (`table`, `revision`, `comparison`, `baseline`, `target`, and the `schema_compare` difference filters) as JSON first, so a JSON-array table ID such as `["default",null,"users"]`, the form SQLAlchemy, Django, Tortoise and database builds use, failed validation in `schema_get_relationships`, and a string such as `"null"` silently meant no filter. Such strings are now looked up like any other (an unknown ID is a tool error; an unknown `object_type`, `change`, `severity` or `certainty` is rejected by the tool schema). Tool names, input schemas, responses and error messages are unchanged; protocol tests over stdio cover single- and multi-connection documents.
+
 ## [0.6.0] - 2026-10-19
 
 **Upgrading:** `serve --host` now refuses a host that is not loopback (`127.0.0.0/8`, `::1`, `localhost`) with a usage error (exit 2). To reach the viewer from another machine, keep it on `127.0.0.1` behind an authenticated HTTPS reverse proxy or an access-controlled tunnel; see [serve](docs/cli.md#serve).
