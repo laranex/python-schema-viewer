@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-19
+
 **Upgrading:** `serve --host` now refuses a host that is not loopback (`127.0.0.0/8`, `::1`, `localhost`) with a usage error (exit 2). To reach the viewer from another machine, keep it on `127.0.0.1` behind an authenticated HTTPS reverse proxy or an access-controlled tunnel; see [serve](docs/cli.md#serve).
 
 ### Added
@@ -145,7 +147,8 @@ Migration tracks and inferred associations are part of the 2.0 document but are 
 - Distributable agent skills, installable with `npx skills add laranex/python-schema-viewer`.
 - Documentation site and security policy.
 
-[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/laranex/python-schema-viewer/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/laranex/python-schema-viewer/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/laranex/python-schema-viewer/compare/v0.3.0...v0.3.1
