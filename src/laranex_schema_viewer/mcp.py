@@ -18,12 +18,28 @@ Offset = Annotated[int, Field(ge=0, strict=True)]
 def create_server(path: str | Path):
     from mcp.server.mcpserver import MCPServer
     from mcp.server.mcpserver.exceptions import ToolError
+    from mcp.server.mcpserver.tools import Tool
+    from mcp.server.mcpserver.utilities.func_metadata import FuncMetadata
     from mcp_types import ToolAnnotations
 
+    class ArgumentsAsSent(FuncMetadata):
+        """Validate the arguments as sent. The SDK otherwise json.loads every string argument not annotated plain
+        `str` (here `str | None` and the optional enumerations), so an opaque ID such as '["default",null,"users"]'
+        became a list and failed validation, and "null" became None, no filter. No tool takes a list or object."""
+
+        def pre_parse_json(self, data):
+            return data
+
     query = SnapshotQuery(path)
-    server = MCPServer("Laranex Schema Viewer")
+    tools = []
     annotations = ToolAnnotations(readOnlyHint=True, destructiveHint=False,
                                   idempotentHint=True, openWorldHint=False)
+
+    def tool(fn):
+        registered = Tool.from_function(fn, annotations=annotations)
+        registered.fn_metadata = ArgumentsAsSent(**dict(registered.fn_metadata))
+        tools.append(registered)
+        return fn
 
     def invoke(method, *args, **kwargs):
         try:
@@ -31,19 +47,19 @@ def create_server(path: str | Path):
         except ValueError as error:
             raise ToolError(str(error)) from None
 
-    @server.tool(annotations=annotations)
+    @tool
     def schema_overview(limit: Limit = 25, offset: Offset = 0, revision: str | None = None) -> dict:
         """Document source, connections with coverage, counts, and paginated table summaries with opaque IDs."""
         return invoke(query.overview, limit=limit, offset=offset, revision=revision)
 
-    @server.tool(annotations=annotations)
+    @tool
     def schema_search(query_text: str, limit: Limit = 25, offset: Offset = 0,
                       revision: str | None = None) -> dict:
         """Literal case-insensitive search of table, column, index, foreign key, constraint, model and relationship
         names; returns hits with opaque IDs."""
         return invoke(query.search, query_text, limit=limit, offset=offset, revision=revision)
 
-    @server.tool(annotations=annotations)
+    @tool
     def schema_get_table(table: str,
                          section: Literal["columns", "indexes", "foreign_keys", "constraints", "models",
                                           "relationships", "links", "derived_links", "diagnostics"] = "columns",
@@ -51,13 +67,13 @@ def create_server(path: str | Path):
         """Read one section of a table, as the document's own objects, by the table's exact opaque ID."""
         return invoke(query.get_table, table, section, limit=limit, offset=offset, revision=revision)
 
-    @server.tool(annotations=annotations)
+    @tool
     def schema_get_model(model: str, limit: Limit = 25, offset: Offset = 0,
                          revision: str | None = None) -> dict:
         """Read a model and the ORM relationships it declares, by exact model ID."""
         return invoke(query.get_model, model, limit=limit, offset=offset, revision=revision)
 
-    @server.tool(annotations=annotations)
+    @tool
     def schema_get_relationships(table: str | None = None,
                                  kind: Literal["orm", "foreign_key"] = "orm",
                                  limit: Limit = 25, offset: Offset = 0,
@@ -65,7 +81,7 @@ def create_server(path: str | Path):
         """Read declared ORM relationships (kind orm) or physical foreign keys (kind foreign_key), never mixed."""
         return invoke(query.relationships, table, kind, limit=limit, offset=offset, revision=revision)
 
-    @server.tool(annotations=annotations)
+    @tool
     def schema_compare(section: Literal["comparisons", "differences"] = "comparisons",
                        comparison: str | None = None, baseline: str | None = None, target: str | None = None,
                        object_type: Literal["table", "column", "primaryKey", "index", "foreignKey",
@@ -80,5 +96,5 @@ def create_server(path: str | Path):
         return invoke(query.compare, section, comparison, baseline, target, object_type, change, severity, certainty,
                       limit=limit, offset=offset, revision=revision)
 
-    return server
+    return MCPServer("Laranex Schema Viewer", tools=tools)
 

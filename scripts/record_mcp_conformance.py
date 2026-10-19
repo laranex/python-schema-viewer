@@ -5,8 +5,10 @@
 
 Each file lists tool calls (the MCP tool name and its arguments) with the exact result, or the error message a tool
 error carries: every tool, every table section, every table and model, pagination with the pinned revision, and
-invalid arguments, and schema_compare over the stored comparisons. byte-limit.json and comparison-byte-limit.json embed
-synthetic documents whose pages are cut by the 64 KiB response limit. The response format is specified in docs/mcp.md; tests/test_mcp.py checks the recordings against query.py.
+invalid arguments (among them JSON-looking strings, which are strings, never parsed), and schema_compare over the
+stored comparisons. byte-limit.json and comparison-byte-limit.json embed synthetic documents whose pages are cut by
+the 64 KiB response limit. The response format is specified in docs/mcp.md; tests/test_mcp.py checks the recordings
+against query.py.
 """
 
 from __future__ import annotations
@@ -77,7 +79,9 @@ def calls(query: Any) -> list[dict[str, Any]]:
             ("schema_get_table", {"table": some_table, "section": "rows"}),
             ("schema_get_model", {"model": "missing"}),
             ("schema_get_relationships", {"table": "missing", "kind": "orm"}),
-            ("schema_get_relationships", {"kind": "sql"})):
+            ("schema_get_relationships", {"kind": "sql"}),
+            ("schema_get_relationships", {"table": '["default",null,"missing"]'}),
+            ("schema_get_relationships", {"table": "null"}), ("schema_overview", {"revision": "null"})):
         out.append(call(query, tool, arguments))
     return out + compare_calls(query)
 
@@ -109,7 +113,8 @@ def compare_calls(query: Any) -> list[dict[str, Any]]:
                       {"target": f"{connection}:"}, {"section": "differences", "object_type": "view"},
                       {"section": "differences", "change": "gone"}, {"section": "differences", "severity": "fatal"},
                       {"section": "differences", "certainty": "maybe"}, {"severity": "error"},
-                      {"baseline": connection, "limit": 0}, {"offset": -1}, {"revision": "0" * 64}):
+                      {"baseline": connection, "limit": 0}, {"offset": -1}, {"revision": "0" * 64},
+                      {"comparison": "null"}, {"baseline": "null"}, {"target": "[]"}):
         out.append(call(query, "schema_compare", arguments))
     return out
 
