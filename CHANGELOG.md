@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-19
+
 ### Fixed
 
 - MCP: string arguments reach the tools exactly as sent. The MCP SDK parsed every string argument of an optional parameter (`table`, `revision`, `comparison`, `baseline`, `target`, and the `schema_compare` difference filters) as JSON first, so a JSON-array table ID such as `["default",null,"users"]`, the form SQLAlchemy, Django, Tortoise and database builds use, failed validation in `schema_get_relationships`, and a string such as `"null"` silently meant no filter. Such strings are now looked up like any other (an unknown ID is a tool error; an unknown `object_type`, `change`, `severity` or `certainty` is rejected by the tool schema). Tool names, input schemas, responses and error messages are unchanged; protocol tests over stdio cover single- and multi-connection documents.
@@ -151,7 +153,8 @@ Migration tracks and inferred associations are part of the 2.0 document but are 
 - Distributable agent skills, installable with `npx skills add laranex/python-schema-viewer`.
 - Documentation site and security policy.
 
-[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/laranex/python-schema-viewer/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/laranex/python-schema-viewer/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/laranex/python-schema-viewer/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/laranex/python-schema-viewer/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/laranex/python-schema-viewer/compare/v0.3.1...v0.4.0

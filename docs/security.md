@@ -137,5 +137,5 @@ A container image needs your application's dependencies and the same `laranex-sc
 ```dockerfile
 FROM python:3.12-slim
 COPY requirements.txt .
-RUN pip install -r requirements.txt laranex-schema-viewer==0.6.0
+RUN pip install -r requirements.txt laranex-schema-viewer==0.6.1
 ```
